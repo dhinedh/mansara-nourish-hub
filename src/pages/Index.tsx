@@ -6,29 +6,27 @@ import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/ProductCard';
 import HighlightCards from '@/components/HighlightCards';
 import TrustStrip from '@/components/TrustStrip';
-import { getFeaturedProducts } from '@/data/products';
+import { useFeaturedProducts } from '@/hooks/useProducts';
 import heroImage from '@/assets/hero-image.jpg';
 
 const Index: React.FC = () => {
-  const featuredProducts = getFeaturedProducts();
+  const { data: featuredProducts = [], isLoading } = useFeaturedProducts();
 
   return (
     <Layout>
-      {/* Hero Section */}
       <section className="relative min-h-[80vh] flex items-center overflow-hidden">
-        {/* Background Image */}
         <div className="absolute inset-0">
           <img src={heroImage} alt="MANSARA Foods" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/40" />
         </div>
-        
+
         <div className="container relative z-10">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-card px-4 py-2 rounded-full shadow-card mb-6 animate-fade-in">
               <Leaf className="h-4 w-4 text-brand-blue" />
               <span className="text-sm font-medium text-foreground">Pure & Nourishing Foods</span>
             </div>
-            
+
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-brand-blue mb-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
               Nourish from Within
             </h1>
@@ -38,7 +36,7 @@ const Index: React.FC = () => {
             <p className="text-muted-foreground text-lg mb-8 max-w-lg animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
               Discover pure, traditionally prepared foods crafted with care. From wholesome porridge mixes to cold-pressed oils, experience the difference of honest nourishment.
             </p>
-            
+
             <div className="flex flex-wrap gap-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
               <Link to="/products">
                 <Button variant="hero" size="lg">
@@ -56,10 +54,8 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* E-Commerce Highlights */}
       <HighlightCards />
 
-      {/* Featured Products */}
       <section className="py-16 bg-background">
         <div className="container">
           <div className="text-center mb-10">
@@ -71,17 +67,25 @@ const Index: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.slice(0, 4).map((product, index) => (
-              <div 
-                key={product.id} 
-                className="animate-fade-in-up" 
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="bg-card rounded-xl h-96 animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.slice(0, 4).map((product, index) => (
+                <div
+                  key={product.id}
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="text-center mt-10">
             <Link to="/products">
@@ -94,7 +98,6 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* Why MANSARA */}
       <section className="py-16 bg-brand-light-yellow">
         <div className="container">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -157,7 +160,6 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* Trust Strip */}
       <TrustStrip />
     </Layout>
   );
