@@ -1,0 +1,144 @@
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import {
+  LayoutDashboard,
+  Package,
+  Percent,
+  Box,
+  ShoppingCart,
+  Users,
+  FileText,
+  Image,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface AdminLayoutProps {
+  children: React.ReactNode;
+}
+
+const AdminLayout = ({ children }: AdminLayoutProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/admin/login");
+        return;
+      }
+
+      const { data: adminData } = await supabase
+        .from("admin_users")
+        .select("*")
+        .eq("id", session.user.id)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (!adminData) {
+        await supabase.auth.signOut();
+        navigate("/admin/login");
+      }
+
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/admin/login");
+  };
+
+  const menuItems = [
+    { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
+    { icon: Package, label: "Products", path: "/admin/products" },
+    { icon: Percent, label: "Offers", path: "/admin/offers" },
+    { icon: Box, label: "Combos", path: "/admin/combos" },
+    { icon: ShoppingCart, label: "Orders", path: "/admin/orders" },
+    { icon: Users, label: "Customers", path: "/admin/customers" },
+    { icon: FileText, label: "Content", path: "/admin/content" },
+    { icon: Image, label: "Banners", path: "/admin/banners" },
+    { icon: Settings, label: "Settings", path: "/admin/settings" },
+  ];
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  return (
+    <div className="flex h-screen bg-slate-50">
+      <aside
+        className={cn(
+          "bg-slate-900 text-white transition-all duration-300",
+          sidebarOpen ? "w-64" : "w-20"
+        )}
+      >
+        <div className="p-4 border-b border-slate-700 flex items-center justify-between">
+          {sidebarOpen && <h1 className="text-xl font-bold">MANSARA</h1>}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-1 hover:bg-slate-800 rounded"
+          >
+            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+
+        <nav className="p-4 space-y-2">
+          {menuItems.map((item) => (
+            <a
+              key={item.path}
+              href={item.path}
+              className={cn(
+                "flex items-center gap-4 px-4 py-3 rounded-lg transition-colors",
+                location.pathname === item.path
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-slate-800 text-slate-300"
+              )}
+            >
+              <item.icon size={20} />
+              {sidebarOpen && <span>{item.label}</span>}
+            </a>
+          ))}
+        </nav>
+
+        <div className="absolute bottom-4 left-4 right-4">
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className={cn(
+              "w-full border-slate-600 hover:bg-slate-800",
+              !sidebarOpen && "p-2"
+            )}
+          >
+            <LogOut size={20} />
+            {sidebarOpen && <span className="ml-2">Logout</span>}
+          </Button>
+        </div>
+      </aside>
+
+      <main className="flex-1 overflow-auto flex flex-col">
+        <header className="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-slate-900">
+            {menuItems.find((m) => m.path === location.pathname)?.label || "Admin Panel"}
+          </h2>
+        </header>
+
+        <div className="flex-1 overflow-auto p-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default AdminLayout;

@@ -16,6 +16,18 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
+import AdminLogin from "./pages/admin/Login";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminProducts from "./pages/admin/Products";
+import AdminProductEdit from "./pages/admin/ProductEdit";
+import AdminOrders from "./pages/admin/Orders";
+import AdminCustomers from "./pages/admin/Customers";
+import AdminOffers from "./pages/admin/Offers";
+import AdminCombos from "./pages/admin/Combos";
+import AdminContent from "./pages/admin/Content";
+import AdminBanners from "./pages/admin/Banners";
+import AdminSettings from "./pages/admin/Settings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -36,6 +48,20 @@ const App = () => (
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/products/:id/edit" element={<AdminProductEdit />} />
+            <Route path="/admin/products/new" element={<AdminProductEdit />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/customers" element={<AdminCustomers />} />
+            <Route path="/admin/offers" element={<AdminOffers />} />
+            <Route path="/admin/combos" element={<AdminCombos />} />
+            <Route path="/admin/content" element={<AdminContent />} />
+            <Route path="/admin/banners" element={<AdminBanners />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
