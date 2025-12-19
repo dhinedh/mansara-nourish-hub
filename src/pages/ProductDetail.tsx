@@ -40,8 +40,8 @@ const ProductDetail: React.FC = () => {
     });
   };
 
-  const discountPercent = product.offerPrice 
-    ? Math.round(((product.price - product.offerPrice) / product.price) * 100) 
+  const discountPercent = product.offerPrice
+    ? Math.round(((product.price - product.offerPrice) / product.price) * 100)
     : 0;
 
   return (
@@ -63,10 +63,14 @@ const ProductDetail: React.FC = () => {
             {/* Image */}
             <div className="relative">
               <div className="aspect-square bg-secondary rounded-2xl overflow-hidden">
-                <img 
-                  src={product.image} 
+                <img
+                  src={product.image}
                   alt={product.name}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80";
+                  }}
                 />
               </div>
               {/* Badges */}
@@ -117,14 +121,14 @@ const ProductDetail: React.FC = () => {
               {/* Quantity & Add to Cart */}
               <div className="flex items-center gap-4 mb-8">
                 <div className="flex items-center border border-border rounded-lg">
-                  <button 
+                  <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="p-3 hover:bg-secondary transition-colors"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
                   <span className="px-6 font-semibold">{quantity}</span>
-                  <button 
+                  <button
                     onClick={() => setQuantity(quantity + 1)}
                     className="p-3 hover:bg-secondary transition-colors"
                   >

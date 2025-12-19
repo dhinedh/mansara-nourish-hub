@@ -7,7 +7,7 @@ import ProductCard from '@/components/ProductCard';
 import HighlightCards from '@/components/HighlightCards';
 import TrustStrip from '@/components/TrustStrip';
 import { useFeaturedProducts } from '@/hooks/useProducts';
-import heroImage from '@/assets/hero-image.jpg';
+
 
 const Index: React.FC = () => {
   const { data: featuredProducts = [], isLoading } = useFeaturedProducts();
@@ -16,7 +16,11 @@ const Index: React.FC = () => {
     <Layout>
       <section className="relative min-h-[80vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroImage} alt="MANSARA Foods" className="w-full h-full object-cover" />
+          <img
+            src="https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80"
+            alt="Healthy Food Background"
+            className="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/40" />
         </div>
 

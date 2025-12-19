@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Search, User, ShoppingCart, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
+import { Input } from '@/components/ui/input';
 
 const navLinks = [
   { name: 'Home', path: '/' },
@@ -14,11 +16,15 @@ const navLinks = [
   { name: 'Contact', path: '/contact' },
 ];
 
+
+
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
   const { getCartCount } = useCart();
+  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,12 +37,11 @@ const Header: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-card/95 backdrop-blur-md shadow-card py-2' 
-          : 'bg-transparent py-4'
-      }`}
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        ? 'bg-card/95 backdrop-blur-md shadow-card py-2'
+        : 'bg-transparent py-4'
+        }`}
     >
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
@@ -56,11 +61,10 @@ const Header: React.FC = () => {
             <Link
               key={link.path}
               to={link.path}
-              className={`px-4 py-2 font-medium text-sm transition-all duration-200 relative ${
-                isActive(link.path)
-                  ? 'text-accent'
-                  : 'text-foreground hover:text-accent'
-              }`}
+              className={`px-4 py-2 font-medium text-sm transition-all duration-200 relative ${isActive(link.path)
+                ? 'text-accent'
+                : 'text-foreground hover:text-accent'
+                }`}
             >
               {link.name}
               {isActive(link.path) && (
@@ -72,12 +76,27 @@ const Header: React.FC = () => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="hidden sm:flex">
-            <Search className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="hidden sm:flex">
-            <User className="h-5 w-5" />
-          </Button>
+          {isSearchOpen ? (
+            <div className="flex items-center animate-fade-in">
+              <Input
+                autoFocus
+                placeholder="Search..."
+                className="h-9 w-[200px] mr-2"
+                onBlur={() => setIsSearchOpen(false)}
+              />
+            </div>
+          ) : (
+            <Button variant="ghost" size="icon" className="hidden sm:flex" onClick={() => setIsSearchOpen(true)}>
+              <Search className="h-5 w-5" />
+            </Button>
+          )}
+
+          <Link to={isAuthenticated ? "/account" : "/login"}>
+            <Button variant="ghost" size="icon" className="hidden sm:flex">
+              <User className={`h-5 w-5 ${isAuthenticated ? 'text-primary' : ''}`} />
+            </Button>
+          </Link>
+
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
@@ -88,11 +107,11 @@ const Header: React.FC = () => {
               )}
             </Button>
           </Link>
-          
+
           {/* Mobile Menu Toggle */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="lg:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -110,11 +129,10 @@ const Header: React.FC = () => {
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`px-4 py-3 font-medium transition-all duration-200 rounded-lg ${
-                  isActive(link.path)
-                    ? 'text-accent bg-accent/10'
-                    : 'text-foreground hover:text-accent hover:bg-accent/5'
-                }`}
+                className={`px-4 py-3 font-medium transition-all duration-200 rounded-lg ${isActive(link.path)
+                  ? 'text-accent bg-accent/10'
+                  : 'text-foreground hover:text-accent hover:bg-accent/5'
+                  }`}
               >
                 {link.name}
               </Link>

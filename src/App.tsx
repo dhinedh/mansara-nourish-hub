@@ -15,6 +15,11 @@ import Checkout from "./pages/Checkout";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Account from "./pages/Account";
+import Orders from "./pages/Orders";
+import OrderTracking from "./pages/OrderTracking";
+import { AuthProvider } from "./context/AuthContext";
 
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -32,41 +37,49 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <CartProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/offers" element={<Offers />} />
-            <Route path="/combos" element={<Combos />} />
-            <Route path="/new-arrivals" element={<NewArrivals />} />
-            <Route path="/product/:slug" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
+    <AuthProvider>
+      <CartProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/offers" element={<Offers />} />
+              <Route path="/combos" element={<Combos />} />
+              <Route path="/new-arrivals" element={<NewArrivals />} />
+              <Route path="/product/:slug" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
 
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/products" element={<AdminProducts />} />
-            <Route path="/admin/products/:id/edit" element={<AdminProductEdit />} />
-            <Route path="/admin/products/new" element={<AdminProductEdit />} />
-            <Route path="/admin/orders" element={<AdminOrders />} />
-            <Route path="/admin/customers" element={<AdminCustomers />} />
-            <Route path="/admin/offers" element={<AdminOffers />} />
-            <Route path="/admin/combos" element={<AdminCombos />} />
-            <Route path="/admin/content" element={<AdminContent />} />
-            <Route path="/admin/banners" element={<AdminBanners />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/products" element={<AdminProducts />} />
+              <Route path="/admin/products/:id/edit" element={<AdminProductEdit />} />
+              <Route path="/admin/products/new" element={<AdminProductEdit />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/customers" element={<AdminCustomers />} />
+              <Route path="/admin/offers" element={<AdminOffers />} />
+              <Route path="/admin/combos" element={<AdminCombos />} />
+              <Route path="/admin/content" element={<AdminContent />} />
+              <Route path="/admin/banners" element={<AdminBanners />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </CartProvider>
+              {/* User Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
+
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </CartProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

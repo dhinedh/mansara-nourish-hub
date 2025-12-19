@@ -17,6 +17,19 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
+      // Demo Login Logic
+      if (email === "admin@mansarafoods.com" && password === "admin123") {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Set a mock admin session 
+        localStorage.setItem('mansara-admin-session', 'true');
+
+        toast.success("Login successful! (Demo Mode)");
+        window.location.href = "/admin/dashboard"; // Force reload/redirect to ensure state pick up if any
+        return;
+      }
+
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -52,7 +65,13 @@ const AdminLogin = () => {
           <CardTitle className="text-2xl">Admin Panel</CardTitle>
           <CardDescription>MANSARA Foods Management</CardDescription>
         </CardHeader>
+
         <CardContent>
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-md text-sm mb-6">
+            <p className="font-bold">Demo Login:</p>
+            <p>Email: admin@mansarafoods.com</p>
+            <p>Password: admin123</p>
+          </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">Email</label>
@@ -84,7 +103,7 @@ const AdminLogin = () => {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 };
 

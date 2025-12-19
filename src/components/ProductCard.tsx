@@ -24,8 +24,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
     });
   };
 
-  const discountPercent = product.offerPrice 
-    ? Math.round(((product.price - product.offerPrice) / product.price) * 100) 
+  const discountPercent = product.offerPrice
+    ? Math.round(((product.price - product.offerPrice) / product.price) * 100)
     : 0;
 
   return (
@@ -33,12 +33,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
       <div className="bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
         {/* Image Container */}
         <div className="relative aspect-square bg-secondary overflow-hidden">
-          <img 
-            src={product.image} 
+          <img
+            src={product.image}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"; // Fallback healthy food image
+            }}
           />
-          
+
           {/* Badges */}
           {showBadge && (
             <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -64,7 +68,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           <h3 className="font-heading font-semibold text-foreground text-sm mb-2 line-clamp-2 group-hover:text-accent transition-colors">
             {product.name}
           </h3>
-          
+
           {/* Price */}
           <div className="flex items-center gap-2 mb-3">
             {product.offerPrice ? (
@@ -78,9 +82,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           </div>
 
           {/* Add to Cart */}
-          <Button 
-            variant="default" 
-            size="sm" 
+          <Button
+            variant="default"
+            size="sm"
             className="w-full"
             onClick={handleAddToCart}
           >

@@ -30,9 +30,16 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   useEffect(() => {
     const checkAuth = async () => {
+      // Check for demo session
+      const isDemoSession = localStorage.getItem('mansara-admin-session');
+      if (isDemoSession) {
+        setIsLoading(false);
+        return;
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        navigate("/admin/login");
+        navigate("/login");
         return;
       }
 
@@ -45,7 +52,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
       if (!adminData) {
         await supabase.auth.signOut();
-        navigate("/admin/login");
+        navigate("/login");
       }
 
       setIsLoading(false);
@@ -55,8 +62,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   }, [navigate]);
 
   const handleLogout = async () => {
+    localStorage.removeItem('mansara-admin-session');
     await supabase.auth.signOut();
-    navigate("/admin/login");
+    navigate("/login");
   };
 
   const menuItems = [
@@ -79,11 +87,11 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     <div className="flex h-screen bg-slate-50">
       <aside
         className={cn(
-          "bg-slate-900 text-white transition-all duration-300",
+          "bg-slate-900 text-white transition-all duration-300 flex flex-col",
           sidebarOpen ? "w-64" : "w-20"
         )}
       >
-        <div className="p-4 border-b border-slate-700 flex items-center justify-between">
+        <div className="p-4 border-b border-slate-700 flex items-center justify-between flex-shrink-0">
           {sidebarOpen && <h1 className="text-xl font-bold">MANSARA</h1>}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -93,7 +101,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           </button>
         </div>
 
-        <nav className="p-4 space-y-2">
+        <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
           {menuItems.map((item) => (
             <a
               key={item.path}
@@ -111,13 +119,13 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           ))}
         </nav>
 
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="p-4 border-t border-slate-800 flex-shrink-0">
           <Button
             onClick={handleLogout}
             variant="outline"
             className={cn(
-              "w-full border-slate-600 hover:bg-slate-800",
-              !sidebarOpen && "p-2"
+              "w-full border-slate-600 hover:bg-slate-800 bg-transparent text-white hover:text-white",
+              !sidebarOpen && "p-2 justify-center"
             )}
           >
             <LogOut size={20} />
