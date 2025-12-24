@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import logo from '@/assets/logo.png';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -62,6 +63,7 @@ const AdminLogin = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
+          <img src={logo} alt="Mansara Foods" className="h-12 w-auto mx-auto mb-4" />
           <CardTitle className="text-2xl">Admin Panel</CardTitle>
           <CardDescription>MANSARA Foods Management</CardDescription>
         </CardHeader>

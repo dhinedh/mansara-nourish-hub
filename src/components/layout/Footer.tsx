@@ -1,11 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 const Footer: React.FC = () => {
   return (
     <footer className="bg-brand-blue text-brand-cream">
       <div className="container py-12">
+        <div className="mb-8">
+          <img src={logo} alt="Mansara Foods" className="h-12 w-auto brightness-0 invert opacity-90" />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Get to Know Us */}
           <div>
@@ -33,20 +37,20 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="font-heading font-semibold text-lg text-brand-yellow mb-4">Connect with Us</h3>
             <div className="flex gap-4">
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300"
               >
                 <Facebook className="h-5 w-5" />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300"
               >
                 <Twitter className="h-5 w-5" />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300"
               >
                 <Instagram className="h-5 w-5" />

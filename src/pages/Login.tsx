@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -58,6 +59,7 @@ const Login: React.FC = () => {
         <div className="min-h-[80vh] flex items-center justify-center bg-background px-4 py-12">
             <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-xl shadow-lg border border-border">
                 <div className="text-center">
+                    <img src={logo} alt="Mansara Foods" className="h-16 mx-auto mb-6" />
                     <h2 className="text-3xl font-heading font-bold text-foreground">Welcome Back</h2>
                     <p className="mt-2 text-sm text-muted-foreground">
                         Sign in to your account

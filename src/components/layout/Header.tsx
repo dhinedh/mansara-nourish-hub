@@ -6,6 +6,8 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { Input } from '@/components/ui/input';
 
+import logo from '@/assets/logo.png';
+
 const navLinks = [
   { name: 'Home', path: '/' },
   { name: 'Offers', path: '/offers' },
@@ -46,13 +48,7 @@ const Header: React.FC = () => {
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-            <span className="text-primary-foreground font-heading font-bold text-lg">M</span>
-          </div>
-          <div className="hidden sm:block">
-            <h1 className="font-heading font-bold text-brand-blue text-xl leading-tight">MANSARA</h1>
-            <p className="text-xs text-muted-foreground">FOODS</p>
-          </div>
+          <img src={logo} alt="Mansara Foods" className="h-12 w-auto object-contain" />
         </Link>
 
         {/* Desktop Navigation */}
