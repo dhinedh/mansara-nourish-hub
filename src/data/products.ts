@@ -15,6 +15,9 @@ export interface Product {
   isNewArrival: boolean;
   isFeatured: boolean;
   stock: number;
+  highlights?: string[];
+  nutrition?: string; // HTML or text content
+  compliance?: string;
 }
 
 export interface Combo {
@@ -32,14 +35,22 @@ export const products: Product[] = [
   {
     id: "1",
     slug: "urad-porridge-mix-classic",
-    name: "URAD Porridge Mix – Classic",
+    name: "Classic Urad Porridge Mix",
     category: "porridge-mixes",
     price: 299,
     image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "Our signature URAD porridge mix, crafted with traditional wisdom for everyday nourishment. Made from carefully selected black gram, this classic blend is perfect for a wholesome breakfast.",
-    ingredients: "Black Gram (Urad Dal), Rice, Cumin, Black Pepper, Asafoetida, Salt",
-    howToUse: "Mix 2 tablespoons with warm water or milk. Cook for 5-7 minutes, stirring occasionally. Add ghee for enhanced taste.",
-    storage: "Store in a cool, dry place. Keep away from direct sunlight. Use within 6 months of opening.",
+    description: "A simple and nourishing porridge mix made primarily from premium black gram. Light on the stomach and easy to prepare, ideal for everyday nourishment for all age groups.",
+    highlights: [
+      "Made with carefully selected grains & pulses",
+      "No artificial colours or preservatives",
+      "Easy to cook, suitable for all age groups",
+      "Traditional nutrition with modern convenience"
+    ],
+    ingredients: "Black Gram (Urad Dal), Black Rice (Kavuni Dal), Dry Ginger, Cardamom",
+    howToUse: "1. Take 2 tablespoons of MansaraFoods Classic Urad Porridge Mix in a clean pan.\n2. Add 250 ml of water then cook on medium flame for 10 minutes, stirring continuously to avoid lump formation.\n3. Add Salt/Pepper/jaggery as per your taste, stir well, and serve warm.",
+    nutrition: "Testing in progress",
+    storage: "Store in a cool, dry place.\nKeep away from moisture.\nOnce opened, store in an airtight container.",
+    compliance: "FSSAI License No: [Pending]",
     weight: "500g",
     isOffer: false,
     isNewArrival: false,

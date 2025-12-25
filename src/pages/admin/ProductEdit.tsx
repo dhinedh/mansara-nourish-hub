@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface ProductFormData {
   name: string;
@@ -35,6 +36,9 @@ interface ProductFormData {
   is_new_arrival: boolean;
   is_featured: boolean;
   is_active: boolean;
+  highlights?: string[];
+  nutrition?: string;
+  compliance?: string;
 }
 
 const AdminProductEdit = () => {
@@ -43,28 +47,40 @@ const AdminProductEdit = () => {
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     slug: "",
-    category: "Porridge Mixes",
+    category: "",
     price: 0,
     stock: 0,
     is_offer: false,
     is_new_arrival: false,
     is_featured: false,
     is_active: true,
+    highlights: [],
   });
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(!!id);
   const [saving, setSaving] = useState(false);
+  const [highlightsText, setHighlightsText] = useState("");
 
   useEffect(() => {
+    fetchCategories();
     if (id && id !== "new") {
       fetchProduct();
     }
   }, [id]);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase.from("categories").select("id, name").order("name");
+    if (data) setCategories(data);
+  };
 
   const fetchProduct = async () => {
     try {
       const { data, error } = await supabase.from("products").select("*").eq("id", id).single();
       if (error) throw error;
       setFormData(data);
+      if (data.highlights && Array.isArray(data.highlights)) {
+        setHighlightsText(data.highlights.join("\n"));
+      }
     } catch (error: any) {
       toast.error("Failed to fetch product");
     } finally {
@@ -94,7 +110,7 @@ const AdminProductEdit = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === "price" || name === "stock" ? parseFloat(value) : value,
+      [name]: name === "price" || name === "stock" || name === "offer_price" ? parseFloat(value) || 0 : value,
     });
   };
 
@@ -105,18 +121,23 @@ const AdminProductEdit = () => {
     });
   };
 
+  const handleHighlightsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setHighlightsText(e.target.value);
+    setFormData({
+      ...formData,
+      highlights: e.target.value.split("\n").filter(line => line.trim() !== "")
+    });
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
-      if (id && id !== "new") {
-        const { error } = await supabase.from("products").update(formData).eq("id", id);
-        if (error) throw error;
-        toast.success("Product updated successfully");
-      } else {
-        const { error } = await supabase.from("products").insert([formData]);
-        if (error) throw error;
-        toast.success("Product created successfully");
-      }
+      const { error } = id && id !== "new"
+        ? await supabase.from("products").update(formData).eq("id", id)
+        : await supabase.from("products").insert([formData]);
+
+      if (error) throw error;
+      toast.success(id && id !== "new" ? "Product updated successfully" : "Product created successfully");
       navigate("/admin/products");
     } catch (error: any) {
       toast.error(error.message || "Failed to save product");
@@ -168,13 +189,24 @@ const AdminProductEdit = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Category</label>
-                    <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(value) => setFormData({ ...formData, category: value })}
+                    >
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select Category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Porridge Mixes">Porridge Mixes</SelectItem>
-                        <SelectItem value="Oil & Ghee">Oil & Ghee</SelectItem>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                        ))}
+                        {/* Fallback hardcoded if no DB cats yet for testing */}
+                        {!categories.length && (
+                          <>
+                            <SelectItem value="Porridge Mixes">Porridge Mixes</SelectItem>
+                            <SelectItem value="Oil & Ghee">Oil & Ghee</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -270,6 +302,16 @@ const AdminProductEdit = () => {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium mb-2">Key Highlights (One per line)</label>
+                  <textarea
+                    value={highlightsText}
+                    onChange={handleHighlightsChange}
+                    placeholder="• Highlight 1&#10;• Highlight 2"
+                    className="w-full p-2 border border-slate-300 rounded-md"
+                    rows={4}
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium mb-2">Ingredients</label>
                   <textarea
                     name="ingredients"
@@ -292,6 +334,17 @@ const AdminProductEdit = () => {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium mb-2">Nutrition</label>
+                  <textarea
+                    name="nutrition"
+                    value={formData.nutrition || ""}
+                    onChange={handleChange}
+                    placeholder="Nutritional information"
+                    className="w-full p-2 border border-slate-300 rounded-md"
+                    rows={2}
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium mb-2">Storage Instructions</label>
                   <textarea
                     name="storage_instructions"
@@ -300,6 +353,15 @@ const AdminProductEdit = () => {
                     placeholder="Storage guidelines"
                     className="w-full p-2 border border-slate-300 rounded-md"
                     rows={2}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Compliance</label>
+                  <Input
+                    name="compliance"
+                    value={formData.compliance || ""}
+                    onChange={handleChange}
+                    placeholder="FSSAI License No, etc."
                   />
                 </div>
               </CardContent>
@@ -311,19 +373,22 @@ const AdminProductEdit = () => {
               </CardHeader>
               <CardContent>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Product Image URL</label>
-                  <Input
-                    name="image_url"
-                    value={formData.image_url || ""}
-                    onChange={handleChange}
-                    placeholder="https://..."
+                  <label className="block text-sm font-medium mb-2">Product Image</label>
+                  <ImageUpload
+                    value={formData.image_url}
+                    onChange={(url) => setFormData({ ...formData, image_url: url })}
                   />
-                  {formData.image_url && (
-                    <img
-                      src={formData.image_url}
-                      alt="Product"
-                      className="mt-4 w-full max-w-sm rounded-lg"
-                    />
+                  {/* Fallback Input for manual URL if needed - optional */}
+                  {!formData.image_url && (
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-500 mb-1">Or enter URL manually:</p>
+                      <Input
+                        name="image_url"
+                        value={formData.image_url || ""}
+                        onChange={handleChange}
+                        placeholder="https://..."
+                      />
+                    </div>
                   )}
                 </div>
               </CardContent>

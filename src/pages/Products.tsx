@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
-import { products, Product } from '@/data/products';
+import { products } from '@/data/products';
 
 const categories = [
   { id: 'all', name: 'All Products' },
@@ -11,47 +11,55 @@ const categories = [
 
 const Products: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [filteredProducts, setFilteredProducts] = useState(products);
 
-  const filteredProducts = selectedCategory === 'all' 
-    ? products 
-    : products.filter(p => p.category === selectedCategory);
+  useEffect(() => {
+    if (selectedCategory === 'all') {
+      setFilteredProducts(products);
+    } else {
+      setFilteredProducts(products.filter((p) => p.category === selectedCategory));
+    }
+  }, [selectedCategory]);
 
   return (
     <Layout>
-      {/* Hero Banner */}
-      <section className="bg-brand-light-yellow py-16">
-        <div className="container">
-          <h1 className="font-heading text-4xl md:text-5xl font-bold text-brand-blue mb-4 text-center">
-            Our Products
-          </h1>
-          <p className="text-muted-foreground text-center max-w-xl mx-auto">
-            Discover our complete range of pure, nourishing foods crafted with traditional wisdom
-          </p>
+      <div className="min-h-screen" style={{ backgroundColor: '#FFFDF7' }}>
+        {/* Hero Banner */}
+        <div className="py-8 px-4" style={{ backgroundColor: '#1F2A7C' }}>
+          <div className="max-w-7xl mx-auto">
+            <h1 className="text-4xl font-bold text-white">Products</h1>
+            <p className="text-white/80 mt-2">
+              Browse our complete range of pure, nourishing foods
+            </p>
+          </div>
         </div>
-      </section>
 
-      {/* Products Grid */}
-      <section className="py-12 bg-background">
-        <div className="container">
-          <div className="flex flex-col lg:flex-row gap-8">
+        {/* Products Grid */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row gap-8">
             {/* Sidebar Filters */}
-            <aside className="lg:w-64 flex-shrink-0">
-              <div className="bg-card rounded-xl p-6 shadow-card sticky top-24">
-                <h3 className="font-heading font-semibold text-lg text-foreground mb-4">
-                  Category
+            <aside className="md:w-64 flex-shrink-0">
+              <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
+                <h3 className="font-semibold mb-4" style={{ color: '#1F2A7C' }}>
+                  Categories
                 </h3>
                 <div className="space-y-2">
-                  {categories.map((cat) => (
+                  {categories.map((category) => (
                     <button
-                      key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
-                      className={`w-full text-left px-4 py-2 rounded-lg transition-all duration-200 ${
-                        selectedCategory === cat.id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-foreground hover:bg-secondary'
+                      key={category.id}
+                      onClick={() => setSelectedCategory(category.id)}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        selectedCategory === category.id
+                          ? 'font-semibold'
+                          : 'text-gray-600 hover:bg-gray-50'
                       }`}
+                      style={
+                        selectedCategory === category.id
+                          ? { backgroundColor: '#FFF2CC', color: '#1F2A7C' }
+                          : {}
+                      }
                     >
-                      {cat.name}
+                      {category.name}
                     </button>
                   ))}
                 </div>
@@ -60,33 +68,25 @@ const Products: React.FC = () => {
 
             {/* Products Grid */}
             <div className="flex-1">
-              <div className="flex items-center justify-between mb-6">
-                <p className="text-muted-foreground">
-                  Showing {filteredProducts.length} products
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredProducts.map((product, index) => (
-                  <div 
-                    key={product.id} 
-                    className="animate-fade-in" 
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                  >
-                    <ProductCard product={product} />
-                  </div>
-                ))}
-              </div>
-
-              {filteredProducts.length === 0 && (
-                <div className="text-center py-16">
-                  <p className="text-muted-foreground">No products found in this category.</p>
+              <p className="text-gray-600 mb-6">
+                Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+              </p>
+              
+              {filteredProducts.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-600">No products found in this category</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
                 </div>
               )}
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </Layout>
   );
 };

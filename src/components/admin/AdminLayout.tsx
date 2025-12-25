@@ -70,6 +70,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
     { icon: Package, label: "Products", path: "/admin/products" },
+    { icon: Box, label: "Categories", path: "/admin/categories" },
     { icon: Percent, label: "Offers", path: "/admin/offers" },
     { icon: Box, label: "Combos", path: "/admin/combos" },
     { icon: ShoppingCart, label: "Orders", path: "/admin/orders" },

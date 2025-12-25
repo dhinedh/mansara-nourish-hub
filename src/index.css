@@ -38,7 +38,7 @@
     /* Soft Beige */
     --border: 43 38% 88%;
     --input: 43 38% 88%;
-    
+
     /* Royal Blue */
     --ring: 232 60% 30%;
 
@@ -119,7 +119,12 @@
     font-family: var(--font-body);
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-heading);
     @apply font-semibold text-brand-blue;
   }
@@ -129,31 +134,31 @@
   .text-brand-blue {
     color: hsl(var(--brand-blue));
   }
-  
+
   .text-brand-pink {
     color: hsl(var(--brand-pink));
   }
-  
+
   .text-brand-yellow {
     color: hsl(var(--brand-yellow));
   }
-  
+
   .bg-brand-blue {
     background-color: hsl(var(--brand-blue));
   }
-  
+
   .bg-brand-pink {
     background-color: hsl(var(--brand-pink));
   }
-  
+
   .bg-brand-yellow {
     background-color: hsl(var(--brand-yellow));
   }
-  
+
   .bg-brand-cream {
     background-color: hsl(var(--brand-cream));
   }
-  
+
   .bg-brand-light-yellow {
     background-color: hsl(var(--brand-light-yellow));
   }
