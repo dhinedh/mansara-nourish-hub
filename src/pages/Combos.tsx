@@ -8,7 +8,7 @@ const Combos: React.FC = () => {
     <Layout>
       {/* Hero Banner */}
       <section className="bg-gradient-to-r from-primary/20 to-primary/10 py-16">
-        <div className="container">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           <div className="text-center">
             <span className="inline-block bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-bold mb-4">
               Value Packs
@@ -25,12 +25,12 @@ const Combos: React.FC = () => {
 
       {/* Combos Grid */}
       <section className="py-12 bg-background">
-        <div className="container">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {combos.map((combo, index) => (
-              <div 
-                key={combo.id} 
-                className="animate-fade-in" 
+              <div
+                key={combo.id}
+                className="animate-fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <ComboCard combo={combo} />

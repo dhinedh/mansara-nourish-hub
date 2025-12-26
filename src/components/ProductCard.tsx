@@ -17,7 +17,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
-    
+
     if (product.stock === 0) {
       toast({
         title: "Out of stock",

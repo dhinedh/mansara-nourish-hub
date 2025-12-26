@@ -25,7 +25,7 @@ const Products: React.FC = () => {
     <Layout>
       <div className="min-h-screen" style={{ backgroundColor: '#FFFDF7' }}>
         {/* Hero Banner */}
-        <div className="py-8 px-4" style={{ backgroundColor: '#1F2A7C' }}>
+        <div className="py-8 w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto" style={{ backgroundColor: '#1F2A7C' }}>
           <div className="max-w-7xl mx-auto">
             <h1 className="text-4xl font-bold text-white">Products</h1>
             <p className="text-white/80 mt-2">
@@ -35,7 +35,7 @@ const Products: React.FC = () => {
         </div>
 
         {/* Products Grid */}
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto py-8">
           <div className="flex flex-col md:flex-row gap-8">
             {/* Sidebar Filters */}
             <aside className="md:w-64 flex-shrink-0">
@@ -48,11 +48,10 @@ const Products: React.FC = () => {
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
-                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                        selectedCategory === category.id
-                          ? 'font-semibold'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      }`}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${selectedCategory === category.id
+                        ? 'font-semibold'
+                        : 'text-gray-600 hover:bg-gray-50'
+                        }`}
                       style={
                         selectedCategory === category.id
                           ? { backgroundColor: '#FFF2CC', color: '#1F2A7C' }
@@ -71,7 +70,7 @@ const Products: React.FC = () => {
               <p className="text-gray-600 mb-6">
                 Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
               </p>
-              
+
               {filteredProducts.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-gray-600">No products found in this category</p>

@@ -19,7 +19,7 @@ const Contact: React.FC = () => {
     <Layout>
       {/* Hero */}
       <section className="bg-brand-light-yellow py-16">
-        <div className="container text-center">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center">
           <h1 className="font-heading text-4xl md:text-5xl font-bold text-brand-blue mb-4">
             Contact Us
           </h1>
@@ -31,8 +31,8 @@ const Contact: React.FC = () => {
 
       {/* Contact Content */}
       <section className="py-16 bg-background">
-        <div className="container">
-          <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
             {/* Contact Info */}
             <div>
               <h2 className="font-heading text-2xl font-bold text-brand-blue mb-8">
@@ -104,8 +104,8 @@ const Contact: React.FC = () => {
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Your Name
                   </label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     required
                     className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Enter your name"
@@ -116,8 +116,8 @@ const Contact: React.FC = () => {
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Email Address
                   </label>
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     required
                     className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Enter your email"
@@ -128,7 +128,7 @@ const Contact: React.FC = () => {
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Phone Number
                   </label>
-                  <input 
+                  <input
                     type="tel"
                     className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Enter your phone number"
@@ -139,7 +139,7 @@ const Contact: React.FC = () => {
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Message
                   </label>
-                  <textarea 
+                  <textarea
                     required
                     rows={4}
                     className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
@@ -159,7 +159,7 @@ const Contact: React.FC = () => {
 
       {/* Commitment */}
       <section className="py-12 bg-secondary">
-        <div className="container text-center">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center">
           <p className="text-muted-foreground">
             🌿 <span className="font-semibold text-foreground">Our Commitment:</span> Every message matters to us. We respond with the same care, honesty, and responsibility that define MANSARA.
           </p>

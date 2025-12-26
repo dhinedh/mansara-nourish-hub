@@ -10,7 +10,7 @@ const Offers: React.FC = () => {
     <Layout>
       {/* Hero Banner */}
       <section className="bg-gradient-to-r from-accent/20 to-accent/10 py-16">
-        <div className="container">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           <div className="text-center">
             <span className="inline-block bg-accent text-accent-foreground px-4 py-1 rounded-full text-sm font-bold mb-4">
               Limited Time Offers
@@ -27,13 +27,13 @@ const Offers: React.FC = () => {
 
       {/* Products Grid */}
       <section className="py-12 bg-background">
-        <div className="container">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           {offerProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {offerProducts.map((product, index) => (
-                <div 
-                  key={product.id} 
-                  className="animate-fade-in" 
+                <div
+                  key={product.id}
+                  className="animate-fade-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <ProductCard product={product} />

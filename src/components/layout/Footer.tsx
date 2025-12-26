@@ -6,7 +6,7 @@ import logo from '@/assets/logo.png';
 const Footer: React.FC = () => {
   return (
     <footer className="bg-brand-blue text-brand-cream border-t border-brand-cream/10">
-      <div className="container py-12">
+      <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
 
           {/* Brand & Address */}

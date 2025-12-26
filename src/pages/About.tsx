@@ -10,7 +10,7 @@ const About: React.FC = () => {
     <Layout>
       {/* Hero */}
       <section className="bg-brand-light-yellow py-20">
-        <div className="container text-center">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center">
           <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold mb-6">
             <Leaf className="h-4 w-4" />
             Our Story
@@ -29,7 +29,7 @@ const About: React.FC = () => {
 
       {/* Story Section */}
       <section className="py-16 bg-background">
-        <div className="container">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           <div className="max-w-3xl mx-auto">
             <h2 className="font-heading text-3xl font-bold text-brand-blue mb-6">Our Story</h2>
             <div className="prose text-muted-foreground space-y-4">
@@ -49,7 +49,7 @@ const About: React.FC = () => {
 
       {/* Founder Section */}
       <section className="py-16 bg-secondary">
-        <div className="container">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
             <div className="bg-card rounded-2xl p-8 shadow-card">
               <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mb-6">
@@ -77,7 +77,7 @@ const About: React.FC = () => {
 
       {/* What MANSARA Stands For */}
       <section className="py-16 bg-background">
-        <div className="container">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           <h2 className="font-heading text-3xl font-bold text-brand-blue mb-10 text-center">
             What MANSARA Stands For
           </h2>
@@ -105,7 +105,7 @@ const About: React.FC = () => {
 
       {/* Vision & Mission */}
       <section className="py-16 bg-brand-light-yellow">
-        <div className="container">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div className="bg-card rounded-xl p-8 shadow-card">
               <Eye className="h-10 w-10 text-brand-blue mb-4" />
@@ -130,7 +130,7 @@ const About: React.FC = () => {
 
       {/* Promise */}
       <section className="py-16 bg-background">
-        <div className="container text-center">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center">
           <Shield className="h-16 w-16 text-brand-blue mx-auto mb-6" />
           <h2 className="font-heading text-3xl font-bold text-brand-blue mb-4">Our Promise</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto mb-8">

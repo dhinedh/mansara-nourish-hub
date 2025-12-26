@@ -10,7 +10,7 @@ const NewArrivals: React.FC = () => {
     <Layout>
       {/* Hero Banner */}
       <section className="bg-gradient-to-r from-brand-blue/10 to-brand-blue/5 py-16">
-        <div className="container">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           <div className="text-center">
             <span className="inline-block bg-brand-blue text-brand-cream px-4 py-1 rounded-full text-sm font-bold mb-4">
               Fresh Additions
@@ -27,13 +27,13 @@ const NewArrivals: React.FC = () => {
 
       {/* Products Grid */}
       <section className="py-12 bg-background">
-        <div className="container">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           {newProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {newProducts.map((product, index) => (
-                <div 
-                  key={product.id} 
-                  className="animate-fade-in" 
+                <div
+                  key={product.id}
+                  className="animate-fade-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <ProductCard product={product} showBadge={true} />

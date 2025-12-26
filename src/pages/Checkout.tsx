@@ -19,7 +19,7 @@ const Checkout: React.FC = () => {
     return (
       <Layout>
         <section className="py-20 bg-background">
-          <div className="container text-center max-w-lg mx-auto">
+          <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center max-w-lg mx-auto">
             <div className="w-20 h-20 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="h-10 w-10 text-accent" />
             </div>
@@ -44,7 +44,7 @@ const Checkout: React.FC = () => {
     return (
       <Layout>
         <section className="py-20 bg-background">
-          <div className="container text-center">
+          <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center">
             <h1 className="font-heading text-2xl font-bold text-brand-blue mb-4">Your cart is empty</h1>
             <Link to="/products">
               <Button variant="default">Shop Now</Button>
@@ -60,15 +60,14 @@ const Checkout: React.FC = () => {
       <section className="bg-secondary py-8">
         <div className="container">
           <h1 className="font-heading text-3xl font-bold text-brand-blue">Checkout</h1>
-          
+
           {/* Progress Steps */}
           <div className="flex items-center gap-4 mt-6">
             {['Address', 'Summary', 'Payment'].map((label, index) => (
               <div key={label} className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                  step > index + 1 ? 'bg-accent text-accent-foreground' :
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${step > index + 1 ? 'bg-accent text-accent-foreground' :
                   step === index + 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                }`}>
+                  }`}>
                   {index + 1}
                 </div>
                 <span className={`text-sm ${step === index + 1 ? 'font-semibold' : 'text-muted-foreground'}`}>
