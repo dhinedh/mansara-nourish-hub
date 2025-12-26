@@ -30,12 +30,12 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
     <div className="bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
       {/* Image Container */}
       <div className="relative aspect-[4/3] bg-secondary overflow-hidden">
-        <img 
-          src={combo.image} 
+        <img
+          src={combo.image}
           alt={combo.name}
           className="w-full h-full object-cover"
         />
-        
+
         {/* Savings Badge */}
         <div className="absolute top-3 right-3">
           <span className="bg-accent text-accent-foreground text-sm font-bold px-4 py-2 rounded-full">
@@ -49,7 +49,7 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
         <h3 className="font-heading font-bold text-foreground text-lg mb-2">
           {combo.name}
         </h3>
-        
+
         <p className="text-muted-foreground text-sm mb-3">
           {combo.description}
         </p>
@@ -66,17 +66,17 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
             ))}
           </ul>
         </div>
-        
+
         {/* Price */}
         <div className="flex items-center gap-3 mb-4">
-          <span className="font-heading font-bold text-brand-blue text-2xl">₹{combo.comboPrice}</span>
+          <span className="font-heading font-bold text-primary text-2xl">₹{combo.comboPrice}</span>
           <span className="text-muted-foreground line-through">₹{combo.originalPrice}</span>
         </div>
 
         {/* Add to Cart */}
-        <Button 
-          variant="default" 
-          size="lg" 
+        <Button
+          variant="default"
+          size="lg"
           className="w-full"
           onClick={handleAddToCart}
         >

@@ -40,23 +40,22 @@ const Header: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out`}
       style={{
-        background: isScrolled 
-          ? 'linear-gradient(to right, linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%) 0% 17%, linear-gradient(135deg, rgba(233, 30, 99, 0.95) 0%, rgba(233, 30, 99, 1) 100%) 17% 100%)' 
-          : window.innerWidth < 768 
-            ? 'linear-gradient(to right, #ffffff 0%, #f0f0f0 20%, #e8e8e8 40%, #E91E63 40%, #d81b60 70%, #c2185b 100%)'
-            : 'linear-gradient(to right, #ffffff 0%, #f0f0f0 8.5%, #e8e8e8 17%, #E91E63 17%, #d81b60 58.5%, #c2185b 100%)',
-        backdropFilter: isScrolled ? 'blur(12px)' : 'none',
-        boxShadow: isScrolled ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' : 'none',
+        background: isScrolled
+          ? 'rgba(255, 255, 255, 0.92)'
+          : 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(12px)',
+        boxShadow: isScrolled ? '0 4px 20px -5px rgba(0, 0, 0, 0.05)' : 'none',
+        borderBottom: isScrolled ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
         padding: '0'
       }}
     >
       <div className="container mx-auto flex items-center justify-between">
-        {/* Logo with hover animation - REDUCED SIZE */}
+        {/* Logo with hover animation */}
         <Link to="/" className="flex items-center gap-2 transform transition-transform duration-300 hover:scale-105 ml-2 md:-ml-20">
-          <img 
-            src={logo} 
-            alt="Mansara Foods" 
-            className="h-20 md:h-24 w-auto object-contain transition-all duration-300 hover:rotate-3"
+          <img
+            src={logo}
+            alt="Mansara Foods"
+            className="h-16 md:h-20 w-auto object-contain transition-all duration-300 hover:rotate-3"
           />
         </Link>
 
@@ -68,23 +67,22 @@ const Header: React.FC = () => {
               to={link.path}
               className={`px-4 py-2 font-medium text-sm transition-all duration-300 relative group`}
               style={{
-                color: isActive(link.path) ? '#fff' : 'rgba(255, 255, 255, 0.9)',
+                color: isActive(link.path) ? '#1a1a1a' : '#4a4a4a',
                 animationDelay: `${index * 50}ms`
               }}
             >
               {link.name}
-              
+
               {/* Animated underline */}
-              <span 
-                className={`absolute bottom-0 left-4 right-4 h-0.5 rounded-full transition-all duration-300 ${
-                  isActive(link.path) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                }`}
+              <span
+                className={`absolute bottom-0 left-4 right-4 h-0.5 rounded-full transition-all duration-300 ${isActive(link.path) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`}
                 style={{ backgroundColor: '#FDB913' }}
               />
-              
+
               {/* Hover background effect */}
-              <span 
-                className="absolute inset-0 bg-white rounded-lg opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+              <span
+                className="absolute inset-0 bg-black/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               />
             </Link>
           ))}
@@ -97,15 +95,15 @@ const Header: React.FC = () => {
               <Input
                 autoFocus
                 placeholder="Search..."
-                className="h-9 w-[200px] mr-2 bg-white transition-all duration-300 focus:w-[250px]"
+                className="h-9 w-[200px] mr-2 bg-gray-50 border-gray-200 transition-all duration-300 focus:w-[250px]"
                 onBlur={() => setIsSearchOpen(false)}
               />
             </div>
           ) : (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="hidden sm:flex text-white hover:bg-white/20 transition-all duration-300 hover:scale-110 hover:rotate-12" 
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hidden sm:flex text-foreground hover:bg-black/5 transition-all duration-300 hover:scale-110 hover:rotate-12"
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="h-5 w-5" />
@@ -113,26 +111,26 @@ const Header: React.FC = () => {
           )}
 
           <Link to={isAuthenticated ? "/account" : "/login"}>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-foreground hover:bg-black/5 transition-all duration-300 hover:scale-110"
             >
-              <User className={`h-5 w-5 transition-all duration-300 ${isAuthenticated ? 'text-yellow-300' : ''}`} />
+              <User className={`h-5 w-5 transition-all duration-300 ${isAuthenticated ? 'text-yellow-500' : ''}`} />
             </Button>
           </Link>
 
           <Link to="/cart">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="relative text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative text-foreground hover:bg-black/5 transition-all duration-300 hover:scale-110"
             >
               <ShoppingCart className="h-5 w-5 transition-transform duration-300 hover:rotate-12" />
               {getCartCount() > 0 && (
-                <span 
-                  className="absolute -top-1 -right-1 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in zoom-in duration-300"
-                  style={{ backgroundColor: '#FDB913', color: '#1F2A7C' }}
+                <span
+                  className="absolute -top-1 -right-1 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in zoom-in duration-300 shadow-sm"
+                  style={{ backgroundColor: '#FDB913', color: '#1a1a1a' }}
                 >
                   {getCartCount()}
                 </span>
@@ -140,37 +138,34 @@ const Header: React.FC = () => {
             </Button>
           </Link>
 
-          {/* Mobile Menu Toggle with animation */}
+          {/* Mobile Menu Toggle */}
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden text-white hover:bg-white/20 transition-all duration-300"
+            className="lg:hidden text-foreground hover:bg-black/5 transition-all duration-300"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <div className="relative w-5 h-5">
-              <Menu 
-                className={`h-5 w-5 absolute transition-all duration-300 ${
-                  isMobileMenuOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
-                }`} 
+              <Menu
+                className={`h-5 w-5 absolute transition-all duration-300 ${isMobileMenuOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
+                  }`}
               />
-              <X 
-                className={`h-5 w-5 absolute transition-all duration-300 ${
-                  isMobileMenuOpen ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
-                }`} 
+              <X
+                className={`h-5 w-5 absolute transition-all duration-300 ${isMobileMenuOpen ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
+                  }`}
               />
             </div>
           </Button>
         </div>
       </div>
 
-      {/* Mobile Menu with slide down animation */}
-      <div 
-        className={`lg:hidden absolute top-full left-0 right-0 shadow-lg border-t overflow-hidden transition-all duration-500 ease-in-out ${
-          isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-        style={{ 
-          backgroundColor: '#E91E63',
-          borderTopColor: 'rgba(255, 255, 255, 0.2)'
+      {/* Mobile Menu */}
+      <div
+        className={`lg:hidden absolute top-full left-0 right-0 shadow-lg border-t overflow-hidden transition-all duration-500 ease-in-out ${isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.98)',
+          borderTopColor: 'rgba(0, 0, 0, 0.05)'
         }}
       >
         <nav className="container py-4 flex flex-col gap-1">
@@ -179,13 +174,11 @@ const Header: React.FC = () => {
               key={link.path}
               to={link.path}
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`px-4 py-3 font-medium transition-all duration-300 rounded-lg transform hover:translate-x-2 ${
-                isActive(link.path)
-                  ? 'text-white'
-                  : 'text-white/90 hover:text-white hover:bg-white/10'
-              }`}
+              className={`px-4 py-3 font-medium transition-all duration-300 rounded-lg transform hover:translate-x-2 ${isActive(link.path)
+                ? 'text-primary bg-primary/5'
+                : 'text-foreground/80 hover:text-foreground hover:bg-black/5'
+                }`}
               style={{
-                backgroundColor: isActive(link.path) ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
                 animationDelay: `${index * 50}ms`,
                 animation: isMobileMenuOpen ? `slideInLeft 0.3s ease-out ${index * 50}ms both` : 'none'
               }}

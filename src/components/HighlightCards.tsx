@@ -43,19 +43,19 @@ const HighlightCards: React.FC = () => {
               <Link
                 key={item.title}
                 to={item.path}
-                className={`${item.bgClass} ${item.hoverBg} rounded-xl sm:rounded-2xl p-5 sm:p-6 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-hover group`}
+                className={`${item.bgClass} ${item.hoverBg} rounded-xl sm:rounded-2xl p-6 sm:p-8 transition-all duration-300 transform hover:-translate-y-1 shadow-card hover:shadow-hover group border border-transparent hover:border-black/5`}
               >
-                <div className={`${item.iconBg} w-12 h-12 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-brand-cream" />
+                <div className={`${item.iconBg} w-12 h-12 sm:w-14 sm:h-14 rounded-xl shadow-md flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                 </div>
-                <h3 className="font-heading font-bold text-lg sm:text-xl text-foreground mb-1 sm:mb-2">
+                <h3 className="font-heading font-bold text-lg sm:text-xl text-foreground mb-2">
                   {item.title}
                 </h3>
-                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                   {item.description}
                 </p>
-                <div className="mt-3 sm:mt-4 text-accent font-semibold text-xs sm:text-sm group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-                  Explore →
+                <div className="mt-auto text-primary font-bold text-sm group-hover:translate-x-1 transition-transform inline-flex items-center gap-2">
+                  Explore Now <span className="text-lg leading-none">→</span>
                 </div>
               </Link>
             );

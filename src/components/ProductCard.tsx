@@ -54,13 +54,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   return (
     <Link
       to={`/product/${product.slug}`}
-      className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all"
+      className="group bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 border border-transparent hover:border-black/5"
     >
       <div className="relative overflow-hidden aspect-square">
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             if (!target.src.includes('placeholder')) {
@@ -72,7 +72,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           <>
             {product.isNewArrival && (
               <span
-                className="absolute top-4 right-4 px-3 py-1 text-xs font-bold text-white rounded-full"
+                className="absolute top-4 right-4 px-3 py-1 text-xs font-bold text-white rounded-full shadow-sm"
                 style={{ backgroundColor: '#E91E63' }}
               >
                 NEW
@@ -80,8 +80,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
             )}
             {hasDiscount && (
               <span
-                className="absolute top-4 left-4 px-3 py-1 text-xs font-bold rounded-full"
-                style={{ backgroundColor: '#FDB913', color: '#1F2A7C' }}
+                className="absolute top-4 left-4 px-3 py-1 text-xs font-bold rounded-full shadow-sm"
+                style={{ backgroundColor: '#FDB913', color: '#1a1a1a' }}
               >
                 {discountPercent}% OFF
               </span>
@@ -89,26 +89,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           </>
         )}
         {product.stock === 0 && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <span className="text-white font-bold text-lg">OUT OF STOCK</span>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
+            <span className="text-white font-bold text-lg tracking-wider">OUT OF STOCK</span>
           </div>
         )}
       </div>
 
-      <div className="p-4">
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2" style={{ color: '#1F2A7C' }}>
+      <div className="p-5">
+        <h3 className="font-heading font-semibold text-lg mb-2 line-clamp-2 text-foreground group-hover:text-primary transition-colors">
           {product.name}
         </h3>
         {product.description && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{product.description}</p>
         )}
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-2xl font-bold" style={{ color: '#1F2A7C' }}>
+            <span className="text-2xl font-bold text-foreground">
               ₹{displayPrice.toFixed(2)}
             </span>
             {hasDiscount && (
-              <span className="ml-2 text-sm text-gray-500 line-through">
+              <span className="ml-2 text-sm text-muted-foreground line-through decoration-red-400/50">
                 ₹{product.price.toFixed(2)}
               </span>
             )}
@@ -116,15 +116,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           <button
             onClick={handleAddToCart}
             disabled={adding || product.stock === 0}
-            className="p-2 rounded-lg transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: product.stock === 0 ? '#ccc' : '#FDB913' }}
+            className="p-3 rounded-xl transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground hover:scale-110 active:scale-95 btn-shine relative overflow-hidden group/btn"
+            style={{
+              backgroundColor: product.stock === 0 ? '#ccc' : '#FDB913',
+              boxShadow: product.stock === 0 ? 'none' : '0 4px 15px -3px rgba(253, 185, 19, 0.4)'
+            }}
             title={product.stock === 0 ? 'Out of stock' : 'Add to cart'}
           >
-            <ShoppingCart className="w-5 h-5" style={{ color: '#1F2A7C' }} />
+            <ShoppingCart className="w-5 h-5 text-black" />
           </button>
         </div>
         {product.stock > 0 && product.stock < 10 && (
-          <p className="text-xs text-orange-600 mt-2">Only {product.stock} left!</p>
+          <p className="text-xs text-orange-600 font-medium mt-3">Only {product.stock} left!</p>
         )}
       </div>
     </Link>

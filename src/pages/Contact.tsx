@@ -3,6 +3,7 @@ import { MapPin, Mail, Phone, Send } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import PageHero from '@/components/layout/PageHero';
 
 const Contact: React.FC = () => {
   const { toast } = useToast();
@@ -18,35 +19,31 @@ const Contact: React.FC = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-brand-light-yellow py-16">
-        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center">
-          <h1 className="font-heading text-4xl md:text-5xl font-bold text-brand-blue mb-4">
-            Contact Us
-          </h1>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            We'd love to hear from you. Whether you have a question about our products, feedback to share, or would like to collaborate with us.
-          </p>
-        </div>
-      </section>
+      <PageHero pageKey="contact">
+        <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/30">
+          We're Here to Help
+        </span>
+      </PageHero>
 
       {/* Contact Content */}
-      <section className="py-16 bg-background">
+      <section className="py-20 bg-background">
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 max-w-7xl mx-auto">
             {/* Contact Info */}
-            <div>
-              <h2 className="font-heading text-2xl font-bold text-brand-blue mb-8">
+            <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <h2 className="font-heading text-3xl font-bold text-foreground mb-10 relative inline-block">
                 Get in Touch
+                <span className="absolute -bottom-2 left-0 w-12 h-1 bg-primary rounded-full"></span>
               </h2>
 
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MapPin className="h-6 w-6 text-primary-foreground" />
+              <div className="space-y-8">
+                <div className="flex gap-6 group">
+                  <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
+                    <MapPin className="h-7 w-7 text-primary-foreground" />
                   </div>
                   <div>
-                    <h4 className="font-heading font-semibold text-foreground mb-1">Our Address</h4>
-                    <p className="text-muted-foreground text-sm">
+                    <h4 className="font-heading text-lg font-bold text-foreground mb-2">Our Address</h4>
+                    <p className="text-muted-foreground leading-relaxed">
                       MANSARA FOODS<br />
                       No. 15, Government Hospital Opposite,<br />
                       Timiri Road, Kalavai, Ranipet,<br />
@@ -55,102 +52,107 @@ const Contact: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Mail className="h-6 w-6 text-accent-foreground" />
+                <div className="flex gap-6 group">
+                  <div className="w-14 h-14 bg-accent rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-accent/20 group-hover:scale-110 transition-transform duration-300">
+                    <Mail className="h-7 w-7 text-accent-foreground" />
                   </div>
                   <div>
-                    <h4 className="font-heading font-semibold text-foreground mb-1">Email Us</h4>
-                    <a href="mailto:mansarafoods@gmail.com" className="text-accent hover:underline">
+                    <h4 className="font-heading text-lg font-bold text-foreground mb-2">Email Us</h4>
+                    <a href="mailto:mansarafoods@gmail.com" className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
                       mansarafoods@gmail.com
                     </a>
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-brand-blue rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Phone className="h-6 w-6 text-brand-cream" />
+                <div className="flex gap-6 group">
+                  <div className="w-14 h-14 bg-foreground rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <Phone className="h-7 w-7 text-background" />
                   </div>
                   <div>
-                    <h4 className="font-heading font-semibold text-foreground mb-1">Call / WhatsApp</h4>
-                    <a href="tel:+918838887064" className="text-accent hover:underline">
+                    <h4 className="font-heading text-lg font-bold text-foreground mb-2">Call / WhatsApp</h4>
+                    <a href="tel:+918838887064" className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
                       +91 88388 87064
                     </a>
-                    <p className="text-muted-foreground text-sm">(Available during business hours)</p>
+                    <p className="text-muted-foreground text-sm mt-1">(Available during business hours)</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8 p-6 bg-secondary rounded-xl">
-                <h4 className="font-heading font-semibold text-foreground mb-3">Get in Touch For:</h4>
-                <ul className="text-muted-foreground text-sm space-y-2">
-                  <li>• Product information</li>
-                  <li>• Orders & availability</li>
-                  <li>• Feedback & suggestions</li>
-                  <li>• Collaborations & partnerships</li>
-                  <li>• General enquiries</li>
-                </ul>
+              <div className="mt-12 p-8 bg-secondary/50 rounded-2xl border border-border/50 backdrop-blur-sm">
+                <h4 className="font-heading font-semibold text-foreground mb-4 text-lg">Get in Touch For:</h4>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {['Product information', 'Orders & availability', 'Feedback & suggestions', 'Visual collaborations', 'Partnerships', 'General enquiries'].map((item) => (
+                    <div key={item} className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+                      {item}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Contact Form */}
-            <div className="bg-card rounded-2xl p-8 shadow-card">
-              <h2 className="font-heading text-2xl font-bold text-brand-blue mb-6">
+            <div className="bg-card rounded-3xl p-8 sm:p-10 shadow-card border border-border/50 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+              <h2 className="font-heading text-2xl font-bold text-foreground mb-8">
                 Send us a Message
               </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Your Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter your name"
-                  />
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2 ml-1">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-5 py-4 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50"
+                      placeholder="John Doe"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2 ml-1">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      className="w-full px-5 py-4 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50"
+                      placeholder="+91 98765 43210"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2 ml-1">
                     Email Address
                   </label>
                   <input
                     type="email"
                     required
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter your email"
+                    className="w-full px-5 py-4 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50"
+                    placeholder="john@example.com"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2 ml-1">
                     Message
                   </label>
                   <textarea
                     required
                     rows={4}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                    placeholder="Write your message here..."
+                    className="w-full px-5 py-4 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50 resize-none"
+                    placeholder="How can we help you today?"
                   />
                 </div>
 
-                <Button type="submit" variant="default" size="lg" className="w-full">
-                  <Send className="h-5 w-5" />
-                  Send Message
-                </Button>
+                <div className="pt-2">
+                  <Button type="submit" variant="default" size="lg" className="w-full py-6 text-base btn-shine shadow-lg hover:shadow-xl transition-all">
+                    <Send className="h-5 w-5 mr-2" />
+                    Send Message
+                  </Button>
+                </div>
               </form>
             </div>
           </div>

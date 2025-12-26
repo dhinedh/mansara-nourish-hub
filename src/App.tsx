@@ -34,6 +34,9 @@ import AdminContent from "./pages/admin/Content";
 import AdminBanners from "./pages/admin/Banners";
 import AdminSettings from "./pages/admin/Settings";
 import AdminCategories from "./pages/admin/Categories";
+import AdminHeroManagement from "./pages/admin/HeroManagement";
+import AdminCustomers from "./pages/admin/Customers";
+import AdminCustomerHistory from "./pages/admin/CustomerHistory";
 
 import TermsAndConditions from "./pages/policies/TermsAndConditions";
 import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
@@ -76,6 +79,9 @@ const App = () => (
               <Route path="/admin/content" element={<AdminContent />} />
               <Route path="/admin/banners" element={<AdminBanners />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/hero" element={<AdminHeroManagement />} />
+              <Route path="/admin/customers" element={<AdminCustomers />} />
+              <Route path="/admin/customers/:id" element={<AdminCustomerHistory />} />
 
               {/* User Routes */}
               <Route path="/login" element={<Login />} />

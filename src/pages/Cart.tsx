@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import PageHero from '@/components/layout/PageHero';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 
@@ -36,9 +37,13 @@ const Cart: React.FC = () => {
     <Layout>
       {/* Header */}
       <section className="bg-secondary py-8">
-        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
-          <h1 className="font-heading text-3xl font-bold text-brand-blue">Shopping Cart</h1>
-          <p className="text-muted-foreground">{items.length} item(s) in your cart</p>
+        {/* Hero */}
+        <PageHero pageKey="cart" />
+
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <p className="text-muted-foreground">{items.length} item(s) in your cart</p>
+          </div>
         </div>
       </section>
 

@@ -4,28 +4,18 @@ import { Leaf, Heart, Target, Eye, Shield, Sparkles } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import TrustStrip from '@/components/TrustStrip';
+import PageHero from '@/components/layout/PageHero';
 
 const About: React.FC = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-brand-light-yellow py-20">
-        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center">
-          <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold mb-6">
-            <Leaf className="h-4 w-4" />
-            Our Story
-          </span>
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-brand-blue mb-4">
-            About MANSARA
-          </h1>
-          <p className="text-xl text-accent font-heading font-semibold mb-4">
-            Nourish from Within – The Power of MANSARA
-          </p>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            MANSARA was founded in December 2020 with a deep personal purpose — to make pure, nourishing food a part of everyday life, especially for those seeking better balance, wellness, and long-term health.
-          </p>
-        </div>
-      </section>
+      <PageHero pageKey="about">
+        <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-full text-sm font-semibold mb-6 border border-white/30">
+          <Leaf className="h-4 w-4" />
+          Our Story
+        </span>
+      </PageHero>
 
       {/* Story Section */}
       <section className="py-16 bg-background">

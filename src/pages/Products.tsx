@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
 import { products } from '@/data/products';
+import PageHero from '@/components/layout/PageHero';
 
 const categories = [
   { id: 'all', name: 'All Products' },
@@ -25,14 +26,7 @@ const Products: React.FC = () => {
     <Layout>
       <div className="min-h-screen" style={{ backgroundColor: '#FFFDF7' }}>
         {/* Hero Banner */}
-        <div className="py-8 w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto" style={{ backgroundColor: '#1F2A7C' }}>
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-4xl font-bold text-white">Products</h1>
-            <p className="text-white/80 mt-2">
-              Browse our complete range of pure, nourishing foods
-            </p>
-          </div>
-        </div>
+        <PageHero pageKey="products" />
 
         {/* Products Grid */}
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto py-8">

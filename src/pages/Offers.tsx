@@ -2,6 +2,7 @@ import React from 'react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
 import { getOfferProducts } from '@/data/products';
+import PageHero from '@/components/layout/PageHero';
 
 const Offers: React.FC = () => {
   const offerProducts = getOfferProducts();
@@ -9,21 +10,11 @@ const Offers: React.FC = () => {
   return (
     <Layout>
       {/* Hero Banner */}
-      <section className="bg-gradient-to-r from-accent/20 to-accent/10 py-16">
-        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
-          <div className="text-center">
-            <span className="inline-block bg-accent text-accent-foreground px-4 py-1 rounded-full text-sm font-bold mb-4">
-              Limited Time Offers
-            </span>
-            <h1 className="font-heading text-4xl md:text-5xl font-bold text-brand-blue mb-4">
-              Special Offers
-            </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Grab these amazing deals on your favorite MANSARA products. Premium quality at special prices!
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero pageKey="offers">
+        <span className="inline-block bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-sm font-bold mb-6 shadow-md btn-shine">
+          Limited Time Deals
+        </span>
+      </PageHero>
 
       {/* Products Grid */}
       <section className="py-12 bg-background">

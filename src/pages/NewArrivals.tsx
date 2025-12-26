@@ -2,6 +2,7 @@ import React from 'react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
 import { getNewArrivals } from '@/data/products';
+import PageHero from '@/components/layout/PageHero';
 
 const NewArrivals: React.FC = () => {
   const newProducts = getNewArrivals();
@@ -9,21 +10,11 @@ const NewArrivals: React.FC = () => {
   return (
     <Layout>
       {/* Hero Banner */}
-      <section className="bg-gradient-to-r from-brand-blue/10 to-brand-blue/5 py-16">
-        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
-          <div className="text-center">
-            <span className="inline-block bg-brand-blue text-brand-cream px-4 py-1 rounded-full text-sm font-bold mb-4">
-              Fresh Additions
-            </span>
-            <h1 className="font-heading text-4xl md:text-5xl font-bold text-brand-blue mb-4">
-              New Arrivals
-            </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Discover our latest additions to the MANSARA family. Fresh, innovative, and always pure.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero pageKey="newArrivals">
+        <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-sm font-bold mb-6 shadow-sm border border-white/30">
+          Fresh Additions
+        </span>
+      </PageHero>
 
       {/* Products Grid */}
       <section className="py-12 bg-background">
