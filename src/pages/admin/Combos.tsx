@@ -1,99 +1,164 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit2 } from "lucide-react";
-
-interface Combo {
-  id: string;
-  name: string;
-  price: number;
-  discount_price?: number;
-  image_url?: string;
-  is_active: boolean;
-}
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Edit2, Plus, Trash2, Package } from "lucide-react";
+import { useStore, Combo } from "@/context/StoreContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const AdminCombos = () => {
-  const [combos, setCombos] = useState<Combo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { combos, addCombo, updateCombo, deleteCombo } = useStore();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchCombos();
-  }, []);
+  const [formData, setFormData] = useState<Omit<Combo, 'id'>>({
+    name: '',
+    price: 0,
+    discount_price: 0,
+    image_url: '',
+    description: '',
+    is_active: true
+  });
 
-  const fetchCombos = async () => {
-    try {
-      const { data, error } = await supabase.from("combos").select("*");
-      if (error) throw error;
-      setCombos(data || []);
-    } catch (error: any) {
-      toast.error("Failed to fetch combos");
-    } finally {
-      setLoading(false);
+  const handleEdit = (combo: Combo) => {
+    setEditingId(combo.id);
+    setFormData({
+      name: combo.name,
+      price: combo.price,
+      discount_price: combo.discount_price,
+      image_url: combo.image_url,
+      description: combo.description,
+      is_active: combo.is_active
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleAddNew = () => {
+    setEditingId(null);
+    setFormData({
+      name: '',
+      price: 0,
+      discount_price: 0,
+      image_url: '',
+      description: '',
+      is_active: true
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!formData.name || formData.price <= 0) {
+      toast.error("Name and valid price are required");
+      return;
+    }
+
+    if (editingId) {
+      updateCombo(editingId, formData);
+      toast.success("Combo updated successfully");
+    } else {
+      addCombo(formData);
+      toast.success("Combo created successfully");
+    }
+    setIsDialogOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Are you sure you want to delete this combo?")) {
+      deleteCombo(id);
+      toast.success("Combo deleted");
     }
   };
 
-  const toggleStatus = async (id: string, currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from("combos")
-        .update({ is_active: !currentStatus })
-        .eq("id", id);
-      if (error) throw error;
-      toast.success("Combo status updated");
-      fetchCombos();
-    } catch (error: any) {
-      toast.error("Failed to update combo");
-    }
+  const toggleStatus = (id: string, currentStatus: boolean) => {
+    updateCombo(id, { is_active: !currentStatus });
+    toast.success(`Combo ${!currentStatus ? 'activated' : 'deactivated'}`);
   };
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Combos</h1>
-          <p className="text-slate-600 mt-1">Manage combo offers</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Combos</h1>
+            <p className="text-slate-600 mt-1">Manage combo offers</p>
+          </div>
+          <Button onClick={handleAddNew} className="gap-2">
+            <Plus size={20} /> Add Combo
+          </Button>
         </div>
 
-        {loading ? (
-          <div className="text-center py-8">Loading...</div>
-        ) : combos.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-8">
-              No combos available
+        {combos.length === 0 ? (
+          <Card className="border-dashed bg-slate-50">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center text-slate-500">
+              <Package className="h-12 w-12 mb-4 opacity-20" />
+              <p className="text-lg font-medium">No combo offers found</p>
+              <Button onClick={handleAddNew} variant="link" className="mt-2">Create one now</Button>
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {combos.map((combo) => (
-              <Card key={combo.id} className="overflow-hidden">
-                {combo.image_url && (
+              <Card key={combo.id} className="overflow-hidden group">
+                <div className="relative h-48 bg-slate-100">
                   <img
                     src={combo.image_url}
                     alt={combo.name}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-full object-cover"
+                    onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400?text=Combo+Image')}
                   />
-                )}
+                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleDelete(combo.id)}
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                  {!combo.is_active && (
+                    <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                      <span className="bg-slate-800 text-white text-xs px-2 py-1 rounded font-bold uppercase">Deactivated</span>
+                    </div>
+                  )}
+                </div>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold text-lg mb-2">{combo.name}</h3>
+                  <h3 className="font-bold text-lg mb-1 truncate">{combo.name}</h3>
+                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2 min-h-[2.5em]">
+                    {combo.description || "No description provided."}
+                  </p>
+
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="text-2xl font-bold">₹{combo.discount_price || combo.price}</span>
-                    {combo.discount_price && (
-                      <span className="line-through text-slate-500">₹{combo.price}</span>
+                    <span className="text-xl font-bold text-primary">₹{combo.discount_price || combo.price}</span>
+                    {combo.discount_price && combo.discount_price < combo.price && (
+                      <span className="line-through text-sm text-slate-400">₹{combo.price}</span>
                     )}
                   </div>
-                  <div className="space-y-2">
+
+                  <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => toggleStatus(combo.id, combo.is_active)}
                       variant="outline"
-                      className="w-full"
+                      size="sm"
                     >
                       {combo.is_active ? "Deactivate" : "Activate"}
                     </Button>
-                    <Button className="w-full gap-2">
-                      <Edit2 size={16} /> Edit
+                    <Button
+                      onClick={() => handleEdit(combo)}
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Edit2 size={14} /> Edit
                     </Button>
                   </div>
                 </CardContent>
@@ -101,6 +166,72 @@ const AdminCombos = () => {
             ))}
           </div>
         )}
+
+        {/* Edit/Create Dialog */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>{editingId ? 'Edit Combo' : 'New Combo'}</DialogTitle>
+              <DialogDescription>
+                Configure the combo offer details below.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">Name</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="price" className="text-right">Price (₹)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="discount" className="text-right">Offer Price</Label>
+                <Input
+                  id="discount"
+                  type="number"
+                  value={formData.discount_price || ''}
+                  onChange={(e) => setFormData({ ...formData, discount_price: Number(e.target.value) })}
+                  className="col-span-3"
+                  placeholder="Optional"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="image" className="text-right">Image URL</Label>
+                <Input
+                  id="image"
+                  value={formData.image_url || ''}
+                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="desc" className="text-right">Description</Label>
+                <Input
+                  id="desc"
+                  value={formData.description || ''}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+              <Button onClick={handleSave}>Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );

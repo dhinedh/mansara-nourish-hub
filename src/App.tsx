@@ -21,6 +21,10 @@ import Account from "./pages/Account";
 import Orders from "./pages/Orders";
 import OrderTracking from "./pages/OrderTracking";
 import { AuthProvider } from "./context/AuthContext";
+import { ContentProvider } from "./context/ContentContext";
+import { StoreProvider } from "./context/StoreContext";
+
+
 
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -48,60 +52,68 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/offers" element={<Offers />} />
-              <Route path="/combos" element={<Combos />} />
-              <Route path="/new-arrivals" element={<NewArrivals />} />
-              <Route path="/product/:slug" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/categories" element={<AdminCategories />} />
-              <Route path="/admin/products" element={<AdminProducts />} />
-              <Route path="/admin/products/:id/edit" element={<AdminProductEdit />} />
-              <Route path="/admin/products/new" element={<AdminProductEdit />} />
-              <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="/admin/customers" element={<AdminCustomers />} />
-              <Route path="/admin/offers" element={<AdminOffers />} />
-              <Route path="/admin/combos" element={<AdminCombos />} />
-              <Route path="/admin/content" element={<AdminContent />} />
-              <Route path="/admin/banners" element={<AdminBanners />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
-              <Route path="/admin/hero" element={<AdminHeroManagement />} />
-
-              <Route path="/admin/customers/:id" element={<AdminCustomerHistory />} />
-
-              {/* User Routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/account" element={<Account />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
+      <ContentProvider>
+        <StoreProvider>
+          <CartProvider>
 
 
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <ScrollToTop />
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/offers" element={<Offers />} />
+                  <Route path="/combos" element={<Combos />} />
+                  <Route path="/new-arrivals" element={<NewArrivals />} />
+                  <Route path="/product/:slug" element={<ProductDetail />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
 
-              <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/delivery-shipping-policy" element={<DeliveryShippingPolicy />} />
-              <Route path="/refund-return-policy" element={<RefundReturnPolicy />} />
+                  <Route path="/admin/login" element={<AdminLogin />} />
+                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin/categories" element={<AdminCategories />} />
+                  <Route path="/admin/products" element={<AdminProducts />} />
+                  <Route path="/admin/products/:id/edit" element={<AdminProductEdit />} />
+                  <Route path="/admin/products/new" element={<AdminProductEdit />} />
+                  <Route path="/admin/orders" element={<AdminOrders />} />
+                  <Route path="/admin/customers" element={<AdminCustomers />} />
+                  <Route path="/admin/offers" element={<AdminOffers />} />
+                  <Route path="/admin/combos" element={<AdminCombos />} />
+                  <Route path="/admin/content" element={<AdminContent />} />
+                  <Route path="/admin/banners" element={<AdminBanners />} />
+                  <Route path="/admin/settings" element={<AdminSettings />} />
+                  <Route path="/admin/hero" element={<AdminHeroManagement />} />
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </CartProvider>
+                  <Route path="/admin/customers/:id" element={<AdminCustomerHistory />} />
+
+                  {/* User Routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/account" element={<Account />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
+
+
+
+                  <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/delivery-shipping-policy" element={<DeliveryShippingPolicy />} />
+                  <Route path="/refund-return-policy" element={<RefundReturnPolicy />} />
+
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </CartProvider>
+        </StoreProvider>
+      </ContentProvider>
     </AuthProvider>
+
+
   </QueryClientProvider>
 );
 

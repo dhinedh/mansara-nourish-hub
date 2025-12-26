@@ -4,9 +4,11 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import PageHero from '@/components/layout/PageHero';
+import { useContent } from '@/context/ContentContext';
 
 const Contact: React.FC = () => {
   const { toast } = useToast();
+  const { getContent } = useContent();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +23,7 @@ const Contact: React.FC = () => {
       {/* Hero */}
       <PageHero pageKey="contact">
         <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/30">
-          We're Here to Help
+          {getContent('contact', 'intro', "We're Here to Help")}
         </span>
       </PageHero>
 
@@ -43,11 +45,8 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="font-heading text-lg font-bold text-foreground mb-2">Our Address</h4>
-                    <p className="text-muted-foreground leading-relaxed">
-                      MANSARA FOODS<br />
-                      No. 15, Government Hospital Opposite,<br />
-                      Timiri Road, Kalavai, Ranipet,<br />
-                      Tamil Nadu – 632506, India
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {getContent('contact', 'address', "MANSARA FOODS\nNo. 15, Government Hospital Opposite,\nTimiri Road, Kalavai, Ranipet,\nTamil Nadu – 632506, India")}
                     </p>
                   </div>
                 </div>
@@ -58,8 +57,8 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="font-heading text-lg font-bold text-foreground mb-2">Email Us</h4>
-                    <a href="mailto:mansarafoods@gmail.com" className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
-                      mansarafoods@gmail.com
+                    <a href={`mailto:${getContent('contact', 'email', 'mansarafoods@gmail.com')}`} className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
+                      {getContent('contact', 'email', 'mansarafoods@gmail.com')}
                     </a>
                   </div>
                 </div>
@@ -70,8 +69,8 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="font-heading text-lg font-bold text-foreground mb-2">Call / WhatsApp</h4>
-                    <a href="tel:+918838887064" className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
-                      +91 88388 87064
+                    <a href={`tel:${getContent('contact', 'phone', '+91 88388 87064')}`} className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
+                      {getContent('contact', 'phone', '+91 88388 87064')}
                     </a>
                     <p className="text-muted-foreground text-sm mt-1">(Available during business hours)</p>
                   </div>

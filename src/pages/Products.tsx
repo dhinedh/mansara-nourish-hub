@@ -24,7 +24,7 @@ const Products: React.FC = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen" style={{ backgroundColor: '#FFFDF7' }}>
+      <div className="min-h-screen bg-background">
         {/* Hero Banner */}
         <PageHero pageKey="products" />
 
@@ -33,8 +33,8 @@ const Products: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-8">
             {/* Sidebar Filters */}
             <aside className="md:w-64 flex-shrink-0">
-              <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
-                <h3 className="font-semibold mb-4" style={{ color: '#1F2A7C' }}>
+              <div className="bg-card rounded-xl p-6 shadow-sm sticky top-24 border border-border/50">
+                <h3 className="font-semibold mb-4 text-foreground">
                   Categories
                 </h3>
                 <div className="space-y-2">
@@ -43,14 +43,9 @@ const Products: React.FC = () => {
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
                       className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${selectedCategory === category.id
-                        ? 'font-semibold'
-                        : 'text-gray-600 hover:bg-gray-50'
+                        ? 'font-semibold bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                         }`}
-                      style={
-                        selectedCategory === category.id
-                          ? { backgroundColor: '#FFF2CC', color: '#1F2A7C' }
-                          : {}
-                      }
                     >
                       {category.name}
                     </button>

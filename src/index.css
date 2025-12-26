@@ -6,30 +6,31 @@
 
 @layer base {
   :root {
-    /* MANSARA Brand Colors - Professional White Theme */
-    --background: 210 20% 98%;
-    /* Cool White / Light Gray */
-    --foreground: 220 20% 20%;
-    /* Deep Charcoal */
+    /* MANSARA Brand Colors - Creamy Theme */
+    --background: 40 30% 97%;
+    /* Warm Cream */
+    --foreground: 24 10% 20%;
+    /* Warm Dark Brown */
 
     --card: 0 0% 100%;
     /* Pure White */
-    --card-foreground: 220 20% 20%;
+    --card-foreground: 24 10% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 20%;
+    --popover-foreground: 24 10% 20%;
 
     /* Golden Yellow - Accent/Action */
     --primary: 45 98% 50%;
     --primary-foreground: 0 0% 100%;
 
-    /* Light Gray Section */
-    --secondary: 220 10% 96%;
-    --secondary-foreground: 220 20% 20%;
+    /* Creamy/Beige Section */
+    --secondary: 40 30% 92%;
+    /* Darker Cream */
+    --secondary-foreground: 24 10% 20%;
 
-    /* Cool Muted */
-    --muted: 220 10% 94%;
-    --muted-foreground: 220 10% 50%;
+    /* Warm Muted */
+    --muted: 40 20% 90%;
+    --muted-foreground: 24 10% 50%;
 
     /* Terracotta - Accent */
     --accent: 15 65% 55%;
@@ -38,33 +39,32 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Light Gray Border */
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
+    /* Beige Border */
+    --border: 40 20% 88%;
+    --input: 40 20% 96%;
 
     /* Golden Ring */
     --ring: 45 98% 50%;
 
     --radius: 0.5rem;
-    /* Slightly sharper for professional look */
 
     /* Extended Brand Colors & Mappings */
     --brand-yellow: 45 98% 50%;
     --brand-pink: 15 65% 55%;
-    --brand-blue: 220 20% 20%;
-    /* Remapped to Charcoal for compatibility */
-    --brand-cream: 210 20% 98%;
-    /* Remapped to Cool White */
-    --brand-light-yellow: 220 10% 96%;
-    /* Remapped to Light Gray */
-    --brand-charcoal: 220 20% 20%;
-    --brand-gray: 220 10% 50%;
-    --brand-beige: 220 15% 90%;
+    --brand-blue: 24 10% 20%;
+    /* Remapped to Warm Dark Brown */
+    --brand-cream: 40 30% 97%;
+    /* Warm Cream */
+    --brand-light-yellow: 40 30% 92%;
+    /* Darker Cream */
+    --brand-charcoal: 24 10% 20%;
+    --brand-gray: 24 10% 50%;
+    --brand-beige: 40 20% 88%;
 
-    /* Gradients - Subtle & Professional */
-    --gradient-hero: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 20% 98%) 100%);
+    /* Gradients - Warm & Creamy */
+    --gradient-hero: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 30% 97%) 100%);
     --gradient-cta: linear-gradient(135deg, hsl(45 98% 50%) 0%, hsl(45 90% 55%) 100%);
-    --gradient-footer: linear-gradient(180deg, hsl(220 20% 15%) 0%, hsl(220 20% 10%) 100%);
+    --gradient-footer: linear-gradient(180deg, hsl(24 10% 15%) 0%, hsl(24 10% 10%) 100%);
 
     /* Enhanced "Perfect" Shadows */
     --shadow-card:
@@ -85,43 +85,43 @@
 
     /* Sidebar Variables */
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 20% 20%;
+    --sidebar-foreground: 24 10% 20%;
     --sidebar-primary: 45 98% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 10% 96%;
-    --sidebar-accent-foreground: 220 20% 20%;
-    --sidebar-border: 220 15% 90%;
+    --sidebar-accent: 40 30% 92%;
+    --sidebar-accent-foreground: 24 10% 20%;
+    --sidebar-border: 40 20% 88%;
     --sidebar-ring: 45 98% 50%;
   }
 
   .dark {
-    /* Dark Mode - Professional Slate */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* Dark Mode - Warm Espresso/Dark Chocolate Theme */
+    --background: 24 20% 10%;
+    --foreground: 40 30% 97%;
 
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    --card: 24 20% 12%;
+    --card-foreground: 40 30% 97%;
 
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 24 20% 12%;
+    --popover-foreground: 40 30% 97%;
 
     --primary: 45 98% 50%;
-    --primary-foreground: 222 47% 11%;
+    --primary-foreground: 24 20% 10%;
 
-    --secondary: 217 32% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 24 15% 18%;
+    --secondary-foreground: 40 30% 97%;
 
-    --muted: 217 32% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 24 15% 18%;
+    --muted-foreground: 40 10% 70%;
 
     --accent: 15 65% 55%;
-    --accent-foreground: 210 40% 98%;
+    --accent-foreground: 40 30% 97%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 40 30% 97%;
 
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
+    --border: 24 15% 20%;
+    --input: 24 15% 20%;
     --ring: 45 98% 50%;
   }
 }
@@ -144,7 +144,6 @@
   h6 {
     font-family: var(--font-heading);
     @apply font-semibold text-foreground;
-    /* Changed from brand-blue/charcoal to generic foreground */
   }
 }
 

@@ -41,8 +41,8 @@ const Header: React.FC = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out`}
       style={{
         background: isScrolled
-          ? 'rgba(255, 255, 255, 0.92)'
-          : 'rgba(255, 255, 255, 0.95)',
+          ? 'rgba(250, 248, 244, 0.92)' /* Creamy transparent */
+          : 'rgba(250, 248, 244, 0.95)',
         backdropFilter: 'blur(12px)',
         boxShadow: isScrolled ? '0 4px 20px -5px rgba(0, 0, 0, 0.05)' : 'none',
         borderBottom: isScrolled ? '1px solid rgba(0, 0, 0, 0.05)' : 'none',
@@ -67,7 +67,7 @@ const Header: React.FC = () => {
               to={link.path}
               className={`px-4 py-2 font-medium text-sm transition-all duration-300 relative group`}
               style={{
-                color: isActive(link.path) ? '#1a1a1a' : '#4a4a4a',
+                color: isActive(link.path) ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                 animationDelay: `${index * 50}ms`
               }}
             >
@@ -77,7 +77,7 @@ const Header: React.FC = () => {
               <span
                 className={`absolute bottom-0 left-4 right-4 h-0.5 rounded-full transition-all duration-300 ${isActive(link.path) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                   }`}
-                style={{ backgroundColor: '#FDB913' }}
+                style={{ backgroundColor: 'hsl(var(--primary))' }}
               />
 
               {/* Hover background effect */}
@@ -95,7 +95,7 @@ const Header: React.FC = () => {
               <Input
                 autoFocus
                 placeholder="Search..."
-                className="h-9 w-[200px] mr-2 bg-gray-50 border-gray-200 transition-all duration-300 focus:w-[250px]"
+                className="h-9 w-[200px] mr-2 bg-white/50 border-gray-200 transition-all duration-300 focus:w-[250px]"
                 onBlur={() => setIsSearchOpen(false)}
               />
             </div>
@@ -116,7 +116,7 @@ const Header: React.FC = () => {
               size="icon"
               className="text-foreground hover:bg-black/5 transition-all duration-300 hover:scale-110"
             >
-              <User className={`h-5 w-5 transition-all duration-300 ${isAuthenticated ? 'text-yellow-500' : ''}`} />
+              <User className={`h-5 w-5 transition-all duration-300 ${isAuthenticated ? 'text-primary' : ''}`} />
             </Button>
           </Link>
 
@@ -130,7 +130,7 @@ const Header: React.FC = () => {
               {getCartCount() > 0 && (
                 <span
                   className="absolute -top-1 -right-1 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in zoom-in duration-300 shadow-sm"
-                  style={{ backgroundColor: '#FDB913', color: '#1a1a1a' }}
+                  style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
                 >
                   {getCartCount()}
                 </span>
@@ -164,7 +164,7 @@ const Header: React.FC = () => {
         className={`lg:hidden absolute top-full left-0 right-0 shadow-lg border-t overflow-hidden transition-all duration-500 ease-in-out ${isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
           }`}
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.98)',
+          backgroundColor: 'rgba(250, 248, 244, 0.98)',
           borderTopColor: 'rgba(0, 0, 0, 0.05)'
         }}
       >

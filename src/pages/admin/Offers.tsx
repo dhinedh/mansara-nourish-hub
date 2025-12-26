@@ -1,44 +1,16 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
-import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Edit2 } from "lucide-react";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  offer_price?: number;
-  image_url?: string;
-  is_offer: boolean;
-}
+import { useStore } from "@/context/StoreContext";
 
 const AdminOffers = () => {
-  const [offers, setOffers] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { products } = useStore();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchOffers();
-  }, []);
-
-  const fetchOffers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("is_offer", true);
-      if (error) throw error;
-      setOffers(data || []);
-    } catch (error: any) {
-      toast.error("Failed to fetch offers");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Filter products that are marked as offers
+  const offers = products.filter(p => p.is_offer);
 
   const calculateDiscount = (price: number, offerPrice?: number) => {
     if (!offerPrice) return 0;
@@ -53,9 +25,7 @@ const AdminOffers = () => {
           <p className="text-slate-600 mt-1">Manage products on offer</p>
         </div>
 
-        {loading ? (
-          <div className="text-center py-8">Loading...</div>
-        ) : offers.length === 0 ? (
+        {offers.length === 0 ? (
           <Card>
             <CardContent className="text-center py-8">
               No products marked as offers yet

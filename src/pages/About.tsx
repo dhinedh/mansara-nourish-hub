@@ -5,8 +5,11 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import TrustStrip from '@/components/TrustStrip';
 import PageHero from '@/components/layout/PageHero';
+import { useContent } from '@/context/ContentContext';
 
 const About: React.FC = () => {
+  const { getContent } = useContent();
+
   return (
     <Layout>
       {/* Hero */}
@@ -22,15 +25,9 @@ const About: React.FC = () => {
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           <div className="max-w-3xl mx-auto">
             <h2 className="font-heading text-3xl font-bold text-brand-blue mb-6">Our Story</h2>
-            <div className="prose text-muted-foreground space-y-4">
+            <div className="prose text-muted-foreground space-y-4 whitespace-pre-line">
               <p>
-                MANSARA began its journey with a focus on pure, traditionally prepared cooking essentials — Groundnut oil, Sesame oil, Coconut oil, and Ghee — made with an uncompromising commitment to quality, purity, and honesty.
-              </p>
-              <p>
-                As trust grew, so did our offerings. We expanded into nutritious porridge mixes such as Urad Porridge Mix and Kavuni Porridge Mix, and later introduced authentic millet idly podi — combining traditional recipes with modern-day convenience.
-              </p>
-              <p>
-                Each product is designed to be easy to cook, clean in ingredients, and gentle in processing, making healthy eating practical for today's lifestyle.
+                {getContent('about', 'story', "MANSARA began its journey with a focus on pure, traditionally prepared cooking essentials.")}
               </p>
             </div>
           </div>
@@ -51,14 +48,8 @@ const About: React.FC = () => {
               <p className="text-accent font-semibold mb-4">Deepika Harikrishnan</p>
             </div>
             <div>
-              <p className="text-muted-foreground mb-4">
-                MANSARA was founded by Deepika Harikrishnan, driven by her personal journey and lived experience with hormonal health challenges.
-              </p>
-              <p className="text-muted-foreground mb-4">
-                Through this journey, she realized the powerful role that clean, balanced, and traditional foods play in supporting overall well-being. Her aim was never to create "special diet food," but to make everyday food better, purer, and more nourishing — so families can support their health naturally through what they eat daily.
-              </p>
-              <p className="text-foreground font-medium">
-                MANSARA reflects this belief — that food should support the body, not burden it, and that long-term wellness begins with mindful, honest nourishment.
+              <p className="text-muted-foreground mb-4 whitespace-pre-line">
+                {getContent('about', 'founder_note', "MANSARA refers to this belief — that food should support the body, not burden it.")}
               </p>
             </div>
           </div>
@@ -100,19 +91,16 @@ const About: React.FC = () => {
             <div className="bg-card rounded-xl p-8 shadow-card">
               <Eye className="h-10 w-10 text-brand-blue mb-4" />
               <h3 className="font-heading text-2xl font-bold text-brand-blue mb-4">Our Vision</h3>
-              <p className="text-muted-foreground">
-                To become a trusted wellness food brand that supports healthier lifestyles by offering pure, nourishing food rooted in tradition and enhanced by modern practices.
+              <p className="text-muted-foreground whitespace-pre-line">
+                {getContent('about', 'vision', "To become a trusted wellness food brand.")}
               </p>
             </div>
             <div className="bg-card rounded-xl p-8 shadow-card">
               <Target className="h-10 w-10 text-brand-blue mb-4" />
               <h3 className="font-heading text-2xl font-bold text-brand-blue mb-4">Our Mission</h3>
-              <ul className="text-muted-foreground space-y-2">
-                <li>• Provide clean, wholesome foods inspired by traditional wisdom</li>
-                <li>• Support everyday wellness through simple, nourishing ingredients</li>
-                <li>• Create easy-to-cook products suited for modern living</li>
-                <li>• Maintain purity, transparency, and responsibility</li>
-              </ul>
+              <p className="text-muted-foreground whitespace-pre-line">
+                {getContent('about', 'mission', "Provide clean, wholesome foods inspired by traditional wisdom.")}
+              </p>
             </div>
           </div>
         </div>

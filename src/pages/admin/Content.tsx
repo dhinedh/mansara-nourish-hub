@@ -1,135 +1,123 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useContent, PageContent } from "@/context/ContentContext";
 
-interface ContentPage {
-  id: string;
-  slug: string;
-  title: string;
-  content: string;
-  updated_at: string;
-}
+// Config defining which fields are editable for each page
+const PAGE_CONFIG: Record<string, { title: string; fields: { key: string; label: string; type: 'text' | 'textarea' }[] }> = {
+  about: {
+    title: "About Us",
+    fields: [
+      { key: "story", label: "Our Story", type: "textarea" },
+      { key: "mission", label: "Our Mission", type: "textarea" },
+      { key: "vision", label: "Our Vision", type: "textarea" },
+      { key: "founder_note", label: "Founder's Note", type: "textarea" },
+    ]
+  },
+  contact: {
+    title: "Contact Us",
+    fields: [
+      { key: "intro", label: "Intro Text", type: "text" },
+      { key: "address", label: "Address", type: "textarea" },
+      { key: "email", label: "Email Address", type: "text" },
+      { key: "phone", label: "Phone Number", type: "text" },
+    ]
+  }
+};
 
 const AdminContent = () => {
-  const [pages, setPages] = useState<ContentPage[]>([]);
-  const [editingPage, setEditingPage] = useState<ContentPage | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { contents, updateContent } = useContent();
+  const [activeTab, setActiveTab] = useState<string>("about");
+  const [formData, setFormData] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    fetchPages();
-  }, []);
-
-  const fetchPages = async () => {
-    try {
-      const { data, error } = await supabase.from("content_pages").select("*");
-      if (error) throw error;
-      setPages(data || []);
-      if (data && data.length > 0) {
-        setEditingPage(data[0]);
-      }
-    } catch (error: any) {
-      toast.error("Failed to fetch content pages");
-    } finally {
-      setLoading(false);
+  // Load initial data when tab changes or contents load
+  const loadData = (slug: string) => {
+    const page = contents.find(p => p.slug === slug);
+    if (page) {
+      setFormData(page.sections);
+    } else {
+      setFormData({});
     }
   };
 
-  const handleSave = async () => {
-    if (!editingPage) return;
+  // Sync when tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    loadData(value);
+  };
 
-    setSaving(true);
+  // Sync when contents context changes (initial load)
+  useState(() => {
+    loadData(activeTab);
+  });
+
+  const handleInputChange = (key: string, value: string) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSave = () => {
     try {
-      const { error } = await supabase
-        .from("content_pages")
-        .update({
-          title: editingPage.title,
-          content: editingPage.content,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", editingPage.id);
-
-      if (error) throw error;
-      toast.success("Content updated successfully");
-      fetchPages();
-    } catch (error: any) {
+      Object.entries(formData).forEach(([key, value]) => {
+        updateContent(activeTab, key, value);
+      });
+      toast.success(`${PAGE_CONFIG[activeTab].title} updated successfully`);
+    } catch (error) {
       toast.error("Failed to save content");
-    } finally {
-      setSaving(false);
     }
   };
-
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="text-center py-8">Loading...</div>
-      </AdminLayout>
-    );
-  }
 
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Content Management</h1>
-          <p className="text-slate-600 mt-1">Edit website pages and content</p>
+          <p className="text-slate-600 mt-1">Edit website text content</p>
         </div>
 
-        <Tabs defaultValue={pages[0]?.id || ""} className="space-y-4">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
           <TabsList>
-            {pages.map((page) => (
-              <TabsTrigger key={page.id} value={page.id}>
-                {page.slug}
+            {Object.keys(PAGE_CONFIG).map((slug) => (
+              <TabsTrigger key={slug} value={slug} className="capitalize">
+                {slug}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {pages.map((page) => (
-            <TabsContent key={page.id} value={page.id}>
+          {Object.entries(PAGE_CONFIG).map(([slug, config]) => (
+            <TabsContent key={slug} value={slug}>
               <Card>
                 <CardHeader>
-                  <CardTitle>{page.title}</CardTitle>
+                  <CardTitle>{config.title}</CardTitle>
                   <CardDescription>
-                    Last updated: {new Date(page.updated_at).toLocaleDateString()}
+                    Update the textual content for the {config.title} page.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Page Title</label>
-                    <Input
-                      value={page.title}
-                      onChange={(e) =>
-                        editingPage?.id === page.id &&
-                        setEditingPage({ ...editingPage, title: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Content</label>
-                    <textarea
-                      value={page.content}
-                      onChange={(e) =>
-                        editingPage?.id === page.id &&
-                        setEditingPage({ ...editingPage, content: e.target.value })
-                      }
-                      className="w-full p-3 border border-slate-300 rounded-md font-mono text-sm"
-                      rows={15}
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => {
-                        setEditingPage(page);
-                        handleSave();
-                      }}
-                      disabled={saving}
-                    >
-                      {saving ? "Saving..." : "Save Changes"}
+                <CardContent className="space-y-6">
+                  {config.fields.map((field) => (
+                    <div key={field.key}>
+                      <label className="block text-sm font-medium mb-2 text-slate-700">{field.label}</label>
+                      {field.type === 'textarea' ? (
+                        <textarea
+                          value={formData[field.key] || ''}
+                          onChange={(e) => handleInputChange(field.key, e.target.value)}
+                          className="w-full p-3 border border-slate-300 rounded-md font-sans text-sm min-h-[120px] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                        />
+                      ) : (
+                        <Input
+                          value={formData[field.key] || ''}
+                          onChange={(e) => handleInputChange(field.key, e.target.value)}
+                        />
+                      )}
+                    </div>
+                  ))}
+
+                  <div className="pt-4 flex justify-end">
+                    <Button onClick={handleSave} className="min-w-[150px]">
+                      Save Changes
                     </Button>
                   </div>
                 </CardContent>

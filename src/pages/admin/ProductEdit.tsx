@@ -4,7 +4,6 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import {
   Select,
@@ -15,78 +14,54 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
-import ImageUpload from "@/components/admin/ImageUpload";
-
-interface ProductFormData {
-  name: string;
-  slug: string;
-  category: string;
-  sub_category?: string;
-  price: number;
-  offer_price?: number;
-  stock: number;
-  weight?: string;
-  short_description?: string;
-  description?: string;
-  ingredients?: string;
-  how_to_use?: string;
-  storage_instructions?: string;
-  image_url?: string;
-  is_offer: boolean;
-  is_new_arrival: boolean;
-  is_featured: boolean;
-  is_active: boolean;
-  highlights?: string[];
-  nutrition?: string;
-  compliance?: string;
-}
+import { useStore, Product } from "@/context/StoreContext";
 
 const AdminProductEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<ProductFormData>({
+  const { getProduct, addProduct, updateProduct, categories } = useStore();
+
+  const [formData, setFormData] = useState<Omit<Product, 'id'>>({
     name: "",
     slug: "",
     category: "",
     price: 0,
+    store: 0, // Typo fix: stock
     stock: 0,
     is_offer: false,
     is_new_arrival: false,
     is_featured: false,
     is_active: true,
     highlights: [],
-  });
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-  const [loading, setLoading] = useState(!!id);
-  const [saving, setSaving] = useState(false);
+    image_url: "",
+    sub_category: "",
+    offer_price: 0,
+    weight: "",
+    short_description: "",
+    description: "",
+    ingredients: "",
+    how_to_use: "",
+    storage_instructions: "",
+    nutrition: "",
+    compliance: ""
+  } as any);
+
   const [highlightsText, setHighlightsText] = useState("");
 
   useEffect(() => {
-    fetchCategories();
     if (id && id !== "new") {
-      fetchProduct();
-    }
-  }, [id]);
-
-  const fetchCategories = async () => {
-    const { data } = await supabase.from("categories").select("id, name").order("name");
-    if (data) setCategories(data);
-  };
-
-  const fetchProduct = async () => {
-    try {
-      const { data, error } = await supabase.from("products").select("*").eq("id", id).single();
-      if (error) throw error;
-      setFormData(data);
-      if (data.highlights && Array.isArray(data.highlights)) {
-        setHighlightsText(data.highlights.join("\n"));
+      const product = getProduct(id);
+      if (product) {
+        setFormData(product);
+        if (product.highlights) {
+          setHighlightsText(product.highlights.join("\n"));
+        }
+      } else {
+        toast.error("Product not found");
+        navigate("/admin/products");
       }
-    } catch (error: any) {
-      toast.error("Failed to fetch product");
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [id, getProduct, navigate]);
 
   const generateSlug = (name: string) => {
     return name
@@ -97,62 +72,57 @@ const AdminProductEdit = () => {
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       name,
-      slug: generateSlug(name),
-    });
+      slug: id === "new" ? generateSlug(name) : prev.slug,
+    }));
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [name]: name === "price" || name === "stock" || name === "offer_price" ? parseFloat(value) || 0 : value,
-    });
+    }));
   };
 
   const handleCheckboxChange = (field: string, checked: boolean) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [field]: checked,
-    });
+    }));
   };
 
   const handleHighlightsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setHighlightsText(e.target.value);
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       highlights: e.target.value.split("\n").filter(line => line.trim() !== "")
-    });
+    }));
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const { error } = id && id !== "new"
-        ? await supabase.from("products").update(formData).eq("id", id)
-        : await supabase.from("products").insert([formData]);
+  const handleSave = () => {
+    if (!formData.name || formData.price <= 0) {
+      toast.error("Name and valid price are required");
+      return;
+    }
 
-      if (error) throw error;
-      toast.success(id && id !== "new" ? "Product updated successfully" : "Product created successfully");
+    try {
+      if (id && id !== "new") {
+        updateProduct(id, formData);
+        toast.success("Product updated successfully");
+      } else {
+        addProduct(formData);
+        toast.success("Product created successfully");
+      }
       navigate("/admin/products");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to save product");
-    } finally {
-      setSaving(false);
+    } catch (error) {
+      toast.error("Failed to save product");
     }
   };
-
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center py-8">Loading...</div>
-      </AdminLayout>
-    );
-  }
 
   return (
     <AdminLayout>
@@ -191,7 +161,7 @@ const AdminProductEdit = () => {
                     <label className="block text-sm font-medium mb-2">Category</label>
                     <Select
                       value={formData.category}
-                      onValueChange={(value) => setFormData({ ...formData, category: value })}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select Category" />
@@ -200,13 +170,6 @@ const AdminProductEdit = () => {
                         {categories.map((cat) => (
                           <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
                         ))}
-                        {/* Fallback hardcoded if no DB cats yet for testing */}
-                        {!categories.length && (
-                          <>
-                            <SelectItem value="Porridge Mixes">Porridge Mixes</SelectItem>
-                            <SelectItem value="Oil & Ghee">Oil & Ghee</SelectItem>
-                          </>
-                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -286,7 +249,7 @@ const AdminProductEdit = () => {
                     value={formData.short_description || ""}
                     onChange={handleChange}
                     placeholder="Brief description"
-                    className="w-full p-2 border border-slate-300 rounded-md"
+                    className="w-full p-2 border border-slate-300 rounded-md bg-transparent"
                     rows={2}
                   />
                 </div>
@@ -297,8 +260,8 @@ const AdminProductEdit = () => {
                     value={formData.description || ""}
                     onChange={handleChange}
                     placeholder="Detailed description"
-                    className="w-full p-2 border border-slate-300 rounded-md"
-                    rows={3}
+                    className="w-full p-2 border border-slate-300 rounded-md bg-transparent"
+                    rows={7}
                   />
                 </div>
                 <div>
@@ -307,7 +270,7 @@ const AdminProductEdit = () => {
                     value={highlightsText}
                     onChange={handleHighlightsChange}
                     placeholder="• Highlight 1&#10;• Highlight 2"
-                    className="w-full p-2 border border-slate-300 rounded-md"
+                    className="w-full p-2 border border-slate-300 rounded-md bg-transparent"
                     rows={4}
                   />
                 </div>
@@ -318,7 +281,7 @@ const AdminProductEdit = () => {
                     value={formData.ingredients || ""}
                     onChange={handleChange}
                     placeholder="List of ingredients"
-                    className="w-full p-2 border border-slate-300 rounded-md"
+                    className="w-full p-2 border border-slate-300 rounded-md bg-transparent"
                     rows={2}
                   />
                 </div>
@@ -329,39 +292,8 @@ const AdminProductEdit = () => {
                     value={formData.how_to_use || ""}
                     onChange={handleChange}
                     placeholder="Usage instructions"
-                    className="w-full p-2 border border-slate-300 rounded-md"
+                    className="w-full p-2 border border-slate-300 rounded-md bg-transparent"
                     rows={2}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Nutrition</label>
-                  <textarea
-                    name="nutrition"
-                    value={formData.nutrition || ""}
-                    onChange={handleChange}
-                    placeholder="Nutritional information"
-                    className="w-full p-2 border border-slate-300 rounded-md"
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Storage Instructions</label>
-                  <textarea
-                    name="storage_instructions"
-                    value={formData.storage_instructions || ""}
-                    onChange={handleChange}
-                    placeholder="Storage guidelines"
-                    className="w-full p-2 border border-slate-300 rounded-md"
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Compliance</label>
-                  <Input
-                    name="compliance"
-                    value={formData.compliance || ""}
-                    onChange={handleChange}
-                    placeholder="FSSAI License No, etc."
                   />
                 </div>
               </CardContent>
@@ -373,23 +305,16 @@ const AdminProductEdit = () => {
               </CardHeader>
               <CardContent>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Product Image</label>
-                  <ImageUpload
-                    value={formData.image_url}
-                    onChange={(url) => setFormData({ ...formData, image_url: url })}
+                  <label className="block text-sm font-medium mb-2">Product Image URL</label>
+                  <Input
+                    name="image_url"
+                    value={formData.image_url || ""}
+                    onChange={handleChange}
+                    placeholder="https://..."
                   />
-                  {/* Fallback Input for manual URL if needed - optional */}
-                  {!formData.image_url && (
-                    <div className="mt-2">
-                      <p className="text-xs text-gray-500 mb-1">Or enter URL manually:</p>
-                      <Input
-                        name="image_url"
-                        value={formData.image_url || ""}
-                        onChange={handleChange}
-                        placeholder="https://..."
-                      />
-                    </div>
-                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Enter a direct URL for the product image.
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -447,8 +372,8 @@ const AdminProductEdit = () => {
 
             <Card className="mt-4">
               <CardContent className="pt-6 space-y-3">
-                <Button onClick={handleSave} className="w-full" disabled={saving}>
-                  {saving ? "Saving..." : "Save Product"}
+                <Button onClick={handleSave} className="w-full">
+                  Save Product
                 </Button>
                 <Button variant="outline" onClick={() => navigate("/admin/products")} className="w-full">
                   Cancel
