@@ -18,6 +18,13 @@ export interface Product {
     description?: string;
     highlights?: string[];
     specs?: Record<string, string>;
+    sub_category?: string;
+    weight?: string;
+    ingredients?: string;
+    how_to_use?: string;
+    storage_instructions?: string;
+    nutrition?: string;
+    compliance?: string;
 }
 
 export interface Combo {
