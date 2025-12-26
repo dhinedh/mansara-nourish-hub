@@ -40,19 +40,23 @@ const Header: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out`}
       style={{
-        backgroundColor: isScrolled ? 'rgba(233, 30, 99, 0.95)' : '#E91E63',
+        background: isScrolled 
+          ? 'linear-gradient(to right, linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%) 0% 17%, linear-gradient(135deg, rgba(233, 30, 99, 0.95) 0%, rgba(233, 30, 99, 1) 100%) 17% 100%)' 
+          : window.innerWidth < 768 
+            ? 'linear-gradient(to right, #ffffff 0%, #f0f0f0 20%, #e8e8e8 40%, #E91E63 40%, #d81b60 70%, #c2185b 100%)'
+            : 'linear-gradient(to right, #ffffff 0%, #f0f0f0 8.5%, #e8e8e8 17%, #E91E63 17%, #d81b60 58.5%, #c2185b 100%)',
         backdropFilter: isScrolled ? 'blur(12px)' : 'none',
         boxShadow: isScrolled ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' : 'none',
-        padding: '0.75rem 0'
+        padding: '0'
       }}
     >
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo with hover animation - REDUCED SIZE */}
-        <Link to="/" className="flex items-center gap-2 transform transition-transform duration-300 hover:scale-105">
+        <Link to="/" className="flex items-center gap-2 transform transition-transform duration-300 hover:scale-105 ml-2 md:-ml-20">
           <img 
             src={logo} 
             alt="Mansara Foods" 
-            className="h-14 md:h-16 w-auto object-contain transition-all duration-300 hover:rotate-3"
+            className="h-20 md:h-24 w-auto object-contain transition-all duration-300 hover:rotate-3"
           />
         </Link>
 
@@ -112,7 +116,7 @@ const Header: React.FC = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="hidden sm:flex text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+              className="text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
             >
               <User className={`h-5 w-5 transition-all duration-300 ${isAuthenticated ? 'text-yellow-300' : ''}`} />
             </Button>
