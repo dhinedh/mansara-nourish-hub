@@ -117,9 +117,12 @@ const AdminProducts = () => {
                             className="w-10 h-10 rounded-md object-cover bg-slate-100"
                           />
                         )}
-                        <span>{product.name}</span>
+                        <span className="truncate max-w-[180px]" title={product.name}>{product.name}</span>
                         {product.is_offer && (
-                          <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold uppercase">Offer</span>
+                          <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold uppercase whitespace-nowrap">Offer</span>
+                        )}
+                        {product.is_new_arrival && (
+                          <span className="text-[10px] bg-pink-100 text-pink-700 px-1.5 py-0.5 rounded font-bold uppercase whitespace-nowrap">New</span>
                         )}
                       </div>
                     </TableCell>
@@ -133,8 +136,8 @@ const AdminProducts = () => {
                     <TableCell>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${product.is_active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
                           }`}
                       >
                         {product.is_active ? "Active" : "Inactive"}

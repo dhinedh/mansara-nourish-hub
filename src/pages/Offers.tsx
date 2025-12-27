@@ -1,11 +1,12 @@
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
-import { getOfferProducts } from '@/data/products';
+import { useStore } from '@/context/StoreContext';
 import PageHero from '@/components/layout/PageHero';
 
 const Offers: React.FC = () => {
-  const offerProducts = getOfferProducts();
+  const { products } = useStore();
+  const offerProducts = products.filter(p => p.is_offer && p.is_active);
 
   return (
     <Layout>

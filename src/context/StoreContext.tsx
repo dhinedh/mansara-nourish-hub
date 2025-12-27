@@ -84,7 +84,7 @@ const INITIAL_PRODUCTS: Product[] = [
         stock: 50,
         is_offer: true,
         is_active: true,
-        is_new_arrival: false,
+        is_new_arrival: true,
         is_featured: true,
         image_url: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&q=80&w=800',
         short_description: 'Cold pressed, pure groundnut oil.'
@@ -99,9 +99,52 @@ const INITIAL_PRODUCTS: Product[] = [
         is_offer: false,
         is_active: true,
         is_new_arrival: true,
-        is_featured: false,
+        is_featured: true,
         image_url: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800',
         short_description: 'Rich in calcium, sprouted ragi flour.'
+    },
+    {
+        id: 'p3',
+        name: 'Homemade Ghee',
+        slug: 'homemade-ghee',
+        category: 'Oil & Ghee',
+        price: 650,
+        stock: 30,
+        is_offer: false,
+        is_active: true,
+        is_new_arrival: true,
+        is_featured: true,
+        image_url: 'https://images.unsplash.com/photo-1621966144883-8a3d5e2e8310?auto=format&fit=crop&q=80&w=800',
+        short_description: 'Pure cow ghee made from curd.'
+    },
+    {
+        id: 'p4',
+        name: 'Millet Muesli',
+        slug: 'millet-muesli',
+        category: 'Millet Foods',
+        price: 250,
+        offer_price: 220,
+        stock: 45,
+        is_offer: true,
+        is_active: true,
+        is_new_arrival: true,
+        is_featured: true,
+        image_url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&q=80&w=800',
+        short_description: 'Healthy breakfast spread with nuts.'
+    },
+    {
+        id: 'p5',
+        name: 'Turmeric Powder',
+        slug: 'turmeric-powder',
+        category: 'Spices',
+        price: 120,
+        stock: 80,
+        is_offer: false,
+        is_active: true,
+        is_new_arrival: false,
+        is_featured: true,
+        image_url: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&q=80&w=800',
+        short_description: 'High curcumin lakadong turmeric.'
     }
 ];
 

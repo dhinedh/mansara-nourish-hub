@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
           {/* Brand & Address */}
           <div>
             <div className="mb-6">
-              <img src={logo} alt="Mansara Foods" className="h-20 w-auto object-contain bg-white/10 p-2 rounded-lg backdrop-blur-sm" />
+              <img src={logo} alt="Mansara Foods" className="h-20 w-auto object-contain bg-brand-cream p-2 rounded-xl" />
             </div>
             <address className="not-italic text-brand-cream/70 text-sm space-y-2">
               <p className="font-semibold text-brand-yellow">MansaraFoods Private Limited</p>

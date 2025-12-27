@@ -119,7 +119,9 @@ const AdminProductEdit = () => {
         addProduct(formData);
         toast.success("Product created successfully");
       }
-      navigate("/admin/products");
+      setTimeout(() => {
+        navigate("/admin/products");
+      }, 500);
     } catch (error) {
       toast.error("Failed to save product");
     }

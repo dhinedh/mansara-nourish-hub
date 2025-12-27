@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUpload from '@/components/admin/ImageUpload';
-import { useHeroContent, HeroConfig } from '@/hooks/useHeroContent';
+import { useHeroContent, HeroConfig, PageHero } from '@/hooks/useHeroContent';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -22,8 +22,8 @@ const HeroManagement: React.FC = () => {
     };
 
     const handlePageUpdate = (pageKey: keyof HeroConfig, field: string, value: string) => {
-        if (pageKey === 'home') return;
-        const current = heroConfig[pageKey];
+        if (pageKey === 'home' || pageKey === 'homeSettings') return;
+        const current = heroConfig[pageKey] as PageHero;
         updatePageHero(pageKey, { ...current, [field]: value });
     };
 

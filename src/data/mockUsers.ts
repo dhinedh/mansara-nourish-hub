@@ -18,6 +18,7 @@ export interface AdminUser extends User {
     totalOrders: number;
     totalSpent: number;
     status: 'Active' | 'Inactive' | 'Blocked';
+    address: string;
 }
 
 export const mockOrders: Order[] = [
@@ -72,6 +73,7 @@ export const mockUsersList: AdminUser[] = [
         name: 'Priya Sharma',
         email: 'priya.sharma@example.com',
         phone: '+91 98765 43210',
+        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
         address: '15, Gandhi Nagar, Adyar, Chennai',
         joinDate: '2023-11-15',
         totalOrders: 12,
@@ -83,6 +85,7 @@ export const mockUsersList: AdminUser[] = [
         name: 'Rahul Verma',
         email: 'rahul.v@example.com',
         phone: '+91 99887 76655',
+        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
         address: 'Flat 4B, Apex Towers, Bangalore',
         joinDate: '2024-01-20',
         totalOrders: 3,
@@ -94,6 +97,7 @@ export const mockUsersList: AdminUser[] = [
         name: 'Anitha Raj',
         email: 'anitha123@example.com',
         phone: '+91 91234 56789',
+        avatar: 'https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
         address: 'No 7, Temple Street, Madurai',
         joinDate: '2023-12-05',
         totalOrders: 1,
@@ -105,6 +109,7 @@ export const mockUsersList: AdminUser[] = [
         name: 'Karthik Krish',
         email: 'karthik.k@example.com',
         phone: '+91 88990 01122',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
         address: 'Coimbatore, Tamil Nadu',
         joinDate: '2024-02-14',
         totalOrders: 0,
@@ -116,6 +121,7 @@ export const mockUsersList: AdminUser[] = [
         name: 'Suresh Kumar',
         email: 'suresh.k@example.com',
         phone: '+91 77665 54433',
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
         address: 'Salem, Tamil Nadu',
         joinDate: '2024-03-01',
         totalOrders: 5,

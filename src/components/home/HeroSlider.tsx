@@ -8,6 +8,12 @@ const HeroSlider: React.FC = () => {
     const { heroConfig } = useHeroContent();
     const [currentSlide, setCurrentSlide] = useState(0);
 
+    const [touchStart, setTouchStart] = useState<number | null>(null);
+    const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+    // Minimum swipe distance (in px)
+    const minSwipeDistance = 50;
+
     useEffect(() => {
         const interval = heroConfig.homeSettings?.interval || 5000;
         const timer = setInterval(() => {
@@ -25,8 +31,37 @@ const HeroSlider: React.FC = () => {
         setCurrentSlide((prev) => (prev - 1 + heroConfig.home.length) % heroConfig.home.length);
     };
 
+    const onTouchStart = (e: React.TouchEvent) => {
+        setTouchEnd(null);
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe) {
+            nextSlide();
+        }
+        if (isRightSwipe) {
+            prevSlide();
+        }
+    };
+
     return (
-        <section className="relative h-[600px] w-full overflow-hidden bg-black">
+        <section
+            className="relative h-[600px] w-full overflow-hidden bg-black"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+        >
             {heroConfig.home.map((slide, index) => (
                 <div
                     key={slide.id}

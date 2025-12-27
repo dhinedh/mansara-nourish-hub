@@ -1,11 +1,12 @@
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
-import { getNewArrivals } from '@/data/products';
+import { useStore } from '@/context/StoreContext';
 import PageHero from '@/components/layout/PageHero';
 
 const NewArrivals: React.FC = () => {
-  const newProducts = getNewArrivals();
+  const { products } = useStore();
+  const newProducts = products.filter(p => p.is_new_arrival && p.is_active).reverse();
 
   return (
     <Layout>

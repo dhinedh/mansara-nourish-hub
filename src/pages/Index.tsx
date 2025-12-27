@@ -1,23 +1,65 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf } from 'lucide-react';
+import { ArrowRight, Leaf, Sparkles } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/ProductCard';
-import HighlightCards from '@/components/HighlightCards';
 import TrustStrip from '@/components/TrustStrip';
 import HeroSlider from '@/components/home/HeroSlider';
-import { useFeaturedProducts } from '@/hooks/useProducts';
+import { useStore } from '@/context/StoreContext';
 
 
 const Index: React.FC = () => {
-  const { data: featuredProducts = [], isLoading } = useFeaturedProducts();
+  const { products } = useStore();
+
+  const featuredProducts = products.filter(p => p.is_featured && p.is_active);
+  const newArrivals = products.filter(p => p.is_new_arrival && p.is_active).reverse();
 
   return (
     <Layout>
       <HeroSlider />
 
-      <HighlightCards />
+      {/* New Arrivals Section */}
+      {newArrivals.length > 0 && (
+        <section className="py-12 sm:py-16 lg:py-20 bg-brand-cream/30 relative overflow-hidden">
+          <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto relative z-10">
+            <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange text-xs font-bold uppercase tracking-wider mb-4 border border-brand-orange/20">
+                <Sparkles className="w-3 h-3" />
+                Just In
+              </span>
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+                New Arrivals
+              </h2>
+              <div className="w-20 h-1 bg-brand-orange mx-auto rounded-full mb-4" />
+              <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto px-4 leading-relaxed">
+                Check out the latest additions to the Mansara family. Fresh, pure, and ready to nourish.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+              {newArrivals.slice(0, 4).map((product, index) => (
+                <div
+                  key={product.id}
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${index * 0.15}s` }}
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-10 sm:mt-12">
+              <Link to="/products">
+                <Button variant="outline" size="lg" className="text-sm sm:text-base px-8 py-6 rounded-full border-2 hover:bg-brand-orange hover:text-white hover:border-brand-orange transition-all duration-300 shadow-sm hover:shadow-lg btn-shine group">
+                  View All Products
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Featured Products Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-background to-secondary/30 relative overflow-hidden">
@@ -39,25 +81,17 @@ const Index: React.FC = () => {
             </p>
           </div>
 
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="bg-card rounded-xl h-96 animate-pulse shadow-sm border border-border/50" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-              {featuredProducts.slice(0, 4).map((product, index) => (
-                <div
-                  key={product.id}
-                  className="animate-fade-in-up"
-                  style={{ animationDelay: `${index * 0.15}s` }}
-                >
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            {featuredProducts.slice(0, 4).map((product, index) => (
+              <div
+                key={product.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${index * 0.15}s` }}
+              >
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
 
           <div className="text-center mt-10 sm:mt-12">
             <Link to="/products">

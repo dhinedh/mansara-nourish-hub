@@ -2,7 +2,7 @@ import React from 'react';
 import { useHeroContent, HeroConfig } from '@/hooks/useHeroContent';
 
 interface PageHeroProps {
-    pageKey: keyof Omit<HeroConfig, 'home'>;
+    pageKey: keyof Omit<HeroConfig, 'home' | 'homeSettings'>;
     children?: React.ReactNode;
 }
 
