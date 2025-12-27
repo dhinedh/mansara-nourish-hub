@@ -26,6 +26,17 @@ const PAGE_CONFIG: Record<string, { title: string; fields: { key: string; label:
       { key: "email", label: "Email Address", type: "text" },
       { key: "phone", label: "Phone Number", type: "text" },
     ]
+  },
+  home_highlights: {
+    title: "Home Highlights",
+    fields: [
+      { key: "offers_title", label: "Offers - Title", type: "text" },
+      { key: "offers_description", label: "Offers - Description", type: "textarea" },
+      { key: "combos_title", label: "Combos - Title", type: "text" },
+      { key: "combos_description", label: "Combos - Description", type: "textarea" },
+      { key: "new_arrivals_title", label: "New Arrivals - Title", type: "text" },
+      { key: "new_arrivals_description", label: "New Arrivals - Description", type: "textarea" },
+    ]
   }
 };
 

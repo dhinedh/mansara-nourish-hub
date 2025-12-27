@@ -51,7 +51,7 @@ const Header: React.FC = () => {
     >
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo with hover animation */}
-        <Link to="/" className="flex items-center gap-2 transform transition-transform duration-300 hover:scale-105 ml-2 md:-ml-20">
+        <Link to="/" className="flex items-center gap-2 transform transition-transform duration-300 hover:scale-105 ml-2">
           <img
             src={logo}
             alt="Mansara Foods"

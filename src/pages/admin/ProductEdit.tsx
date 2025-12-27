@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { useStore, Product } from "@/context/StoreContext";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 const AdminProductEdit = () => {
   const { id } = useParams();
@@ -305,16 +306,13 @@ const AdminProductEdit = () => {
               </CardHeader>
               <CardContent>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Product Image URL</label>
-                  <Input
-                    name="image_url"
-                    value={formData.image_url || ""}
-                    onChange={handleChange}
-                    placeholder="https://..."
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Enter a direct URL for the product image.
-                  </p>
+                  <label className="block text-sm font-medium mb-2">Product Image</label>
+                  <div className="space-y-4">
+                    <ImageUpload
+                      value={formData.image_url}
+                      onChange={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>

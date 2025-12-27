@@ -102,7 +102,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           </button>
         </div>
 
-        <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
+        <nav className="p-4 space-y-2 flex-1 overflow-y-auto no-scrollbar">
           {menuItems.map((item) => (
             <a
               key={item.path}

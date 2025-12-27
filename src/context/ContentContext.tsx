@@ -39,7 +39,7 @@ const DEFAULT_CONTENT: PageContent[] = [
             'story': 'MANSARA began its journey with a focus on pure, traditionally prepared cooking essentials — Groundnut oil, Sesame oil, Coconut oil, and Ghee — made with an uncompromising commitment to quality, purity, and honesty.',
             'mission': 'To become a trusted wellness food brand that supports healthier lifestyles by offering pure, nourishing food rooted in tradition and enhanced by modern practices.',
             'vision': 'Provide clean, wholesome foods inspired by traditional wisdom. Support everyday wellness through simple, nourishing ingredients.',
-            'founder_note': 'MANSARA refers to this belief — that food should support the body, not burden it, and that long-term wellness begins with mindful, honest nourishment.'
+            'founder_note': 'Founder - Deepika Harikrishnan\n\nMANSARA refers to this belief — that food should support the body, not burden it, and that long-term wellness begins with mindful, honest nourishment.'
         }
     },
     {
@@ -49,6 +49,17 @@ const DEFAULT_CONTENT: PageContent[] = [
             'address': 'MANSARA FOODS\nNo. 15, Government Hospital Opposite,\nTimiri Road, Kalavai, Ranipet,\nTamil Nadu – 632506, India',
             'email': 'mansarafoods@gmail.com',
             'phone': '+91 88388 87064'
+        }
+    },
+    {
+        slug: 'home_highlights',
+        sections: {
+            'offers_title': 'Offers',
+            'offers_description': 'Special prices on your favorites',
+            'combos_title': 'Combos',
+            'combos_description': 'Save more with value packs',
+            'new_arrivals_title': 'New Arrivals',
+            'new_arrivals_description': 'Fresh additions to our family'
         }
     }
 ];

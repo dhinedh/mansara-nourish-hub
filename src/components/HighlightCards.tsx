@@ -1,38 +1,41 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Percent, Package, Sparkles } from 'lucide-react';
-
-const highlights = [
-  {
-    title: 'Offers',
-    description: 'Special prices on your favorites',
-    icon: Percent,
-    path: '/offers',
-    bgClass: 'bg-brand-light-yellow',
-    iconBg: 'bg-primary',
-    hoverBg: 'hover:bg-primary/10'
-  },
-  {
-    title: 'Combos',
-    description: 'Save more with value packs',
-    icon: Package,
-    path: '/combos',
-    bgClass: 'bg-accent/10',
-    iconBg: 'bg-accent',
-    hoverBg: 'hover:bg-accent/20'
-  },
-  {
-    title: 'New Arrivals',
-    description: 'Fresh additions to our family',
-    icon: Sparkles,
-    path: '/new-arrivals',
-    bgClass: 'bg-brand-cream',
-    iconBg: 'bg-brand-blue',
-    hoverBg: 'hover:bg-brand-blue/10'
-  }
-];
+import { useContent } from '@/context/ContentContext';
 
 const HighlightCards: React.FC = () => {
+  const { getContent } = useContent();
+
+  const highlights = [
+    {
+      title: getContent('home_highlights', 'offers_title', 'Offers'),
+      description: getContent('home_highlights', 'offers_description', 'Special prices on your favorites'),
+      icon: Percent,
+      path: '/offers',
+      bgClass: 'bg-brand-light-yellow',
+      iconBg: 'bg-primary',
+      hoverBg: 'hover:bg-primary/10'
+    },
+    {
+      title: getContent('home_highlights', 'combos_title', 'Combos'),
+      description: getContent('home_highlights', 'combos_description', 'Save more with value packs'),
+      icon: Package,
+      path: '/combos',
+      bgClass: 'bg-accent/10',
+      iconBg: 'bg-accent',
+      hoverBg: 'hover:bg-accent/20'
+    },
+    {
+      title: getContent('home_highlights', 'new_arrivals_title', 'New Arrivals'),
+      description: getContent('home_highlights', 'new_arrivals_description', 'Fresh additions to our family'),
+      icon: Sparkles,
+      path: '/new-arrivals',
+      bgClass: 'bg-brand-cream',
+      iconBg: 'bg-brand-blue',
+      hoverBg: 'hover:bg-brand-blue/10'
+    }
+  ];
+
   return (
     <section className="py-10 sm:py-12 lg:py-14 bg-background">
       <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
@@ -41,7 +44,7 @@ const HighlightCards: React.FC = () => {
             const Icon = item.icon;
             return (
               <Link
-                key={item.title}
+                key={item.path}
                 to={item.path}
                 className={`${item.bgClass} ${item.hoverBg} rounded-xl sm:rounded-2xl p-6 sm:p-8 transition-all duration-300 transform hover:-translate-y-1 shadow-card hover:shadow-hover group border border-transparent hover:border-black/5`}
               >

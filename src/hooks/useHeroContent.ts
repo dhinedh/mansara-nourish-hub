@@ -26,6 +26,9 @@ export interface HeroConfig {
     about: PageHero;
     contact: PageHero;
     cart: PageHero;
+    homeSettings: {
+        interval: number;
+    };
 }
 
 const DEFAULT_CONFIG: HeroConfig = {
@@ -97,6 +100,9 @@ const DEFAULT_CONFIG: HeroConfig = {
         image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80', // Shopping cart/Groceries
         title: 'Your Cart',
         subtitle: 'Review your selected items before checkout.'
+    },
+    homeSettings: {
+        interval: 5000
     }
 };
 
@@ -127,14 +133,37 @@ export const useHeroContent = () => {
         saveConfig({ ...heroConfig, home: newHome });
     };
 
+    const addHomeSlide = (slide: HeroSlide) => {
+        saveConfig({ ...heroConfig, home: [...heroConfig.home, slide] });
+    };
+
+    const updateHomeSlideById = (id: string, slide: HeroSlide) => {
+        const newHome = heroConfig.home.map(s => s.id === id ? slide : s);
+        saveConfig({ ...heroConfig, home: newHome });
+    };
+
+    const deleteHomeSlide = (id: string) => {
+        const newHome = heroConfig.home.filter(s => s.id !== id);
+        saveConfig({ ...heroConfig, home: newHome });
+    };
+
+    const updateHomeSettings = (settings: { interval: number }) => {
+        saveConfig({ ...heroConfig, homeSettings: settings });
+    };
+
     const updatePageHero = (page: keyof HeroConfig, data: PageHero) => {
-        if (page === 'home') return; // Handled by updateHomeSlide
+        if (page === 'home' || page === 'homeSettings') return; // Handled specially
+        // @ts-ignore - complex union type mapping
         saveConfig({ ...heroConfig, [page]: data });
     };
 
     return {
         heroConfig,
         updateHomeSlide,
+        addHomeSlide,
+        updateHomeSlideById,
+        deleteHomeSlide,
+        updateHomeSettings,
         updatePageHero
     };
 };

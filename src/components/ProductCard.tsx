@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingCart } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Zap } from 'lucide-react';
 import { Product } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) => {
   const { addToCart } = useCart();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [adding, setAdding] = useState(false);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -43,6 +44,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
       });
     }
     setAdding(false);
+  };
+
+  const handleBuyNow = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (product.stock === 0) return;
+
+    addToCart(product, 'product');
+    navigate('/checkout');
   };
 
   const displayPrice = product.offerPrice || product.price;
@@ -126,6 +135,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
             <ShoppingCart className="w-5 h-5 text-black" />
           </button>
         </div>
+        <button
+          onClick={handleBuyNow}
+          disabled={product.stock === 0}
+          className="w-full mt-3 py-2 px-4 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Zap size={16} className="fill-current" />
+          Buy Now
+        </button>
         {product.stock > 0 && product.stock < 10 && (
           <p className="text-xs text-orange-600 font-medium mt-3">Only {product.stock} left!</p>
         )}

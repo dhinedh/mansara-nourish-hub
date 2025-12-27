@@ -188,14 +188,15 @@ const AdminOrders = () => {
                   <div className="text-sm space-y-1">
                     <p>
                       <span className="text-slate-600">Order ID:</span>{" "}
-                      <span className="font-mono">{selectedOrder.id.slice(0, 12)}</span>
+                      <span className="font-mono text-slate-900 font-medium">#{selectedOrder.id.slice(0, 8).toUpperCase()}</span>
+                    </p>
+                    <p>
+                      <span className="text-slate-600">Invoice No:</span>{" "}
+                      <span className="font-mono text-slate-900 font-medium">INV-{selectedOrder.id.slice(0, 8).toUpperCase()}</span>
                     </p>
                     <p>
                       <span className="text-slate-600">Date:</span>{" "}
-                      {new Date(selectedOrder.created_at).toLocaleDateString()}
-                    </p>
-                    <p>
-                      <span className="text-slate-600">Amount:</span> ₹{selectedOrder.total_amount}
+                      {new Date(selectedOrder.created_at).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -218,19 +219,32 @@ const AdminOrders = () => {
 
               <div>
                 <h3 className="font-semibold text-sm mb-2">Customer Information</h3>
-                <div className="text-sm space-y-1 p-3 bg-slate-50 rounded">
-                  <p>
-                    <span className="text-slate-600">Name:</span> {selectedOrder.customer_name}
-                  </p>
-                  <p>
-                    <span className="text-slate-600">Email:</span> {selectedOrder.customer_email}
-                  </p>
-                  <p>
-                    <span className="text-slate-600">Phone:</span> {selectedOrder.customer_phone}
-                  </p>
-                  <p>
-                    <span className="text-slate-600">Address:</span> {selectedOrder.customer_address}
-                  </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="text-sm space-y-1 p-3 bg-slate-50 rounded border">
+                    <h4 className="font-semibold text-xs uppercase text-slate-500 mb-2">Shipping Details</h4>
+                    <p>
+                      <span className="text-slate-600">Name:</span> {selectedOrder.customer_name}
+                    </p>
+                    <p>
+                      <span className="text-slate-600">Phone:</span> {selectedOrder.customer_phone}
+                    </p>
+                    <p>
+                      <span className="text-slate-600">Address:</span> {selectedOrder.customer_address}
+                    </p>
+                  </div>
+
+                  <div className="text-sm space-y-1 p-3 bg-slate-50 rounded border">
+                    <h4 className="font-semibold text-xs uppercase text-slate-500 mb-2">Billing / Invoice To</h4>
+                    <p>
+                      <span className="text-slate-600">Name:</span> {selectedOrder.customer_name}
+                    </p>
+                    <p>
+                      <span className="text-slate-600">Email:</span> {selectedOrder.customer_email}
+                    </p>
+                    <p>
+                      <span className="text-slate-600">Address:</span> {selectedOrder.customer_address}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -254,9 +268,52 @@ const AdminOrders = () => {
               </div>
             </div>
           )}
+          {selectedOrder && (
+            <div className="mt-6 border-t pt-6">
+              <h3 className="font-semibold text-sm mb-3">Order Items</h3>
+              <div className="bg-white rounded-lg border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-slate-50">
+                      <TableHead className="w-[50%]">Product</TableHead>
+                      <TableHead className="text-center">Qty</TableHead>
+                      <TableHead className="text-right">Price</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                      selectedOrder.items.map((item: any, index: number) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">
+                            <div className="flex flex-col">
+                              <span>{item.name || "Product Name"}</span>
+                              <span className="text-xs text-slate-500">{item.id?.slice(0, 8)}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">{item.quantity} x</TableCell>
+                          <TableCell className="text-right">₹{item.price}</TableCell>
+                          <TableCell className="text-right font-medium">₹{item.price * item.quantity}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center text-slate-500 py-4">No items details available</TableCell>
+                      </TableRow>
+                    )}
+                    <TableRow className="bg-slate-50 font-bold">
+                      <TableCell colSpan={3} className="text-right">Total Amount:</TableCell>
+                      <TableCell className="text-right text-lg">₹{selectedOrder.total_amount}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </AdminLayout >
   );
 };
 

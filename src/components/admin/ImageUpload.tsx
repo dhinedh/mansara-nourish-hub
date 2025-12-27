@@ -49,43 +49,55 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
     return (
         <div className="w-full">
-            {preview ? (
-                <div className="relative aspect-video w-full max-w-sm rounded-lg overflow-hidden border border-slate-200 group">
-                    <img
-                        src={preview}
-                        alt="Upload"
-                        className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div
+                {...getRootProps()}
+                className={cn(
+                    "relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all overflow-hidden min-h-[200px] flex flex-col items-center justify-center",
+                    isDragActive ? "border-primary bg-primary/5" : "border-slate-300 hover:border-primary/50 hover:bg-slate-50",
+                    disabled && "opacity-50 cursor-not-allowed"
+                )}
+            >
+                <input {...getInputProps()} />
+
+                {value ? (
+                    <>
+                        <img
+                            src={value}
+                            alt="Preview"
+                            className="absolute inset-0 w-full h-full object-contain bg-slate-100"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                            <Upload className="h-8 w-8 mb-2" />
+                            <span className="font-medium">Click or drop to replace</span>
+                        </div>
                         <Button
+                            type="button"
                             variant="destructive"
                             size="icon"
+                            className="absolute right-2 top-2 z-10 w-8 h-8 rounded-full shadow-sm"
                             onClick={handleRemove}
                             disabled={disabled}
+                            title="Remove image"
                         >
                             <X className="h-4 w-4" />
                         </Button>
-                    </div>
-                </div>
-            ) : (
-                <div
-                    {...getRootProps()}
-                    className={cn(
-                        "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors",
-                        isDragActive ? "border-blue-500 bg-blue-50" : "border-slate-300 hover:bg-slate-50",
-                        disabled && "opacity-50 cursor-not-allowed"
-                    )}
-                >
-                    <input {...getInputProps()} />
-                    <div className="flex flex-col items-center gap-2 text-slate-500">
-                        <Upload className="h-8 w-8" />
-                        <p className="font-medium">
-                            {isDragActive ? "Drop the image here" : "Drag & drop an image here"}
+                    </>
+                ) : (
+                    <div className="flex flex-col items-center gap-2 py-4 text-slate-500">
+                        <div className="p-4 rounded-full bg-slate-100 mb-2">
+                            <Upload className="h-8 w-8" />
+                        </div>
+                        <div className="text-sm">
+                            <span className="font-semibold text-primary text-lg">Click to upload</span>
+                            <br />
+                            <span className="text-slate-500">or drag and drop</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                            SVG, PNG, JPG or WEBP (max. 5MB)
                         </p>
-                        <p className="text-xs">or click to select file</p>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 };

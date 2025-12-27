@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ interface Stats {
 }
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({
     totalOrders: 0,
     todayOrders: 0,
@@ -97,9 +99,9 @@ const AdminDashboard = () => {
               <CardDescription>Common admin tasks</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full" variant="outline">Add New Product</Button>
-              <Button className="w-full" variant="outline">View All Orders</Button>
-              <Button className="w-full" variant="outline">Create New Offer</Button>
+              <Button className="w-full" variant="outline" onClick={() => navigate('/admin/products')}>Add New Product</Button>
+              <Button className="w-full" variant="outline" onClick={() => navigate('/admin/orders')}>View All Orders</Button>
+              <Button className="w-full" variant="outline" onClick={() => navigate('/admin/banners')}>Manage Banners</Button>
             </CardContent>
           </Card>
 

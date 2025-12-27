@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import ImageUpload from "@/components/admin/ImageUpload";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import {
@@ -26,6 +27,7 @@ interface Category {
     name: string;
     slug: string;
     description?: string;
+    image?: string;
 }
 
 const AdminCategories = () => {
@@ -33,7 +35,7 @@ const AdminCategories = () => {
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-    const [formData, setFormData] = useState({ name: "", description: "" });
+    const [formData, setFormData] = useState({ name: "", description: "", image: "" });
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -75,6 +77,7 @@ const AdminCategories = () => {
                 name: formData.name,
                 slug,
                 description: formData.description,
+                image: formData.image,
             };
 
             if (editingCategory) {
@@ -115,13 +118,13 @@ const AdminCategories = () => {
     };
 
     const resetForm = () => {
-        setFormData({ name: "", description: "" });
+        setFormData({ name: "", description: "", image: "" });
         setEditingCategory(null);
     };
 
     const openEdit = (category: Category) => {
         setEditingCategory(category);
-        setFormData({ name: category.name, description: category.description || "" });
+        setFormData({ name: category.name, description: category.description || "", image: category.image || "" });
         setIsDialogOpen(true);
     };
 
@@ -161,6 +164,13 @@ const AdminCategories = () => {
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                         placeholder="Description (Optional)"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Image</label>
+                                    <ImageUpload
+                                        value={formData.image}
+                                        onChange={(url) => setFormData({ ...formData, image: url })}
                                     />
                                 </div>
                                 <Button onClick={handleSave} className="w-full" disabled={saving}>

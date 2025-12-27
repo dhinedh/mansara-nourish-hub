@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -207,14 +208,14 @@ const AdminCombos = () => {
                   placeholder="Optional"
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="image" className="text-right">Image URL</Label>
-                <Input
-                  id="image"
-                  value={formData.image_url || ''}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="col-span-3"
-                />
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label className="text-right pt-2">Image</Label>
+                <div className="col-span-3">
+                  <ImageUpload
+                    value={formData.image_url}
+                    onChange={(url) => setFormData({ ...formData, image_url: url })}
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="desc" className="text-right">Description</Label>

@@ -9,12 +9,13 @@ const HeroSlider: React.FC = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
 
     useEffect(() => {
+        const interval = heroConfig.homeSettings?.interval || 5000;
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % heroConfig.home.length);
-        }, 5000); // 5 seconds per slide
+        }, interval);
 
         return () => clearInterval(timer);
-    }, [heroConfig.home.length]);
+    }, [heroConfig.home.length, heroConfig.homeSettings?.interval]);
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % heroConfig.home.length);

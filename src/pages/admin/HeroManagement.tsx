@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
+import ImageUpload from '@/components/admin/ImageUpload';
 import { useHeroContent, HeroConfig } from '@/hooks/useHeroContent';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -93,13 +94,11 @@ const HeroManagement: React.FC = () => {
                                                     </div>
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <Label>Image URL</Label>
-                                                    <div className="flex gap-2">
-                                                        <Input
-                                                            value={slide.image}
-                                                            onChange={(e) => handleHomeUpdate(index, 'image', e.target.value)}
-                                                        />
-                                                    </div>
+                                                    <Label>Image</Label>
+                                                    <ImageUpload
+                                                        value={slide.image}
+                                                        onChange={(url) => handleHomeUpdate(index, 'image', url)}
+                                                    />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>Text Alignment</Label>
@@ -167,10 +166,10 @@ const HeroManagement: React.FC = () => {
                                                         />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label>Image URL</Label>
-                                                        <Input
+                                                        <Label>Image</Label>
+                                                        <ImageUpload
                                                             value={page.image}
-                                                            onChange={(e) => handlePageUpdate(pageKey, 'image', e.target.value)}
+                                                            onChange={(url) => handlePageUpdate(pageKey, 'image', url)}
                                                         />
                                                     </div>
                                                     <div className="space-y-2">
