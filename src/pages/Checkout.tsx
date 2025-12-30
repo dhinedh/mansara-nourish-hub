@@ -26,10 +26,19 @@ const Checkout: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Address State
-  const [address, setAddress] = useState<DeliveryAddress>({
+  const [address, setAddress] = useState<{
+    firstName: string;
+    lastName: string;
+    phone: string;
+    whatsapp: string;
+    addressLine: string;
+    city: string;
+    pincode: string;
+  }>({
     firstName: user?.name || '',
     lastName: '',
     phone: user?.phone || '',
+    whatsapp: user?.whatsapp || '',
     addressLine: '',
     city: '',
     pincode: ''
@@ -62,6 +71,7 @@ const Checkout: React.FC = () => {
               firstName: userData.name || '',
               lastName: '',
               phone: userData.phone || '',
+              whatsapp: userData.whatsapp || '',
               addressLine: defaultAddress.street || '',
               city: defaultAddress.city || '',
               pincode: defaultAddress.zip || ''
@@ -91,26 +101,23 @@ const Checkout: React.FC = () => {
   };
 
   const handleSelectAddress = (addr: any) => {
-    setAddress({
-      firstName: user?.name || '',
-      lastName: '',
-      phone: user?.phone || '',
+    setAddress(prev => ({
+      ...prev,
       addressLine: addr.street,
       city: addr.city,
       pincode: addr.zip
-    });
+      // Keep name/phone/whatsapp as currently set or from user profile, don't overwrite with blank if not in addr
+    }));
   };
 
   const handleEditExistingAddress = (addr: any) => {
     setEditingAddressId(addr._id);
-    setAddress({
-      firstName: user?.name || '',
-      lastName: '',
-      phone: user?.phone || '',
+    setAddress(prev => ({
+      ...prev,
       addressLine: addr.street,
       city: addr.city,
       pincode: addr.zip
-    });
+    }));
     setIsEditing(true);
   };
 
@@ -167,14 +174,13 @@ const Checkout: React.FC = () => {
   };
 
   const handleAddNewAddress = () => {
-    setAddress({
-      firstName: user?.name || '',
-      lastName: '',
-      phone: user?.phone || '',
+    // Keep name/phone/whatsapp, just clear address fields
+    setAddress(prev => ({
+      ...prev,
       addressLine: '',
       city: '',
       pincode: ''
-    });
+    }));
     setEditingAddressId(null); // Ensure we are in "add mode"
     setIsEditing(true); // Show form
   };
@@ -184,10 +190,27 @@ const Checkout: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
+    if (!address.phone) {
+      toast.error("Phone number is required");
+      return;
+    }
+
     setIsProcessing(true);
     try {
       const token = localStorage.getItem('mansara-token');
       if (!token) throw new Error("No auth token found");
+
+      // Sync Profile Data (Phone/WhatsApp) if changed
+      const { updateProfile } = await import('@/lib/api');
+      try {
+        await updateProfile({
+          name: address.firstName, // Update name if changed
+          phone: address.phone,
+          whatsapp: address.whatsapp
+        }, token);
+      } catch (err) {
+        console.warn("Could not sync profile data", err);
+      }
 
       const orderData = {
         items: items.map(item => ({
@@ -199,10 +222,14 @@ const Checkout: React.FC = () => {
         total: getCartTotal(),
         paymentMethod: 'Cash on Delivery',
         deliveryAddress: {
+          firstName: address.firstName,
+          lastName: address.lastName,
           street: address.addressLine,
           city: address.city,
           zip: address.pincode,
-          state: '' // Add state if needed
+          state: '', // Add state if needed
+          phone: address.phone,
+          whatsapp: address.whatsapp
         }
       };
 
@@ -372,6 +399,17 @@ const Checkout: React.FC = () => {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 rounded-lg border border-border bg-background"
                       required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">WhatsApp Number (Optional)</label>
+                    <input
+                      type="tel"
+                      name="whatsapp"
+                      value={address.whatsapp}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-background"
+                      placeholder="For order updates"
                     />
                   </div>
                   <div>

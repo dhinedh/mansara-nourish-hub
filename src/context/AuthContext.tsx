@@ -75,7 +75,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 id: data._id,
                 name: data.name,
                 email: data.email,
-                phone: "", // Default empty phone
+                phone: data.phone || "",
+                whatsapp: data.whatsapp || "",
                 avatar: undefined, // Backend doesn't return avatar yet
                 role: data.role,
             };

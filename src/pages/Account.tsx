@@ -405,8 +405,8 @@ const Account: React.FC = () => {
                                             type="text"
                                             id="name"
                                             value={displayUser.name}
+                                            onChange={(e) => setUserProfile({ ...displayUser, name: e.target.value })}
                                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                            readOnly
                                         />
                                     </div>
                                     <div className="grid w-full items-center gap-1.5">
@@ -415,8 +415,9 @@ const Account: React.FC = () => {
                                             type="email"
                                             id="email"
                                             value={displayUser.email}
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring opacity-70 cursor-not-allowed"
                                             readOnly
+                                            title="Email cannot be changed"
                                         />
                                     </div>
                                     <div className="grid w-full items-center gap-1.5">
@@ -425,11 +426,47 @@ const Account: React.FC = () => {
                                             type="tel"
                                             id="phone"
                                             value={displayUser.phone || ''}
+                                            onChange={(e) => setUserProfile({ ...displayUser, phone: e.target.value })}
                                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                            readOnly
+                                            placeholder="+91 98765 43210"
                                         />
                                     </div>
-                                    <Button disabled>Save Changes</Button>
+                                    <div className="grid w-full items-center gap-1.5">
+                                        <label htmlFor="whatsapp" className="text-sm font-medium">WhatsApp Number (Optional)</label>
+                                        <input
+                                            type="tel"
+                                            id="whatsapp"
+                                            value={displayUser.whatsapp || ''}
+                                            onChange={(e) => setUserProfile({ ...displayUser, whatsapp: e.target.value })}
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                            placeholder="+91 98765 43210"
+                                        />
+                                    </div>
+                                    <Button
+                                        onClick={async () => {
+                                            try {
+                                                const { updateProfile } = await import('@/lib/api');
+                                                const token = localStorage.getItem('mansara-token');
+                                                if (token) {
+                                                    await updateProfile({
+                                                        name: displayUser.name,
+                                                        phone: displayUser.phone,
+                                                        whatsapp: displayUser.whatsapp
+                                                    }, token);
+                                                    alert('Profile updated successfully!');
+                                                    fetchData(); // Refresh to ensure sync
+                                                }
+                                            } catch (err) {
+                                                console.error(err);
+                                                alert('Failed to update profile');
+                                            }
+                                        }}
+                                    >
+                                        Save Changes
+                                    </Button>
+                                    <p className="text-xs text-muted-foreground mt-2">
+                                        Note: Email address cannot be changed. Contact support if needed.
+                                    </p>
                                 </div>
                             </div>
                         )}

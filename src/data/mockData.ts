@@ -4,6 +4,7 @@ export interface User {
   name: string;
   email: string;
   phone: string;
+  whatsapp?: string;
   avatar?: string;
   role?: 'admin' | 'user';
 }
