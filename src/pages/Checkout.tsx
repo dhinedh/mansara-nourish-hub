@@ -185,16 +185,9 @@ const Checkout: React.FC = () => {
   };
 
   const handleAddNewAddress = () => {
-    // Keep name/phone/whatsapp from profile, just clear address fields
-    const baseContactInfo = {
-      firstName: user?.name || '',
-      phone: user?.phone || '',
-      whatsapp: user?.whatsapp || ''
-    };
-
+    // Keep name/phone/whatsapp, just clear address fields
     setAddress(prev => ({
       ...prev,
-      ...baseContactInfo,
       addressLine: '',
       city: '',
       pincode: ''

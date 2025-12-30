@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Layout from '@/components/layout/Layout';
 import { getUserOrders, fetchUser, addAddress, updateAddress, deleteAddress } from '@/lib/api';
-import { toast } from 'sonner';
 import {
     Package,
     MapPin,
@@ -449,29 +448,17 @@ const Account: React.FC = () => {
                                                 const { updateProfile } = await import('@/lib/api');
                                                 const token = localStorage.getItem('mansara-token');
                                                 if (token) {
-                                                    const updatedUser = await updateProfile({
+                                                    await updateProfile({
                                                         name: displayUser.name,
                                                         phone: displayUser.phone,
                                                         whatsapp: displayUser.whatsapp
                                                     }, token);
-
-                                                    // Immediate state update
-                                                    setUserProfile(updatedUser);
-
-                                                    // Sync with localStorage for AuthContext
-                                                    const currentUser = JSON.parse(localStorage.getItem('mansara-user') || '{}');
-                                                    localStorage.setItem('mansara-user', JSON.stringify({
-                                                        ...currentUser,
-                                                        name: updatedUser.name,
-                                                        phone: updatedUser.phone,
-                                                        whatsapp: updatedUser.whatsapp
-                                                    }));
-
-                                                    toast.success('Profile updated successfully!');
+                                                    alert('Profile updated successfully!');
+                                                    fetchData(); // Refresh to ensure sync
                                                 }
-                                            } catch (err: any) {
+                                            } catch (err) {
                                                 console.error(err);
-                                                toast.error(err.message || 'Failed to update profile');
+                                                alert('Failed to update profile');
                                             }
                                         }}
                                     >
