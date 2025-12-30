@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
@@ -24,22 +24,35 @@ const AdminCombos = () => {
 
   const [formData, setFormData] = useState<Omit<Combo, 'id'>>({
     name: '',
-    price: 0,
-    discount_price: 0,
-    image_url: '',
+    slug: '',
+    originalPrice: 0,
+    comboPrice: 0,
+    image: '',
     description: '',
-    is_active: true
+    isActive: true
   });
+
+  // Auto-generate slug from name
+  useEffect(() => {
+    if (formData.name) {
+      if (!editingId) {
+        // Simple slug generation
+        const slug = formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        setFormData(prev => ({ ...prev, slug }));
+      }
+    }
+  }, [formData.name, editingId]);
 
   const handleEdit = (combo: Combo) => {
     setEditingId(combo.id);
     setFormData({
       name: combo.name,
-      price: combo.price,
-      discount_price: combo.discount_price,
-      image_url: combo.image_url,
+      slug: combo.slug,
+      originalPrice: combo.originalPrice,
+      comboPrice: combo.comboPrice,
+      image: combo.image,
       description: combo.description,
-      is_active: combo.is_active
+      isActive: combo.isActive !== undefined ? combo.isActive : true
     });
     setIsDialogOpen(true);
   };
@@ -48,41 +61,52 @@ const AdminCombos = () => {
     setEditingId(null);
     setFormData({
       name: '',
-      price: 0,
-      discount_price: 0,
-      image_url: '',
+      slug: '',
+      originalPrice: 0,
+      comboPrice: 0,
+      image: '',
       description: '',
-      is_active: true
+      isActive: true
     });
     setIsDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (!formData.name || formData.price <= 0) {
+  const handleSave = async () => {
+    if (!formData.name || formData.originalPrice <= 0) {
       toast.error("Name and valid price are required");
       return;
     }
 
-    if (editingId) {
-      updateCombo(editingId, formData);
-      toast.success("Combo updated successfully");
-    } else {
-      addCombo(formData);
-      toast.success("Combo created successfully");
+    try {
+      if (editingId) {
+        await updateCombo(editingId, formData);
+        toast.success("Combo updated successfully");
+      } else {
+        await addCombo(formData);
+        toast.success("Combo created successfully");
+      }
+      setIsDialogOpen(false);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save combo");
     }
-    setIsDialogOpen(false);
   };
 
   const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this combo?")) {
-      deleteCombo(id);
-      toast.success("Combo deleted");
+      deleteCombo(id)
+        .then(() => toast.success("Combo deleted"))
+        .catch(() => toast.error("Failed to delete combo"));
     }
   };
 
-  const toggleStatus = (id: string, currentStatus: boolean) => {
-    updateCombo(id, { is_active: !currentStatus });
-    toast.success(`Combo ${!currentStatus ? 'activated' : 'deactivated'}`);
+  const toggleStatus = (id: string, currentStatus: boolean | undefined) => {
+    // If undefined, assume true (active), so negate to false
+    const isActive = currentStatus !== undefined ? currentStatus : true;
+    const newStatus = !isActive;
+
+    updateCombo(id, { isActive: newStatus })
+      .then(() => toast.success(`Combo ${newStatus ? 'activated' : 'deactivated'}`))
+      .catch(() => toast.error("Failed to update status"));
   };
 
   return (
@@ -112,7 +136,7 @@ const AdminCombos = () => {
               <Card key={combo.id} className="overflow-hidden group">
                 <div className="relative h-48 bg-slate-100">
                   <img
-                    src={combo.image_url}
+                    src={combo.image}
                     alt={combo.name}
                     className="w-full h-full object-cover"
                     onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400?text=Combo+Image')}
@@ -127,7 +151,7 @@ const AdminCombos = () => {
                       <Trash2 size={14} />
                     </Button>
                   </div>
-                  {!combo.is_active && (
+                  {combo.isActive === false && (
                     <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
                       <span className="bg-slate-800 text-white text-xs px-2 py-1 rounded font-bold uppercase">Deactivated</span>
                     </div>
@@ -140,19 +164,19 @@ const AdminCombos = () => {
                   </p>
 
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="text-xl font-bold text-primary">₹{combo.discount_price || combo.price}</span>
-                    {combo.discount_price && combo.discount_price < combo.price && (
-                      <span className="line-through text-sm text-slate-400">₹{combo.price}</span>
+                    <span className="text-xl font-bold text-primary">₹{combo.comboPrice || combo.originalPrice}</span>
+                    {combo.comboPrice && combo.comboPrice < combo.originalPrice && (
+                      <span className="line-through text-sm text-slate-400">₹{combo.originalPrice}</span>
                     )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
                     <Button
-                      onClick={() => toggleStatus(combo.id, combo.is_active)}
+                      onClick={() => toggleStatus(combo.id, combo.isActive)}
                       variant="outline"
                       size="sm"
                     >
-                      {combo.is_active ? "Deactivate" : "Activate"}
+                      {combo.isActive !== false ? "Deactivate" : "Activate"}
                     </Button>
                     <Button
                       onClick={() => handleEdit(combo)}
@@ -188,22 +212,32 @@ const AdminCombos = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="price" className="text-right">Price (₹)</Label>
+                <Label htmlFor="slug" className="text-right">Slug</Label>
                 <Input
-                  id="price"
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  className="col-span-3"
+                  placeholder="url-friendly-name"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="originalPrice" className="text-right">Price (₹)</Label>
+                <Input
+                  id="originalPrice"
                   type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                  value={formData.originalPrice}
+                  onChange={(e) => setFormData({ ...formData, originalPrice: Number(e.target.value) })}
                   className="col-span-3"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="discount" className="text-right">Offer Price</Label>
+                <Label htmlFor="comboPrice" className="text-right">Offer Price</Label>
                 <Input
-                  id="discount"
+                  id="comboPrice"
                   type="number"
-                  value={formData.discount_price || ''}
-                  onChange={(e) => setFormData({ ...formData, discount_price: Number(e.target.value) })}
+                  value={formData.comboPrice || ''}
+                  onChange={(e) => setFormData({ ...formData, comboPrice: Number(e.target.value) })}
                   className="col-span-3"
                   placeholder="Optional"
                 />
@@ -212,8 +246,8 @@ const AdminCombos = () => {
                 <Label className="text-right pt-2">Image</Label>
                 <div className="col-span-3">
                   <ImageUpload
-                    value={formData.image_url}
-                    onChange={(url) => setFormData({ ...formData, image_url: url })}
+                    value={formData.image}
+                    onChange={(url) => setFormData({ ...formData, image: url })}
                   />
                 </div>
               </div>
