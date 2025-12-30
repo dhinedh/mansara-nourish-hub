@@ -1,5 +1,5 @@
-export const API_URL = import.meta.env.VITE_API_URL || 'https://mansara-backend.onrender.com/api';
-// export const API_URL = 'http://localhost:5000/api'; // Testing Local Backend
+// export const API_URL = import.meta.env.VITE_API_URL || 'https://mansara-backend.onrender.com/api';
+export const API_URL = 'http://localhost:5000/api'; // Testing Local Backend
 
 export const fetchProducts = async () => {
     const response = await fetch(`${API_URL}/products`);
