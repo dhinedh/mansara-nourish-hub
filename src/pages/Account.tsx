@@ -14,6 +14,7 @@ import {
     LayoutDashboard,
     Truck
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { mockAddresses } from '@/data/mockData';
 
 const Account: React.FC = () => {
@@ -461,13 +462,12 @@ const Account: React.FC = () => {
                                                         addresses: prev?.addresses || displayUser.addresses // Ensure addresses aren't lost if API doesn't return them
                                                     }));
 
-                                                    alert('Profile updated successfully!');
-                                                    // We don't strictly need fetchData() if we updated state, but it handles side-effects
-                                                    fetchData();
+                                                    toast.success('Profile updated successfully!');
+                                                    // fetchData(); // Removed to prevent stale data overwrite
                                                 }
                                             } catch (err) {
                                                 console.error(err);
-                                                alert('Failed to update profile');
+                                                toast.error('Failed to update profile');
                                             }
                                         }}
                                     >
