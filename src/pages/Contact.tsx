@@ -9,13 +9,43 @@ import { useContent } from '@/context/ContentContext';
 const Contact: React.FC = () => {
   const { toast } = useToast();
   const { getContent } = useContent();
+  const [formData, setFormData] = React.useState({
+    name: '',
+    phone: '',
+    email: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you soon.",
-    });
+    setIsSubmitting(true);
+
+    try {
+      // Dynamic import to avoid circular dependency issues if any, or just direct import if safe
+      const { submitContact } = await import('@/lib/api');
+      await submitContact(formData);
+
+      toast({
+        title: "Message Sent!",
+        description: "Thank you for contacting us. We'll get back to you soon.",
+      });
+
+      setFormData({ name: '', phone: '', email: '', message: '' });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -103,10 +133,14 @@ const Contact: React.FC = () => {
                       Your Name
                     </label>
                     <input
+                      name="name"
                       type="text"
                       required
+                      value={formData.name}
+                      onChange={handleChange}
                       className="w-full px-5 py-4 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50"
                       placeholder="John Doe"
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -115,9 +149,13 @@ const Contact: React.FC = () => {
                       Phone Number
                     </label>
                     <input
+                      name="phone"
                       type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
                       className="w-full px-5 py-4 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50"
                       placeholder="+91 98765 43210"
+                      disabled={isSubmitting}
                     />
                   </div>
                 </div>
@@ -127,10 +165,14 @@ const Contact: React.FC = () => {
                     Email Address
                   </label>
                   <input
+                    name="email"
                     type="email"
                     required
+                    value={formData.email}
+                    onChange={handleChange}
                     className="w-full px-5 py-4 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50"
                     placeholder="john@example.com"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -139,17 +181,21 @@ const Contact: React.FC = () => {
                     Message
                   </label>
                   <textarea
+                    name="message"
                     required
                     rows={4}
+                    value={formData.message}
+                    onChange={handleChange}
                     className="w-full px-5 py-4 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50 resize-none"
                     placeholder="How can we help you today?"
+                    disabled={isSubmitting}
                   />
                 </div>
 
                 <div className="pt-2">
-                  <Button type="submit" variant="default" size="lg" className="w-full py-6 text-base btn-shine shadow-lg hover:shadow-xl transition-all">
+                  <Button type="submit" variant="default" size="lg" className="w-full py-6 text-base btn-shine shadow-lg hover:shadow-xl transition-all" disabled={isSubmitting}>
                     <Send className="h-5 w-5 mr-2" />
-                    Send Message
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </Button>
                 </div>
               </form>
@@ -161,12 +207,12 @@ const Contact: React.FC = () => {
       {/* Commitment */}
       <section className="py-12 bg-secondary">
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center">
-          <p className="text-muted-foreground">
-            🌿 <span className="font-semibold text-foreground">Our Commitment:</span> Every message matters to us. We respond with the same care, honesty, and responsibility that define MANSARA.
+          <p className="text-muted-foreground whitespace-pre-line">
+            {getContent('contact', 'commitment', '🌿 Our Commitment: Every message matters to us. We respond with the same care, honesty, and responsibility that define MANSARA.')}
           </p>
         </div>
       </section>
-    </Layout>
+    </Layout >
   );
 };
 

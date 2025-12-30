@@ -7,13 +7,15 @@ import ProductCard from '@/components/ProductCard';
 import TrustStrip from '@/components/TrustStrip';
 import HeroSlider from '@/components/home/HeroSlider';
 import { useStore } from '@/context/StoreContext';
+import { useContent } from '@/context/ContentContext';
 
 
 const Index: React.FC = () => {
   const { products } = useStore();
+  const { getContent } = useContent();
 
-  const featuredProducts = products.filter(p => p.is_featured && p.is_active);
-  const newArrivals = products.filter(p => p.is_new_arrival && p.is_active).reverse();
+  const featuredProducts = products.filter(p => p.isFeatured && p.isActive);
+  const newArrivals = products.filter(p => p.isNewArrival && p.isActive).reverse();
 
   return (
     <Layout>
@@ -26,14 +28,14 @@ const Index: React.FC = () => {
             <div className="text-center mb-8 sm:mb-10 lg:mb-12">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange text-xs font-bold uppercase tracking-wider mb-4 border border-brand-orange/20">
                 <Sparkles className="w-3 h-3" />
-                Just In
+                {getContent('home_highlights', 'new_arrivals_title', 'Just In')}
               </span>
               <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-                New Arrivals
+                {getContent('home_highlights', 'new_arrivals_title', 'New Arrivals')}
               </h2>
               <div className="w-20 h-1 bg-brand-orange mx-auto rounded-full mb-4" />
               <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto px-4 leading-relaxed">
-                Check out the latest additions to the Mansara family. Fresh, pure, and ready to nourish.
+                {getContent('home_highlights', 'new_arrivals_description', 'Check out the latest additions to the Mansara family. Fresh, pure, and ready to nourish.')}
               </p>
             </div>
 

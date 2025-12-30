@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
-import { Combo, getProductById } from '@/data/products';
+import { Combo } from '@/context/StoreContext';
+import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
@@ -13,10 +14,14 @@ interface ComboCardProps {
 const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
   const { addToCart } = useCart();
   const { toast } = useToast();
+  const { getProduct } = useStore();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addToCart(combo, 'combo');
+    // Helper to adapt StoreContext Combo to CartContext expected type if needed, 
+    // assuming CartContext handles similar shape or we cast it. 
+    // Ideally CartContext should share types with StoreContext.
+    addToCart(combo as any, 'combo');
     toast({
       title: "Combo added to cart!",
       description: `${combo.name} has been added to your cart.`,
@@ -24,7 +29,7 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
   };
 
   const savings = combo.originalPrice - combo.comboPrice;
-  const productNames = combo.products.map(id => getProductById(id)?.name).filter(Boolean);
+  const productNames = (combo.products || []).map(id => getProduct(id)?.name).filter(Boolean);
 
   return (
     <div className="bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">

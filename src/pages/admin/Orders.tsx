@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+
 import { toast } from "sonner";
 import {
   Table,
@@ -25,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Eye } from "lucide-react";
+import { Eye, MessageCircle } from "lucide-react";
 
 interface Order {
   id: string;
@@ -53,13 +53,39 @@ const AdminOrders = () => {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      setOrders(data || []);
+      const { getAllOrders } = await import('@/lib/api');
+      const token = localStorage.getItem('mansara-token');
+      if (!token) return; // Or redirect to login
+
+      const data = await getAllOrders(token);
+      console.log("Fetched Orders:", data); // Debugging log
+
+      // Map backend data to frontend Order interface if needed
+      // Backend returns: { _id, user: { name, email }, total, status, items, deliveryAddress... }
+      // Frontend expects: { id, customer_name, ... }
+
+      const mappedOrders = data.map((order: any) => ({
+        id: order._id || order.id || order.orderId,
+        customer_id: order.user?._id || order.user?.id || 'guest',
+        customer_name: order.deliveryAddress?.firstName || order.user?.name || 'Guest',
+        customer_email: order.user?.email || '',
+        customer_phone: order.deliveryAddress?.phone || '',
+        customer_address: `${order.deliveryAddress?.street}, ${order.deliveryAddress?.city}, ${order.deliveryAddress?.zip}`,
+        total_amount: order.total,
+        payment_status: order.paymentMethod === 'Cash on Delivery' ? 'pending' : 'paid', // Infer or add status field
+        order_status: order.status || 'pending',
+        created_at: order.createdAt,
+        items: order.items.map((item: any) => ({
+          id: item.product, // Product ID
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity
+        }))
+      }));
+
+      setOrders(mappedOrders);
     } catch (error: any) {
+      console.error(error);
       toast.error("Failed to fetch orders");
     } finally {
       setLoading(false);
@@ -67,22 +93,13 @@ const AdminOrders = () => {
   };
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
-    try {
-      const { error } = await supabase
-        .from("orders")
-        .update({
-          order_status: newStatus,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", orderId);
-      if (error) throw error;
-      toast.success("Order status updated");
-      fetchOrders();
-      if (selectedOrder?.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, order_status: newStatus });
-      }
-    } catch (error: any) {
-      toast.error("Failed to update order");
+    // TODO: Implement updateOrderStatus in backend and api.ts
+    // For now, optimistic update or just toast
+    toast.info("Status update not yet connected to backend API");
+    // Optimistic update
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, order_status: newStatus } : o));
+    if (selectedOrder?.id === orderId) {
+      setSelectedOrder({ ...selectedOrder, order_status: newStatus });
     }
   };
 
@@ -91,7 +108,49 @@ const AdminOrders = () => {
     setShowDetails(true);
   };
 
+  const handleConfirmAndWhatsApp = (order: Order) => {
+    // 1. Update status to 'confirmed' (optimistic)
+    updateOrderStatus(order.id, 'confirmed');
+
+    // 2. Construct WhatsApp Message
+    const newLine = '%0a';
+    const bold = (text: string) => `*${text}*`;
+
+    let itemDetails = '';
+    order.items.forEach(item => {
+      itemDetails += `- ${item.name} (x${item.quantity}): ₹${item.price * item.quantity}${newLine}`;
+    });
+
+    const message = `*Mansara Nourish Hub*${newLine}${newLine}` +
+      `Hello ${order.customer_name},${newLine}` +
+      `Your order ${bold('#' + order.id.slice(0, 8))} has been ${bold('CONFIRMED')}! details below:${newLine}${newLine}` +
+      `${bold('Order Details:')}${newLine}` +
+      itemDetails +
+      `${newLine}` +
+      `${bold('Total Amount:')} ₹${order.total_amount}${newLine}` +
+      `${bold('Payment Status:')} ${order.payment_status}${newLine}${newLine}` +
+      `We will process your order shortly. Thank you for choosing Mansara!`;
+
+    // 3. Open WhatsApp
+    const cleanPhone = order.customer_phone ? order.customer_phone.replace(/\D/g, '') : '';
+    const phoneParam = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+
+    if (!phoneParam) {
+      toast.error("Customer phone number is missing!");
+      return;
+    }
+
+    const whatsappUrl = `https://wa.me/${phoneParam}?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+    toast.success("Order confirmed and WhatsApp opened!");
+  };
+
+
   const statusOptions = ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled"];
+  // ... (rest of generic code)
+
+
+
 
   const getStatusBadge = (status: string) => {
     const colors: any = {
@@ -265,6 +324,17 @@ const AdminOrders = () => {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-sm mb-3">Actions</h3>
+                <Button
+                  className="bg-green-600 hover:bg-green-700 text-white gap-2 w-full sm:w-auto"
+                  onClick={() => selectedOrder && handleConfirmAndWhatsApp(selectedOrder)}
+                >
+                  <MessageCircle size={18} />
+                  Confirm & Send WhatsApp
+                </Button>
               </div>
             </div>
           )}

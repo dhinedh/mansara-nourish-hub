@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+
 import { ShoppingCart, Package, Users, TrendingUp, AlertCircle } from "lucide-react";
 
 interface Stats {
@@ -28,31 +28,18 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const today = new Date().toISOString().split("T")[0];
+        const token = localStorage.getItem('mansara-token');
+        if (!token) return; // Or redirect
 
-        const [productsRes, ordersRes, customersRes] = await Promise.all([
-          supabase.from("products").select("*", { count: "exact", head: true }),
-          supabase.from("orders").select("*", { count: "exact", head: true }),
-          supabase.from("customers").select("*", { count: "exact", head: true }),
-        ]);
-
-        const todayOrdersRes = await supabase
-          .from("orders")
-          .select("*", { count: "exact", head: true })
-          .gte("created_at", `${today}T00:00:00`)
-          .lt("created_at", `${today}T23:59:59`);
-
-        const pendingOrdersRes = await supabase
-          .from("orders")
-          .select("*", { count: "exact", head: true })
-          .eq("order_status", "pending");
+        const { getDashboardStats } = await import('@/lib/api');
+        const data = await getDashboardStats(token);
 
         setStats({
-          totalProducts: productsRes.count || 0,
-          totalOrders: ordersRes.count || 0,
-          totalCustomers: customersRes.count || 0,
-          todayOrders: todayOrdersRes.count || 0,
-          pendingOrders: pendingOrdersRes.count || 0,
+          totalProducts: data.totalProducts || 0,
+          totalOrders: data.totalOrders || 0,
+          totalCustomers: data.totalCustomers || 0,
+          todayOrders: data.todayOrders || 0,
+          pendingOrders: data.pendingOrders || 0,
         });
       } catch (error) {
         console.error("Error fetching stats:", error);

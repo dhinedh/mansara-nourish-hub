@@ -4,7 +4,8 @@ export interface User {
   name: string;
   email: string;
   phone: string;
-  avatar: string;
+  avatar?: string;
+  role?: 'admin' | 'user';
 }
 
 export interface Address {

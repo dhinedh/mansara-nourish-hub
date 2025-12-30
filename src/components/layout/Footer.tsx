@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
+import { useContent } from '@/context/ContentContext';
+
 const Footer: React.FC = () => {
+  const { settings } = useContent();
+
   return (
     <footer className="bg-[#131A4E] text-brand-cream border-t border-brand-cream/10">
       <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto py-12">
@@ -16,9 +20,9 @@ const Footer: React.FC = () => {
             </div>
             <address className="not-italic text-brand-cream/70 text-sm space-y-2">
               <p className="font-semibold text-brand-yellow">MansaraFoods Private Limited</p>
-              <p>Tamil Nadu, India</p>
-              <p>Email: mansarafoods@gmail.com</p>
-              <p>Phone: +91-883 888 7064</p>
+              <p className="whitespace-pre-line">{settings?.address || 'Tamil Nadu, India'}</p>
+              <p>Email: {settings?.contact_email || 'mansarafoods@gmail.com'}</p>
+              <p>Phone: {settings?.phone_number || '+91-883 888 7064'}</p>
             </address>
           </div>
 
@@ -39,13 +43,13 @@ const Footer: React.FC = () => {
             <div className="mb-8">
               <h3 className="font-heading font-semibold text-lg text-brand-yellow mb-4">Connect with Us</h3>
               <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300">
+                <a href={settings?.facebook_url || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300">
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300">
+                <a href={settings?.twitter_url || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300">
                   <Twitter className="h-5 w-5" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300">
+                <a href={settings?.instagram_url || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300">
                   <Instagram className="h-5 w-5" />
                 </a>
               </div>

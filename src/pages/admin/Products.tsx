@@ -24,12 +24,12 @@ import { toast } from "sonner";
 
 const AdminProducts = () => {
   const navigate = useNavigate();
-  const { products, updateProduct, deleteProduct, categories } = useStore();
+  const { products, updateProduct, deleteProduct, categories, isLoading } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
 
   const toggleStatus = (id: string, currentStatus: boolean) => {
-    updateProduct(id, { is_active: !currentStatus });
+    updateProduct(id, { isActive: !currentStatus });
     toast.success(`Product ${!currentStatus ? "activated" : "deactivated"}`);
   };
 
@@ -80,7 +80,7 @@ const AdminProducts = () => {
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
               {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                <SelectItem key={cat.id} value={cat.value}>{cat.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -99,7 +99,13 @@ const AdminProducts = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProducts.length === 0 ? (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8">
+                    Loading products...
+                  </TableCell>
+                </TableRow>
+              ) : filteredProducts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-slate-500">
                     No products found.
@@ -110,18 +116,18 @@ const AdminProducts = () => {
                   <TableRow key={product.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        {product.image_url && (
+                        {product.image && (
                           <img
-                            src={product.image_url}
+                            src={product.image}
                             alt={product.name}
                             className="w-10 h-10 rounded-md object-cover bg-slate-100"
                           />
                         )}
                         <span className="truncate max-w-[180px]" title={product.name}>{product.name}</span>
-                        {product.is_offer && (
+                        {product.isOffer && (
                           <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold uppercase whitespace-nowrap">Offer</span>
                         )}
-                        {product.is_new_arrival && (
+                        {product.isNewArrival && (
                           <span className="text-[10px] bg-pink-100 text-pink-700 px-1.5 py-0.5 rounded font-bold uppercase whitespace-nowrap">New</span>
                         )}
                       </div>
@@ -135,12 +141,12 @@ const AdminProducts = () => {
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${product.is_active
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${product.isActive
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
                           }`}
                       >
-                        {product.is_active ? "Active" : "Inactive"}
+                        {product.isActive ? "Active" : "Inactive"}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
@@ -148,10 +154,10 @@ const AdminProducts = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => toggleStatus(product.id, product.is_active)}
-                          title={product.is_active ? "Deactivate" : "Activate"}
+                          onClick={() => toggleStatus(product.id, product.isActive)}
+                          title={product.isActive ? "Deactivate" : "Activate"}
                         >
-                          <span className={`h-2 w-2 rounded-full ${product.is_active ? 'bg-green-500' : 'bg-red-300'}`} />
+                          <span className={`h-2 w-2 rounded-full ${product.isActive ? 'bg-green-500' : 'bg-red-300'}`} />
                         </Button>
                         <Button
                           variant="ghost"

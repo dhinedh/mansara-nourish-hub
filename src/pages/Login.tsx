@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ const Login: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const { toast } = useToast();
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -22,32 +23,46 @@ const Login: React.FC = () => {
         setIsLoading(true);
 
         try {
-            // Check for Admin Demo Credentials
-            if (email === "admin@mansarafoods.com" && password === "admin123") {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                localStorage.setItem('mansara-admin-session', 'true');
-                toast({
-                    title: "Admin Login Successful",
-                    description: "Redirecting to dashboard...",
-                    duration: 2000,
-                });
-                window.location.href = "/admin/dashboard";
-                return;
-            }
-
-            const success = await login(email, password);
-            if (success) {
+            const user = await login(email, password);
+            console.log("Login returned user:", user); // Debug Log
+            if (user) {
                 toast({
                     title: "Login Successful",
                     description: "Welcome back!",
                     duration: 3000,
                 });
-                navigate('/account');
+
+                console.log("Redirecting based on role:", user.role); // Debug Log
+
+                // Check if there's a return url
+                const state = location.state as { from?: string | { pathname: string } } | null;
+                const from = (typeof state?.from === 'string' ? state.from : state?.from?.pathname) || '/';
+
+                if (user.role === 'admin') {
+                    navigate('/admin/dashboard', { replace: true });
+                } else if (from !== '/') {
+                    navigate(from, { replace: true });
+                } else {
+                    navigate('/', { replace: true });
+                }
             }
-        } catch (error) {
+        } catch (error: any) {
+            // Check for specific verification error
+            if (error.message === 'Please verify your email address' || (error.response && error.response.status === 401 && error.message.includes('verify'))) {
+                toast({
+                    title: "Verification Required",
+                    description: "Redirecting you to verify your email...",
+                    duration: 3000,
+                });
+
+                // Redirect to verify email with the email pre-filled
+                navigate('/verify-email', { state: { email } });
+                return;
+            }
+
             toast({
                 title: "Login Failed",
-                description: "Please check your credentials and try again.",
+                description: error.message || "Please check your credentials and try again.",
                 variant: "destructive",
             });
         } finally {
@@ -72,13 +87,13 @@ const Login: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <p className="font-medium text-primary mb-1">Client:</p>
-                            <p className="text-xs text-muted-foreground">user@example.com</p>
-                            <p className="text-xs text-muted-foreground">password</p>
+                            <p className="text-xs text-muted-foreground">john.doe@example.com</p>
+                            <p className="text-xs text-muted-foreground">password123</p>
                         </div>
                         <div>
                             <p className="font-medium text-destructive mb-1">Admin:</p>
-                            <p className="text-xs text-muted-foreground">admin@mansarafoods.com</p>
-                            <p className="text-xs text-muted-foreground">admin123</p>
+                            <p className="text-xs text-muted-foreground">mansara@deepikaharikrishnan.com</p>
+                            <p className="text-xs text-muted-foreground">Mansara@123</p>
                         </div>
                     </div>
                 </div>
@@ -130,9 +145,9 @@ const Login: React.FC = () => {
                         </div>
 
                         <div className="text-sm">
-                            <a href="#" className="font-medium text-primary hover:text-primary/80">
+                            <Link to="/forgot-password" className="font-medium text-primary hover:text-primary/80">
                                 Forgot your password?
-                            </a>
+                            </Link>
                         </div>
                     </div>
 

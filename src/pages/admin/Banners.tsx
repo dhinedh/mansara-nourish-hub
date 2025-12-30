@@ -226,7 +226,7 @@ const AdminHeroSection = () => {
                 alt={slide.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                 <Button
                   variant="secondary"
                   size="icon"
@@ -269,8 +269,9 @@ const AdminHeroSection = () => {
 };
 
 const AdminBanners = () => {
-  const { banners, addBanner, deleteBanner } = useContent();
+  const { banners, addBanner, deleteBanner, updateBanner } = useContent();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingBannerId, setEditingBannerId] = useState<string | null>(null);
   const [newBanner, setNewBanner] = useState<Omit<Banner, 'id'>>({
     page: 'home',
     title: '',
@@ -280,15 +281,45 @@ const AdminBanners = () => {
     active: true
   });
 
-  const handleAddBanner = () => {
+  const resetForm = () => {
+    setEditingBannerId(null);
+    setNewBanner({ page: 'home', title: '', subtitle: '', image: '', link: '', active: true });
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) resetForm();
+  };
+
+  const handleSaveBanner = async () => {
     if (!newBanner.title || !newBanner.image) {
       toast.error("Title and Image are required");
       return;
     }
-    addBanner(newBanner);
-    toast.success("Banner added successfully");
+
+    if (editingBannerId) {
+      await updateBanner(editingBannerId, newBanner);
+      toast.success("Banner updated successfully");
+    } else {
+      await addBanner(newBanner);
+      toast.success("Banner added successfully");
+    }
+
     setIsDialogOpen(false);
-    setNewBanner({ page: 'home', title: '', subtitle: '', image: '', link: '', active: true });
+    resetForm();
+  };
+
+  const handleEditBanner = (banner: Banner) => {
+    setNewBanner({
+      page: banner.page,
+      title: banner.title,
+      subtitle: banner.subtitle,
+      image: banner.image,
+      link: banner.link,
+      active: banner.active
+    });
+    setEditingBannerId(banner.id);
+    setIsDialogOpen(true);
   };
 
   const handleDelete = (id: string) => {
@@ -309,117 +340,137 @@ const AdminBanners = () => {
             <p className="text-slate-600 mt-1">Manage promotional banners across pages</p>
           </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus size={20} /> Add Banner
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Add New Banner</DialogTitle>
-                <DialogDescription>
-                  Create a new promotional banner for a specific page.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="page" className="text-right">Page</Label>
-                  <select
-                    id="page"
-                    className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                    value={newBanner.page}
-                    onChange={(e) => setNewBanner({ ...newBanner, page: e.target.value })}
-                  >
-                    <option value="home">Home</option>
-                    <option value="products">Products</option>
-                    <option value="offers">Offers</option>
-                  </select>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="title" className="text-right">Title</Label>
-                  <Input
-                    id="title"
-                    value={newBanner.title}
-                    onChange={(e) => setNewBanner({ ...newBanner, title: e.target.value })}
-                    className="col-span-3"
-                    placeholder="Enter banner title"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="subtitle" className="text-right">Subtitle</Label>
-                  <Input
-                    id="subtitle"
-                    value={newBanner.subtitle}
-                    onChange={(e) => setNewBanner({ ...newBanner, subtitle: e.target.value })}
-                    className="col-span-3"
-                    placeholder="Enter banner subtitle"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-start gap-4">
-                  <Label className="text-right pt-2">Image</Label>
-                  <div className="col-span-3">
-                    <ImageUpload
-                      value={newBanner.image}
-                      onChange={(url) => setNewBanner({ ...newBanner, image: url })}
-                    />
-                  </div>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAddBanner}>Save Banner</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Button className="gap-2" onClick={() => {
+            resetForm();
+            setIsDialogOpen(true);
+          }}>
+            <Plus size={20} /> Add Banner
+          </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {banners.length === 0 ? (
-            <Card className="col-span-full border-dashed bg-white">
-              <CardContent className="flex flex-col items-center justify-center py-12 text-center text-slate-500">
-                <ImageIcon className="h-12 w-12 mb-4 opacity-20" />
-                <p className="text-lg font-medium">No banners created yet</p>
-                <p className="text-sm">Click "Add Banner" to get started</p>
+        <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>{editingBannerId ? 'Edit Banner' : 'Add New Banner'}</DialogTitle>
+              <DialogDescription>
+                {editingBannerId ? 'Update banner details.' : 'Create a new promotional banner for a specific page.'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="page" className="text-right">Page</Label>
+                <select
+                  id="page"
+                  className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  value={newBanner.page}
+                  onChange={(e) => setNewBanner({ ...newBanner, page: e.target.value })}
+                >
+                  <option value="home">Home</option>
+                  <option value="products">Products</option>
+                  <option value="offers">Offers</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="title" className="text-right">Title</Label>
+                <Input
+                  id="title"
+                  value={newBanner.title}
+                  onChange={(e) => setNewBanner({ ...newBanner, title: e.target.value })}
+                  className="col-span-3"
+                  placeholder="Enter banner title"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="subtitle" className="text-right">Subtitle</Label>
+                <Input
+                  id="subtitle"
+                  value={newBanner.subtitle}
+                  onChange={(e) => setNewBanner({ ...newBanner, subtitle: e.target.value })}
+                  className="col-span-3"
+                  placeholder="Enter banner subtitle"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="link" className="text-right">Link (Optional)</Label>
+                <Input
+                  id="link"
+                  value={newBanner.link || ''}
+                  onChange={(e) => setNewBanner({ ...newBanner, link: e.target.value })}
+                  className="col-span-3"
+                  placeholder="e.g. /products"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label className="text-right pt-2">Image</Label>
+                <div className="col-span-3">
+                  <ImageUpload
+                    value={newBanner.image}
+                    onChange={(url) => setNewBanner({ ...newBanner, image: url })}
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveBanner}>{editingBannerId ? 'Update Banner' : 'Save Banner'}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {banners.length === 0 ? (
+          <Card className="col-span-full border-dashed bg-white">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center text-slate-500">
+              <ImageIcon className="h-12 w-12 mb-4 opacity-20" />
+              <p className="text-lg font-medium">No banners created yet</p>
+              <p className="text-sm">Click "Add Banner" to get started</p>
+            </CardContent>
+          </Card>
+        ) : (
+          banners.map((banner) => (
+            <Card key={banner.id} className="overflow-hidden group bg-white">
+              <div className="relative aspect-video bg-slate-100">
+                <img
+                  src={banner.image}
+                  alt={banner.title}
+                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                />
+                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="h-8 w-8 bg-white/90 hover:bg-white"
+                    onClick={() => handleEditBanner(banner)}
+                  >
+                    <Pencil size={14} className="text-slate-700" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleDelete(banner.id)}
+                  >
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12 text-white">
+                  <span className="text-xs font-bold uppercase tracking-wider bg-primary/90 text-primary-foreground px-2 py-0.5 rounded mb-2 inline-block">
+                    {banner.page}
+                  </span>
+                  <h3 className="font-bold line-clamp-1">{banner.title}</h3>
+                </div>
+              </div>
+              <CardContent className="p-4">
+                <p className="text-sm text-slate-600 line-clamp-2 mb-2">{banner.subtitle}</p>
               </CardContent>
             </Card>
-          ) : (
-            banners.map((banner) => (
-              <Card key={banner.id} className="overflow-hidden group bg-white">
-                <div className="relative aspect-video bg-slate-100">
-                  <img
-                    src={banner.image}
-                    alt={banner.title}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                  />
-                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handleDelete(banner.id)}
-                    >
-                      <Trash2 size={14} />
-                    </Button>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12 text-white">
-                    <span className="text-xs font-bold uppercase tracking-wider bg-primary/90 text-primary-foreground px-2 py-0.5 rounded mb-2 inline-block">
-                      {banner.page}
-                    </span>
-                    <h3 className="font-bold line-clamp-1">{banner.title}</h3>
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <p className="text-sm text-slate-600 line-clamp-2 mb-2">{banner.subtitle}</p>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+          ))
+        )}
       </div>
-    </AdminLayout>
+    </AdminLayout >
   );
 };
 

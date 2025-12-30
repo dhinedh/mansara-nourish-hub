@@ -1,13 +1,27 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Lock } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import PageHero from '@/components/layout/PageHero';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 const Cart: React.FC = () => {
   const { items, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/cart' } });
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleCheckout = () => {
+    navigate('/checkout');
+  };
+
 
   if (items.length === 0) {
     return (
@@ -132,11 +146,21 @@ const Cart: React.FC = () => {
                   </div>
                 </div>
 
-                <Link to="/checkout">
-                  <Button variant="default" size="lg" className="w-full mb-3">
-                    Proceed to Checkout
-                  </Button>
-                </Link>
+                {!isAuthenticated && (
+                  <div className="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm mb-3 flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Please login to place an order
+                  </div>
+                )}
+
+                <Button
+                  variant="default"
+                  size="lg"
+                  className="w-full mb-3"
+                  onClick={handleCheckout}
+                >
+                  {isAuthenticated ? 'Proceed to Checkout' : 'Login to Checkout'}
+                </Button>
                 <Link to="/products">
                   <Button variant="outline" size="lg" className="w-full">
                     Continue Shopping

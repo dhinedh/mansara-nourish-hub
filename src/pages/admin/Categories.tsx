@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import ImageUpload from "@/components/admin/ImageUpload";
-import { supabase } from "@/lib/supabase";
+
+
 import { toast } from "sonner";
 import {
     Table,
@@ -27,7 +27,6 @@ interface Category {
     name: string;
     slug: string;
     description?: string;
-    image?: string;
 }
 
 const AdminCategories = () => {
@@ -35,7 +34,7 @@ const AdminCategories = () => {
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-    const [formData, setFormData] = useState({ name: "", description: "", image: "" });
+    const [formData, setFormData] = useState({ name: "", description: "" });
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -44,11 +43,8 @@ const AdminCategories = () => {
 
     const fetchCategories = async () => {
         try {
-            const { data, error } = await supabase
-                .from("categories")
-                .select("*")
-                .order("name");
-            if (error) throw error;
+            const { getCategories } = await import('@/lib/api');
+            const data = await getCategories();
             setCategories(data || []);
         } catch (error: any) {
             toast.error("Failed to fetch categories");
@@ -72,26 +68,23 @@ const AdminCategories = () => {
 
         setSaving(true);
         try {
+            const token = localStorage.getItem('mansara-token');
+            if (!token) throw new Error("Authentication required");
+
             const slug = generateSlug(formData.name);
             const dataToSave = {
                 name: formData.name,
                 slug,
                 description: formData.description,
-                image: formData.image,
             };
 
+            const { createCategory, updateCategory } = await import('@/lib/api');
+
             if (editingCategory) {
-                const { error } = await supabase
-                    .from("categories")
-                    .update(dataToSave)
-                    .eq("id", editingCategory.id);
-                if (error) throw error;
+                await updateCategory(editingCategory.id, dataToSave, token);
                 toast.success("Category updated");
             } else {
-                const { error } = await supabase
-                    .from("categories")
-                    .insert([dataToSave]);
-                if (error) throw error;
+                await createCategory(dataToSave, token);
                 toast.success("Category created");
             }
 
@@ -108,8 +101,11 @@ const AdminCategories = () => {
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure? This might affect products linked to this category.")) return;
         try {
-            const { error } = await supabase.from("categories").delete().eq("id", id);
-            if (error) throw error;
+            const token = localStorage.getItem('mansara-token');
+            if (!token) throw new Error("Authentication required");
+
+            const { deleteCategory } = await import('@/lib/api');
+            await deleteCategory(id, token);
             toast.success("Category deleted");
             fetchCategories();
         } catch (error: any) {
@@ -118,13 +114,13 @@ const AdminCategories = () => {
     };
 
     const resetForm = () => {
-        setFormData({ name: "", description: "", image: "" });
+        setFormData({ name: "", description: "" });
         setEditingCategory(null);
     };
 
     const openEdit = (category: Category) => {
         setEditingCategory(category);
-        setFormData({ name: category.name, description: category.description || "", image: category.image || "" });
+        setFormData({ name: category.name, description: category.description || "" });
         setIsDialogOpen(true);
     };
 
@@ -166,13 +162,7 @@ const AdminCategories = () => {
                                         placeholder="Description (Optional)"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Image</label>
-                                    <ImageUpload
-                                        value={formData.image}
-                                        onChange={(url) => setFormData({ ...formData, image: url })}
-                                    />
-                                </div>
+
                                 <Button onClick={handleSave} className="w-full" disabled={saving}>
                                     {saving ? "Saving..." : "Save Category"}
                                 </Button>

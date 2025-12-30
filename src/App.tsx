@@ -17,6 +17,11 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+// Page for OTP Verification
+import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Account from "./pages/Account";
 import Orders from "./pages/Orders";
 import OrderTracking from "./pages/OrderTracking";
@@ -93,6 +98,9 @@ const App = () => (
 
                   {/* User Routes */}
                   <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/verify-email" element={<VerifyEmail />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/account" element={<Account />} />
                   <Route path="/orders" element={<Orders />} />
                   <Route path="/order-tracking/:orderId" element={<OrderTracking />} />

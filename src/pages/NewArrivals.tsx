@@ -6,7 +6,7 @@ import PageHero from '@/components/layout/PageHero';
 
 const NewArrivals: React.FC = () => {
   const { products } = useStore();
-  const newProducts = products.filter(p => p.is_new_arrival && p.is_active).reverse();
+  const newProducts = products.filter(p => p.isNewArrival && p.isActive).reverse();
 
   return (
     <Layout>

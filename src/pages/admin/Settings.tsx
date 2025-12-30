@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/lib/supabase";
+import { fetchSettings, updateSettings, changePassword, updateProfile } from "@/lib/api";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 interface Settings {
   website_name: string;
@@ -18,21 +19,43 @@ interface Settings {
 }
 
 const AdminSettings = () => {
+  const { user } = useAuth();
   const [settings, setSettings] = useState<Settings>({
     website_name: "MANSARA Foods",
     contact_email: "contact@mansarafoods.com",
-    phone_number: "+91 XXXXX XXXXX",
-    address: "Your Address Here",
+    phone_number: "",
+    address: "",
   });
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
+  // Profile Update State
+  const [profileData, setProfileData] = useState({
+    name: user?.name || "",
+    email: user?.email || ""
+  });
+  const [profileLoading, setProfileLoading] = useState(false);
 
-  const fetchSettings = async () => {
+  // Password Change State
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  useEffect(() => {
+    loadSettings();
+    if (user) {
+      setProfileData({
+        name: user.name,
+        email: user.email
+      });
+    }
+  }, [user]);
+
+  const loadSettings = async () => {
     try {
-      const { data } = await supabase.from("site_settings").select("*").maybeSingle();
+      const data = await fetchSettings();
       if (data) {
         setSettings(data);
       }
@@ -44,10 +67,8 @@ const AdminSettings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from("site_settings")
-        .upsert([{ id: 1, ...settings }]);
-      if (error) throw error;
+      const updated = await updateSettings(settings);
+      setSettings(updated);
       toast.success("Settings saved successfully");
     } catch (error: any) {
       toast.error("Failed to save settings");
@@ -59,6 +80,74 @@ const AdminSettings = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSettings({ ...settings, [name]: value });
+  };
+
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setProfileData({ ...profileData, [name]: value });
+  };
+
+  const updateProfileDetails = async () => {
+    setProfileLoading(true);
+    try {
+      const token = localStorage.getItem('mansara-token');
+      if (!token) throw new Error("Not authenticated");
+
+      await updateProfile(profileData, token);
+
+      // Update local storage so refresh persists it immediately
+      const storedUser = localStorage.getItem('mansara-user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        localStorage.setItem('mansara-user', JSON.stringify({ ...parsed, ...profileData }));
+      }
+
+      toast.success("Profile updated successfully. Please refresh to see changes.");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update profile");
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData({ ...passwordData, [name]: value });
+  };
+
+  const submitPasswordChange = async () => {
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      toast.error("All password fields are required");
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      const token = localStorage.getItem('mansara-token');
+      if (!token) throw new Error("Not authenticated");
+
+      await changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      }, token);
+
+      toast.success("Password updated successfully");
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update password");
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   return (
@@ -73,6 +162,7 @@ const AdminSettings = () => {
           <TabsList>
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="social">Social Links</TabsTrigger>
+            <TabsTrigger value="security">Security</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general">
@@ -115,6 +205,11 @@ const AdminSettings = () => {
                     onChange={handleChange}
                   />
                 </div>
+                <div className="pt-4">
+                  <Button onClick={handleSave} disabled={saving}>
+                    {saving ? "Saving..." : "Save General Settings"}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -153,16 +248,102 @@ const AdminSettings = () => {
                     placeholder="https://twitter.com/..."
                   />
                 </div>
+                <div className="pt-4">
+                  <Button onClick={handleSave} disabled={saving}>
+                    {saving ? "Saving..." : "Save Social Settings"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="security">
+            <Card>
+              <CardHeader>
+                <CardTitle>Security Settings</CardTitle>
+                <CardDescription>Manage your account security and password</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 max-w-md">
+                {/* Profile Section */}
+                <div className="space-y-4 pb-6 border-b">
+                  <h3 className="text-lg font-medium">Profile Details</h3>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">User ID</label>
+                    <Input
+                      value={user?.id || ""}
+                      readOnly
+                      className="bg-slate-50 text-slate-500 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Name</label>
+                    <Input
+                      name="name"
+                      value={profileData.name}
+                      onChange={handleProfileChange}
+                      placeholder="Your Name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Email</label>
+                    <Input
+                      name="email"
+                      type="email"
+                      value={profileData.email}
+                      onChange={handleProfileChange}
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                  <div className="pt-2">
+                    <Button onClick={updateProfileDetails} disabled={profileLoading}>
+                      {profileLoading ? "Updating..." : "Update Profile"}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Password Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Change Password</h3>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Current Password</label>
+                    <Input
+                      name="currentPassword"
+                      type="password"
+                      value={passwordData.currentPassword}
+                      onChange={handlePasswordChange}
+                      placeholder="Enter current password"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">New Password</label>
+                    <Input
+                      name="newPassword"
+                      type="password"
+                      value={passwordData.newPassword}
+                      onChange={handlePasswordChange}
+                      placeholder="Enter new password (min 6 chars)"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Confirm New Password</label>
+                    <Input
+                      name="confirmPassword"
+                      type="password"
+                      value={passwordData.confirmPassword}
+                      onChange={handlePasswordChange}
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                  <div className="pt-4">
+                    <Button onClick={submitPasswordChange} disabled={passwordLoading} variant="destructive">
+                      {passwordLoading ? "Updating..." : "Change Password"}
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-
-        <div className="flex gap-2">
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save Settings"}
-          </Button>
-        </div>
       </div>
     </AdminLayout>
   );

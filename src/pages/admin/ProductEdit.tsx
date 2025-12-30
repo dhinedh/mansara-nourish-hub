@@ -27,24 +27,26 @@ const AdminProductEdit = () => {
     slug: "",
     category: "",
     price: 0,
-    store: 0, // Typo fix: stock
+    offerPrice: 0,
     stock: 0,
-    is_offer: false,
-    is_new_arrival: false,
-    is_featured: false,
-    is_active: true,
+    isOffer: false,
+    isNewArrival: false,
+    isFeatured: false,
+    isActive: true,
     highlights: [],
-    image_url: "",
-    sub_category: "",
-    offer_price: 0,
+    image: "",
+    sub_category: "", // Kept as optional legacy
     weight: "",
-    short_description: "",
     description: "",
     ingredients: "",
-    how_to_use: "",
-    storage_instructions: "",
+    howToUse: "",
+    storage: "",
     nutrition: "",
-    compliance: ""
+    compliance: "",
+    // Legacy fields handled by optional mapping/compat
+    short_description: "",
+    how_to_use: "",
+    storage_instructions: ""
   } as any);
 
   const [highlightsText, setHighlightsText] = useState("");
@@ -53,7 +55,14 @@ const AdminProductEdit = () => {
     if (id && id !== "new") {
       const product = getProduct(id);
       if (product) {
-        setFormData(product);
+        // Map any legacy fields if necessary, or just use spread
+        setFormData({
+          ...product,
+          // Ensure compat with form fields if backend used different names
+          howToUse: product.howToUse || (product as any).how_to_use || "",
+          storage: product.storage || (product as any).storage_instructions || "",
+          offerPrice: product.offerPrice || (product as any).offer_price || 0,
+        });
         if (product.highlights) {
           setHighlightsText(product.highlights.join("\n"));
         }
@@ -86,7 +95,7 @@ const AdminProductEdit = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === "price" || name === "stock" || name === "offer_price" ? parseFloat(value) || 0 : value,
+      [name]: name === "price" || name === "stock" || name === "offerPrice" ? parseFloat(value) || 0 : value,
     }));
   };
 
@@ -105,7 +114,7 @@ const AdminProductEdit = () => {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || formData.price <= 0) {
       toast.error("Name and valid price are required");
       return;
@@ -113,16 +122,17 @@ const AdminProductEdit = () => {
 
     try {
       if (id && id !== "new") {
-        updateProduct(id, formData);
+        await updateProduct(id, formData);
         toast.success("Product updated successfully");
       } else {
-        addProduct(formData);
+        await addProduct(formData);
         toast.success("Product created successfully");
       }
       setTimeout(() => {
         navigate("/admin/products");
       }, 500);
     } catch (error) {
+      console.error(error);
       toast.error("Failed to save product");
     }
   };
@@ -171,7 +181,7 @@ const AdminProductEdit = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {categories.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                          <SelectItem key={cat.id} value={cat.value}>{cat.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -208,9 +218,9 @@ const AdminProductEdit = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">Offer Price (₹)</label>
                     <Input
-                      name="offer_price"
+                      name="offerPrice"
                       type="number"
-                      value={formData.offer_price || ""}
+                      value={formData.offerPrice || ""}
                       onChange={handleChange}
                       placeholder="Optional"
                     />
@@ -291,8 +301,8 @@ const AdminProductEdit = () => {
                 <div>
                   <label className="block text-sm font-medium mb-2">How to Use</label>
                   <textarea
-                    name="how_to_use"
-                    value={formData.how_to_use || ""}
+                    name="howToUse"
+                    value={formData.howToUse || ""}
                     onChange={handleChange}
                     placeholder="Usage instructions"
                     className="w-full p-2 border border-slate-300 rounded-md bg-transparent"
@@ -311,8 +321,8 @@ const AdminProductEdit = () => {
                   <label className="block text-sm font-medium mb-2">Product Image</label>
                   <div className="space-y-4">
                     <ImageUpload
-                      value={formData.image_url}
-                      onChange={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                      value={formData.image}
+                      onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
                     />
                   </div>
                 </div>
@@ -329,41 +339,41 @@ const AdminProductEdit = () => {
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Checkbox
-                    id="is_offer"
-                    checked={formData.is_offer}
-                    onCheckedChange={(checked) => handleCheckboxChange("is_offer", checked as boolean)}
+                    id="isOffer"
+                    checked={formData.isOffer}
+                    onCheckedChange={(checked) => handleCheckboxChange("isOffer", checked as boolean)}
                   />
-                  <label htmlFor="is_offer" className="text-sm font-medium cursor-pointer">
+                  <label htmlFor="isOffer" className="text-sm font-medium cursor-pointer">
                     Is Offer
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Checkbox
-                    id="is_new_arrival"
-                    checked={formData.is_new_arrival}
-                    onCheckedChange={(checked) => handleCheckboxChange("is_new_arrival", checked as boolean)}
+                    id="isNewArrival"
+                    checked={formData.isNewArrival}
+                    onCheckedChange={(checked) => handleCheckboxChange("isNewArrival", checked as boolean)}
                   />
-                  <label htmlFor="is_new_arrival" className="text-sm font-medium cursor-pointer">
+                  <label htmlFor="isNewArrival" className="text-sm font-medium cursor-pointer">
                     Is New Arrival
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Checkbox
-                    id="is_featured"
-                    checked={formData.is_featured}
-                    onCheckedChange={(checked) => handleCheckboxChange("is_featured", checked as boolean)}
+                    id="isFeatured"
+                    checked={formData.isFeatured}
+                    onCheckedChange={(checked) => handleCheckboxChange("isFeatured", checked as boolean)}
                   />
-                  <label htmlFor="is_featured" className="text-sm font-medium cursor-pointer">
+                  <label htmlFor="isFeatured" className="text-sm font-medium cursor-pointer">
                     Is Featured
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Checkbox
-                    id="is_active"
-                    checked={formData.is_active}
-                    onCheckedChange={(checked) => handleCheckboxChange("is_active", checked as boolean)}
+                    id="isActive"
+                    checked={formData.isActive}
+                    onCheckedChange={(checked) => handleCheckboxChange("isActive", checked as boolean)}
                   />
-                  <label htmlFor="is_active" className="text-sm font-medium cursor-pointer">
+                  <label htmlFor="isActive" className="text-sm font-medium cursor-pointer">
                     Is Active
                   </label>
                 </div>

@@ -6,7 +6,7 @@ import PageHero from '@/components/layout/PageHero';
 
 const Offers: React.FC = () => {
   const { products } = useStore();
-  const offerProducts = products.filter(p => p.is_offer && p.is_active);
+  const offerProducts = products.filter(p => p.isOffer && p.isActive);
 
   return (
     <Layout>

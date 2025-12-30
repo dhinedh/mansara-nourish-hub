@@ -1,17 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
-import { mockUsersList, mockOrders } from '@/data/mockUsers';
 import { ArrowLeft, Package, Calendar, MapPin, Mail, Phone, ShoppingBag } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { fetchUser, getUserOrders } from '@/lib/api';
+import { toast } from 'sonner';
 
 const CustomerHistory: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const [user, setUser] = useState<any>(null);
+    const [orders, setOrders] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const user = mockUsersList.find(u => u.id === id);
-    const userOrders = mockOrders.filter(o => o.userId === id);
+    useEffect(() => {
+        const loadData = async () => {
+            if (!id) return;
+            try {
+                // Fetch user and orders in parallel
+                const [userData, ordersData] = await Promise.all([
+                    fetchUser(id),
+                    getUserOrders(id)
+                ]);
+                setUser(userData);
+                setOrders(ordersData);
+            } catch (error) {
+                console.error('Failed to load customer data', error);
+                toast.error('Failed to load customer history');
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadData();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <AdminLayout>
+                <div className="flex items-center justify-center h-[60vh]">
+                    <div className="text-muted-foreground">Loading customer history...</div>
+                </div>
+            </AdminLayout>
+        );
+    }
 
     if (!user) {
         return (
@@ -35,15 +67,13 @@ const CustomerHistory: React.FC = () => {
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">{user.name}</h1>
                         <p className="text-muted-foreground flex items-center gap-2">
-                            Customer ID: <span className="font-mono bg-muted px-1 rounded">{user.id}</span>
+                            Customer ID: <span className="font-mono bg-muted px-1 rounded">{user._id}</span>
                         </p>
                     </div>
                     <div className="ml-auto">
                         <span className={`px-3 py-1 rounded-full text-sm font-medium 
-                            ${user.status === 'Active' ? 'bg-green-100 text-green-800' :
-                                user.status === 'Inactive' ? 'bg-gray-100 text-gray-800' :
-                                    'bg-red-100 text-red-800'}`}>
-                            {user.status}
+                            ${user.isAdmin ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'}`}>
+                            {user.isAdmin ? 'Admin' : 'Customer'}
                         </span>
                     </div>
                 </div>
@@ -61,27 +91,41 @@ const CustomerHistory: React.FC = () => {
                             </div>
                             <div className="flex items-center gap-3 text-sm">
                                 <Phone className="h-4 w-4 text-muted-foreground" />
-                                <span>{user.phone}</span>
+                                <span>{user.phone || 'No phone provided'}</span>
                             </div>
                             <div className="flex items-start gap-3 text-sm">
                                 <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                                <span>{user.address}</span>
+                                <div className="space-y-1">
+                                    {user.addresses && user.addresses.length > 0 ? (
+                                        user.addresses.map((addr: any, idx: number) => (
+                                            <div key={idx} className="mb-2 last:mb-0">
+                                                <div className="font-medium">{addr.type}</div>
+                                                <div className="text-muted-foreground">{addr.street}, {addr.city}</div>
+                                                <div className="text-muted-foreground">{addr.state}, {addr.zipCode}</div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <span>No addresses saved</span>
+                                    )}
+                                </div>
                             </div>
                             <div className="flex items-center gap-3 text-sm">
                                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span>Joined: {new Date(user.joinDate).toLocaleDateString()}</span>
+                                <span>Joined: {new Date(user.createdAt).toLocaleDateString()}</span>
                             </div>
 
                             <hr className="border-border" />
 
                             <div className="grid grid-cols-2 gap-4 text-center">
                                 <div className="p-3 bg-secondary/50 rounded-lg">
-                                    <div className="text-xl font-bold">{user.totalOrders}</div>
+                                    <div className="text-xl font-bold">{orders.length}</div>
                                     <div className="text-xs text-muted-foreground">Orders</div>
                                 </div>
                                 <div className="p-3 bg-secondary/50 rounded-lg">
-                                    <div className="text-xl font-bold">₹{user.totalSpent.toLocaleString()}</div>
-                                    <div className="text-xs text-muted-foreground">Spent</div>
+                                    <div className="text-xl font-bold">
+                                        ₹{orders.reduce((acc, order) => acc + (order.totalAmount || 0), 0).toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">Total Spent</div>
                                 </div>
                             </div>
                         </CardContent>
@@ -94,25 +138,25 @@ const CustomerHistory: React.FC = () => {
                             Order History
                         </h2>
 
-                        {userOrders.length > 0 ? (
+                        {orders.length > 0 ? (
                             <div className="space-y-4">
-                                {userOrders.map((order) => (
-                                    <Card key={order.id} className="overflow-hidden">
+                                {orders.map((order) => (
+                                    <Card key={order._id} className="overflow-hidden">
                                         <div className="bg-muted/40 p-4 flex flex-wrap items-center justify-between gap-4 border-b">
                                             <div className="flex gap-4">
                                                 <div>
                                                     <span className="text-xs text-muted-foreground uppercase font-bold">Order Placed</span>
-                                                    <div className="text-sm font-medium">{new Date(order.date).toLocaleDateString()}</div>
+                                                    <div className="text-sm font-medium">{new Date(order.createdAt).toLocaleDateString()}</div>
                                                 </div>
                                                 <div>
                                                     <span className="text-xs text-muted-foreground uppercase font-bold">Order ID</span>
-                                                    <div className="text-sm font-medium">#{order.id}</div>
+                                                    <div className="text-sm font-medium">#{order._id.substring(0, 8)}...</div>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
                                                 <div className="text-right">
                                                     <span className="text-xs text-muted-foreground uppercase font-bold">Total</span>
-                                                    <div className="text-sm font-bold">₹{order.total.toLocaleString()}</div>
+                                                    <div className="text-sm font-bold">₹{(order.totalAmount || 0).toLocaleString()}</div>
                                                 </div>
                                                 <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase
                                                     ${order.status === 'Delivered' ? 'bg-green-100 text-green-700' :
@@ -124,18 +168,18 @@ const CustomerHistory: React.FC = () => {
                                             </div>
                                         </div>
                                         <CardContent className="p-0">
-                                            {order.items.map((item, idx) => (
+                                            {order.items && order.items.map((item: any, idx: number) => (
                                                 <div key={idx} className="p-4 flex justify-between items-center border-b last:border-0 hover:bg-gray-50/50">
                                                     <div className="flex items-center gap-4">
                                                         <div className="h-10 w-10 bg-secondary rounded flex items-center justify-center text-muted-foreground">
                                                             <Package className="h-5 w-5" />
                                                         </div>
                                                         <div>
-                                                            <div className="font-medium">{item.name}</div>
+                                                            <div className="font-medium">{item.product?.name || item.combo?.name || 'Unknown Item'}</div>
                                                             <div className="text-sm text-muted-foreground">Qty: {item.quantity}</div>
                                                         </div>
                                                     </div>
-                                                    <div className="text-sm font-medium">₹{item.price * item.quantity}</div>
+                                                    <div className="text-sm font-medium">₹{(item.price * item.quantity).toLocaleString()}</div>
                                                 </div>
                                             ))}
                                         </CardContent>

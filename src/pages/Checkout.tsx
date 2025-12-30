@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { CheckCircle, MapPin, Pencil, Plus } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { CheckCircle, MapPin, Pencil, Plus, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
+import { createOrder } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface DeliveryAddress {
   firstName: string;
@@ -16,34 +19,147 @@ interface DeliveryAddress {
 
 const Checkout: React.FC = () => {
   const { items, getCartTotal, clearCart } = useCart();
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = React.useState(1);
   const [orderPlaced, setOrderPlaced] = React.useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Address State
   const [address, setAddress] = useState<DeliveryAddress>({
-    firstName: '',
+    firstName: user?.name || '',
     lastName: '',
-    phone: '',
+    phone: user?.phone || '',
     addressLine: '',
     city: '',
     pincode: ''
   });
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [isAddressSaved, setIsAddressSaved] = useState(false);
-  const [isEditing, setIsEditing] = useState(true);
+  const [isEditing, setIsEditing] = useState(true); // Now controls "List View" (false) vs "Form View" (true) if addresses exist
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/checkout' } });
+      return;
+    }
+
+    // Fetch user details to get addresses
+    const loadUserAddress = async () => {
+      if (user?.id) {
+        try {
+          const { fetchUser } = await import('@/lib/api');
+          const userData = await fetchUser(user.id);
+
+          if (userData.addresses && userData.addresses.length > 0) {
+            setSavedAddresses(userData.addresses);
+
+            // Find default address or use the first one
+            const defaultAddress = userData.addresses.find((addr: any) => addr.isDefault) || userData.addresses[0];
+
+            setAddress({
+              firstName: userData.name || '',
+              lastName: '',
+              phone: userData.phone || '',
+              addressLine: defaultAddress.street || '',
+              city: defaultAddress.city || '',
+              pincode: defaultAddress.zip || ''
+            });
+
+            // If we have addresses, default to List View
+            setIsEditing(false);
+            setIsAddressSaved(true);
+            setEditingAddressId(null); // Not editing any specific address initially
+          } else {
+            // No addresses, show form
+            setIsEditing(true);
+            setEditingAddressId(null); // Not editing any specific address
+          }
+        } catch (error) {
+          console.error("Failed to load user addresses", error);
+        }
+      }
+    };
+
+    loadUserAddress();
+  }, [isAuthenticated, navigate, user?.id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setAddress(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveAddress = () => {
+  const handleSelectAddress = (addr: any) => {
+    setAddress({
+      firstName: user?.name || '',
+      lastName: '',
+      phone: user?.phone || '',
+      addressLine: addr.street,
+      city: addr.city,
+      pincode: addr.zip
+    });
+  };
+
+  const handleEditExistingAddress = (addr: any) => {
+    setEditingAddressId(addr._id);
+    setAddress({
+      firstName: user?.name || '',
+      lastName: '',
+      phone: user?.phone || '',
+      addressLine: addr.street,
+      city: addr.city,
+      pincode: addr.zip
+    });
+    setIsEditing(true);
+  };
+
+  const handleSaveAddress = async () => {
     // Basic validation
     if (!address.firstName || !address.phone || !address.addressLine || !address.pincode) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
-    setIsAddressSaved(true);
-    setIsEditing(false);
+
+    setIsProcessing(true);
+    try {
+      const { addAddress, updateAddress } = await import('@/lib/api');
+
+      // Prepare address object for backend
+      const addressData = {
+        street: address.addressLine,
+        city: address.city,
+        state: '', // Add state input if needed
+        zip: address.pincode,
+        type: 'Home', // Default
+        isDefault: savedAddresses.length === 0 // Make default if it's the first one
+      };
+
+      let updatedUser;
+      if (editingAddressId) {
+        updatedUser = await updateAddress(user!.id, editingAddressId, addressData);
+      } else {
+        updatedUser = await addAddress(user!.id, addressData);
+      }
+
+      // Update local list with the newly returned addresses
+      if (updatedUser && updatedUser.addresses) {
+        setSavedAddresses(updatedUser.addresses);
+      }
+
+      setIsAddressSaved(true);
+      setIsEditing(false); // Go back to list view
+      setEditingAddressId(null); // Reset edit state
+      setStep(2); // Auto-advance to next step
+      toast.success(editingAddressId ? "Address updated and selected!" : "Address saved and selected!");
+
+    } catch (error) {
+      console.error("Failed to save address", error);
+      toast.error("Failed to save address. Continuing to payment.");
+      setStep(2); // Allow continuing even if save fails, or handle error
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleEditAddress = () => {
@@ -52,24 +168,55 @@ const Checkout: React.FC = () => {
 
   const handleAddNewAddress = () => {
     setAddress({
-      firstName: '',
+      firstName: user?.name || '',
       lastName: '',
-      phone: '',
+      phone: user?.phone || '',
       addressLine: '',
       city: '',
       pincode: ''
     });
-    setIsEditing(true);
-    setIsAddressSaved(false);
+    setEditingAddressId(null); // Ensure we are in "add mode"
+    setIsEditing(true); // Show form
   };
 
   const handleDeliverHere = () => {
     setStep(2);
   };
 
-  const handlePlaceOrder = () => {
-    setOrderPlaced(true);
-    clearCart();
+  const handlePlaceOrder = async () => {
+    setIsProcessing(true);
+    try {
+      const token = localStorage.getItem('mansara-token');
+      if (!token) throw new Error("No auth token found");
+
+      const orderData = {
+        items: items.map(item => ({
+          product: item.id, // Assuming item.id is the product ID
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        total: getCartTotal(),
+        paymentMethod: 'Cash on Delivery',
+        deliveryAddress: {
+          street: address.addressLine,
+          city: address.city,
+          zip: address.pincode,
+          state: '' // Add state if needed
+        }
+      };
+
+      await createOrder(orderData, token);
+
+      setOrderPlaced(true);
+      clearCart();
+      toast.success("Order placed successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to place order. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (orderPlaced) {
@@ -143,7 +290,55 @@ const Checkout: React.FC = () => {
             <div className="bg-card rounded-xl p-6 shadow-card">
               <h2 className="font-heading text-xl font-bold text-brand-blue mb-6">Delivery Address</h2>
 
-              {!isAddressSaved || isEditing ? (
+              {savedAddresses.length > 0 && !isEditing ? (
+                <div className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {savedAddresses.map((addr, index) => (
+                      <div key={index} className={`p-4 border rounded-lg relative ${address.addressLine === addr.street && address.pincode === addr.zip ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                        {addr.isDefault && (
+                          <div className="absolute top-2 right-2 bg-primary/10 text-primary px-2 py-0.5 rounded text-xs font-semibold">
+                            Default
+                          </div>
+                        )}
+                        <h3 className="font-bold text-lg mb-1">{user?.name}</h3>
+                        <p className="text-slate-600 text-sm">{addr.street}</p>
+                        <p className="text-slate-600 text-sm">{addr.city} - {addr.zip}</p>
+                        <p className="text-slate-600 text-sm mt-1">{addr.state}</p>
+
+                        <div className="flex gap-2 mt-3">
+                          <Button
+                            className="flex-1"
+                            variant={address.addressLine === addr.street && address.pincode === addr.zip ? "default" : "outline"}
+                            onClick={() => handleSelectAddress(addr)}
+                          >
+                            {address.addressLine === addr.street && address.pincode === addr.zip ? "Selected" : "Deliver Here"}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditExistingAddress(addr);
+                            }}
+                            className="text-muted-foreground hover:text-primary"
+                          >
+                            <Pencil size={18} />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button onClick={handleAddNewAddress} variant="outline" className="w-full gap-2 border-dashed">
+                    <Plus size={16} /> Add New Address
+                  </Button>
+
+                  {/* Only show Continue if an address is selected (which implies address state is populated) */}
+                  <Button onClick={() => setStep(2)} className="w-full mt-4" size="lg">
+                    Continue with Selected Address
+                  </Button>
+                </div>
+              ) : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -213,36 +408,16 @@ const Checkout: React.FC = () => {
                       />
                     </div>
                   </div>
-                  <Button onClick={handleSaveAddress} className="w-full mt-6" size="lg">
-                    Save Address
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="p-4 border border-primary/20 bg-primary/5 rounded-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-lg">{address.firstName} {address.lastName}</h3>
-                      <div className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs font-semibold">
-                        HOME
-                      </div>
-                    </div>
-                    <p className="text-slate-600 mb-1">{address.addressLine}</p>
-                    <p className="text-slate-600 mb-1">{address.city} - {address.pincode}</p>
-                    <p className="text-slate-800 font-medium mt-2">Mobile: {address.phone}</p>
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <Button onClick={handleDeliverHere} className="w-full" size="lg">
-                      Deliver Here
+                  <div className="flex gap-3 mt-6">
+                    {savedAddresses.length > 0 && (
+                      <Button variant="outline" onClick={() => setIsEditing(false)} className="flex-1">
+                        Cancel
+                      </Button>
+                    )}
+                    <Button onClick={handleSaveAddress} className="flex-1" size="lg" disabled={isProcessing}>
+                      {isProcessing ? <Loader2 className="animate-spin mr-2" /> : null}
+                      Save & Deliver Here
                     </Button>
-                    <div className="flex gap-3">
-                      <Button onClick={handleEditAddress} variant="outline" className="flex-1 gap-2">
-                        <Pencil size={16} /> Edit Address
-                      </Button>
-                      <Button onClick={handleAddNewAddress} variant="outline" className="flex-1 gap-2">
-                        <Plus size={16} /> Add New Address
-                      </Button>
-                    </div>
                   </div>
                 </div>
               )}
@@ -351,8 +526,15 @@ const Checkout: React.FC = () => {
                 <Button onClick={() => setStep(2)} variant="outline" className="flex-1" size="lg">
                   Back
                 </Button>
-                <Button onClick={handlePlaceOrder} className="flex-1" size="lg">
-                  Place Order
+                <Button onClick={handlePlaceOrder} className="flex-1" size="lg" disabled={isProcessing}>
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    'Place Order'
+                  )}
                 </Button>
               </div>
             </div>

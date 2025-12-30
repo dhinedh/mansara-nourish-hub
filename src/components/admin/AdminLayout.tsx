@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+// import { supabase } from "@/lib/supabase"; // Supabase removed
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -29,30 +29,25 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      // Check for demo session
+    const checkAuth = () => {
+      // Check for demo session (legacy support)
       const isDemoSession = localStorage.getItem('mansara-admin-session');
       if (isDemoSession) {
         setIsLoading(false);
         return;
       }
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      // Check for new backend auth
+      const storedUser = localStorage.getItem('mansara-user');
+      if (!storedUser) {
         navigate("/login");
         return;
       }
 
-      const { data: adminData } = await supabase
-        .from("admin_users")
-        .select("*")
-        .eq("id", session.user.id)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (!adminData) {
-        await supabase.auth.signOut();
-        navigate("/login");
+      const user = JSON.parse(storedUser);
+      if (user.role !== 'admin') {
+        navigate("/"); // Redirect non-admins to home
+        return;
       }
 
       setIsLoading(false);
@@ -61,9 +56,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     checkAuth();
   }, [navigate]);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     localStorage.removeItem('mansara-admin-session');
-    await supabase.auth.signOut();
+    localStorage.removeItem('mansara-user');
+    localStorage.removeItem('mansara-token');
     navigate("/login");
   };
 

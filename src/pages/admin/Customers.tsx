@@ -1,20 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { mockUsersList } from '@/data/mockUsers';
-import { Search, Eye, MoreHorizontal, User } from 'lucide-react';
+import { Search, Eye, User as UserIcon } from 'lucide-react';
+import { getAllUsers } from '@/lib/api';
+import { toast } from 'sonner';
+
+interface UserData {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  joinDate?: string;
+  createdAt?: string;
+  status: string;
+  totalOrders: number;
+  totalSpent: number;
+}
 
 const Customers: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [users] = useState(mockUsersList);
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem('mansara-token');
+        if (!token) return;
+        const data = await getAllUsers(token);
+        setUsers(data);
+      } catch (error) {
+        console.error('Failed to fetch users', error);
+        toast.error('Failed to load customers');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.phone.includes(searchTerm)
+    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.phone?.includes(searchTerm)
   );
 
   return (
@@ -56,48 +87,51 @@ const Customers: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.length > 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center">Loading customers...</td>
+                  </tr>
+                ) : filteredUsers.length > 0 ? (
                   filteredUsers.map((user) => (
-                    <tr key={user.id} className="bg-white border-b hover:bg-gray-50 transition-colors">
+                    <tr key={user._id} className="bg-white border-b hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                            {user.name.charAt(0)}
+                            {user.name?.charAt(0) || 'U'}
                           </div>
                           <div>
                             <div className="font-semibold text-gray-900">{user.name}</div>
-                            <div className="text-xs text-muted-foreground">ID: {user.id}</div>
+                            <div className="text-xs text-muted-foreground">ID: {user._id.substring(0, 8)}...</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
                           <span>{user.email}</span>
-                          <span className="text-xs text-muted-foreground">{user.phone}</span>
+                          <span className="text-xs text-muted-foreground">{user.phone || '-'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-gray-500">
-                        {new Date(user.joinDate).toLocaleDateString()}
+                        {new Date(user.createdAt || user.joinDate || Date.now()).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 font-medium">
-                        {user.totalOrders}
+                        {user.totalOrders || 0}
                       </td>
                       <td className="px-6 py-4 font-medium text-gray-900">
-                        ₹{user.totalSpent.toLocaleString()}
+                        ₹{(user.totalSpent || 0).toLocaleString()}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                                                     ${user.status === 'Active' ? 'bg-green-100 text-green-800' :
-                            user.status === 'Inactive' ? 'bg-gray-100 text-gray-800' :
-                              'bg-red-100 text-red-800'}`}>
-                          {user.status}
+                            user.status === 'Inactive' ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800'}`}>
+                          {user.status || 'Active'}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => navigate(`/admin/customers/${user.id}`)}
+                          onClick={() => navigate(`/admin/customers/${user._id}`)}
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           History
@@ -109,7 +143,7 @@ const Customers: React.FC = () => {
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
                       <div className="flex flex-col items-center gap-2">
-                        <User className="h-8 w-8 opacity-20" />
+                        <UserIcon className="h-8 w-8 opacity-20" />
                         <p>No customers found matching "{searchTerm}"</p>
                       </div>
                     </td>

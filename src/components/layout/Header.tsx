@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, User, ShoppingCart, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
@@ -22,9 +22,19 @@ const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
   const { getCartCount } = useCart();
   const { isAuthenticated, user } = useAuth();
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      setIsSearchOpen(false);
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -94,9 +104,12 @@ const Header: React.FC = () => {
             <div className="flex items-center animate-in slide-in-from-right duration-300">
               <Input
                 autoFocus
-                placeholder="Search..."
+                placeholder="Search products..."
                 className="h-9 w-[200px] mr-2 bg-white/50 border-gray-200 transition-all duration-300 focus:w-[250px]"
-                onBlur={() => setIsSearchOpen(false)}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
+                onBlur={() => setTimeout(() => setIsSearchOpen(false), 200)}
               />
             </div>
           ) : (

@@ -25,6 +25,7 @@ const PAGE_CONFIG: Record<string, { title: string; fields: { key: string; label:
       { key: "address", label: "Address", type: "textarea" },
       { key: "email", label: "Email Address", type: "text" },
       { key: "phone", label: "Phone Number", type: "text" },
+      { key: "commitment", label: "Our Commitment", type: "textarea" },
     ]
   },
   home_highlights: {
@@ -70,11 +71,13 @@ const AdminContent = () => {
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     try {
-      Object.entries(formData).forEach(([key, value]) => {
-        updateContent(activeTab, key, value);
-      });
+      await Promise.all(
+        Object.entries(formData).map(([key, value]) =>
+          updateContent(activeTab, key, value)
+        )
+      );
       toast.success(`${PAGE_CONFIG[activeTab].title} updated successfully`);
     } catch (error) {
       toast.error("Failed to save content");

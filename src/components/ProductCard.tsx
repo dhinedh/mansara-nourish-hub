@@ -21,14 +21,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const [adding, setAdding] = useState(false);
 
   // Normalize product data common fields
-  // Normalize product data common fields
-  const getProductImage = (p: Product) => 'image_url' in p ? (p as StoreProduct).image_url || '' : (p as DataProduct).image;
-  const getProductOfferPrice = (p: Product) => 'offer_price' in p ? (p as StoreProduct).offer_price : (p as DataProduct).offerPrice;
-  const getProductIsNew = (p: Product) => 'is_new_arrival' in p ? (p as StoreProduct).is_new_arrival : (p as DataProduct).isNewArrival;
-
-  const imageUrl = getProductImage(product);
-  const offerPrice = getProductOfferPrice(product);
-  const isNewArrival = getProductIsNew(product);
+  const imageUrl = product.image || (product as any).image_url || '';
+  const offerPrice = product.offerPrice;
+  const isNewArrival = product.isNewArrival;
   const stock = product.stock;
   const price = product.price;
 

@@ -3,19 +3,20 @@ import { useParams, Link } from 'react-router-dom';
 import { ShoppingCart, Minus, Plus, Check } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { getProductBySlug } from '@/data/products';
 import { useCart } from '@/context/CartContext';
+import { useStore } from '@/context/StoreContext';
 import { useToast } from '@/hooks/use-toast';
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { getProduct } = useStore();
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
   const { addToCart } = useCart();
   const { toast } = useToast();
 
-  const product = slug ? getProductBySlug(slug) : undefined;
+  const product = slug ? getProduct(slug) : undefined;
 
   if (!product) {
     return (
@@ -36,7 +37,7 @@ const ProductDetail: React.FC = () => {
     setAdding(true);
     try {
       for (let i = 0; i < quantity; i++) {
-        addToCart(product, 'product');
+        addToCart(product as any, 'product');
       }
       setQuantity(1);
       setAddSuccess(true);

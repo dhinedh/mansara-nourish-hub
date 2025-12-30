@@ -1,32 +1,71 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
-import { products } from '@/data/products';
+import { useStore } from '@/context/StoreContext';
 import PageHero from '@/components/layout/PageHero';
-
-const categories = [
-  { id: 'all', name: 'All Products' },
-  { id: 'porridge-mixes', name: 'Porridge Mixes' },
-  { id: 'oil-ghee', name: 'Oil & Ghee' }
-];
+import { useContent } from '@/context/ContentContext';
 
 const Products: React.FC = () => {
+  const { products, isLoading, categories: storeCategories } = useStore();
+  const { getBannersByPage } = useContent();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [filteredProducts, setFilteredProducts] = useState(products);
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search');
+
+  const items = getBannersByPage('products');
+
+  // Combine static "All" with dynamic categories
+  const displayCategories = [
+    { id: 'all', name: 'All Products', value: 'all' },
+    ...storeCategories.map(c => ({ id: c.id, name: c.name, value: c.value }))
+  ];
 
   useEffect(() => {
-    if (selectedCategory === 'all') {
-      setFilteredProducts(products);
-    } else {
-      setFilteredProducts(products.filter((p) => p.category === selectedCategory));
+    let result = products;
+
+    // Filter by Category
+    if (selectedCategory !== 'all') {
+      result = result.filter((p) => p.category === selectedCategory);
     }
-  }, [selectedCategory]);
+
+    // Filter by Search Query
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter(p =>
+        p.name.toLowerCase().includes(lowerQuery) ||
+        p.description.toLowerCase().includes(lowerQuery) ||
+        p.category.toLowerCase().includes(lowerQuery)
+      );
+    }
+
+    setFilteredProducts(result);
+  }, [selectedCategory, products, searchQuery]);
 
   return (
     <Layout>
       <div className="min-h-screen bg-background">
         {/* Hero Banner */}
         <PageHero pageKey="products" />
+
+        {/* Promotional Banners */}
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto mt-8">
+          {items.map((banner) => (
+            <div key={banner.id} className="relative rounded-2xl overflow-hidden shadow-lg h-48 sm:h-64 cursor-pointer group">
+              <img src={banner.image} alt={banner.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center p-6 text-white">
+                <h3 className="font-heading text-2xl sm:text-3xl font-bold mb-2">{banner.title}</h3>
+                <p className="text-lg opacity-90">{banner.subtitle}</p>
+                {banner.link && (
+                  <a href={banner.link} className="mt-4 inline-block bg-white text-primary px-6 py-2 rounded-full font-semibold text-sm hover:bg-gray-100 transition-colors">
+                    Shop Now
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Products Grid */}
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto py-8">
@@ -38,11 +77,11 @@ const Products: React.FC = () => {
                   Categories
                 </h3>
                 <div className="space-y-2">
-                  {categories.map((category) => (
+                  {displayCategories.map((category) => (
                     <button
                       key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${selectedCategory === category.id
+                      onClick={() => setSelectedCategory(category.value)}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${selectedCategory === category.value
                         ? 'font-semibold bg-primary/10 text-primary'
                         : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                         }`}

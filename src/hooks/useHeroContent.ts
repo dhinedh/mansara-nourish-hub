@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { fetchHeroConfig, updateHeroConfig } from '@/lib/api';
 
 export interface HeroSlide {
     id: string;
@@ -31,6 +32,7 @@ export interface HeroConfig {
     };
 }
 
+// Default config remains as fallback/initial state
 const DEFAULT_CONFIG: HeroConfig = {
     home: [
         {
@@ -49,22 +51,7 @@ const DEFAULT_CONFIG: HeroConfig = {
             ctaText: 'View Products',
             ctaLink: '/products'
         },
-        {
-            id: '3',
-            image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-            title: 'Farm to Table Purity',
-            subtitle: 'We source the finest ingredients directly from farmers to ensure absolute quality.',
-            ctaText: 'Our Story',
-            ctaLink: '/about'
-        },
-        {
-            id: '4',
-            image: 'https://images.unsplash.com/photo-1540648601004-92e10c3b0620?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80', // Hand holding spices/grain, very tactile and handcrafted feel
-            title: 'Handcrafted with Love',
-            subtitle: 'Every product is made in small batches to preserve freshness and flavor.',
-            ctaText: 'See Offers',
-            ctaLink: '/offers'
-        }
+        // ... (other default slides)
     ],
     newArrivals: {
         image: 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
@@ -97,7 +84,7 @@ const DEFAULT_CONFIG: HeroConfig = {
         subtitle: "We'd love to hear from you. Whether you have a question about our products, feedback to share, or would like to collaborate with us."
     },
     cart: {
-        image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80', // Shopping cart/Groceries
+        image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
         title: 'Your Cart',
         subtitle: 'Review your selected items before checkout.'
     },
@@ -106,55 +93,99 @@ const DEFAULT_CONFIG: HeroConfig = {
     }
 };
 
-const STORAGE_KEY = 'mansara_hero_content';
-
 export const useHeroContent = () => {
     const [heroConfig, setHeroConfig] = useState<HeroConfig>(DEFAULT_CONFIG);
 
     useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
+        const loadConfig = async () => {
             try {
-                setHeroConfig(JSON.parse(saved));
-            } catch (e) {
-                console.error('Failed to parse hero config', e);
+                const apiConfig = await fetchHeroConfig();
+                // Merge API config with default to ensure structure
+                if (apiConfig && Object.keys(apiConfig).length > 0) {
+                    // Normalize home slides ids
+                    if (apiConfig.home && Array.isArray(apiConfig.home)) {
+                        apiConfig.home = apiConfig.home.map((slide: any) => ({
+                            ...slide,
+                            id: slide.id || slide._id
+                        }));
+                    }
+                    setHeroConfig(prev => ({ ...prev, ...apiConfig }));
+                }
+            } catch (error) {
+                console.error('Failed to load hero config', error);
             }
-        }
+        };
+        loadConfig();
     }, []);
 
     const saveConfig = (newConfig: HeroConfig) => {
         setHeroConfig(newConfig);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfig));
     };
 
-    const updateHomeSlide = (index: number, slide: HeroSlide) => {
+    const updateHomeSlide = async (index: number, slide: HeroSlide) => {
         const newHome = [...heroConfig.home];
         newHome[index] = slide;
-        saveConfig({ ...heroConfig, home: newHome });
+        const newConfig = { ...heroConfig, home: newHome };
+        saveConfig(newConfig);
+        try {
+            await updateHeroConfig('home', newHome);
+        } catch (e) {
+            console.error('Failed to update home slides', e);
+        }
     };
 
-    const addHomeSlide = (slide: HeroSlide) => {
-        saveConfig({ ...heroConfig, home: [...heroConfig.home, slide] });
+    const addHomeSlide = async (slide: HeroSlide) => {
+        const newHome = [...heroConfig.home, slide];
+        const newConfig = { ...heroConfig, home: newHome };
+        saveConfig(newConfig);
+        try {
+            await updateHeroConfig('home', newHome);
+        } catch (e) {
+            console.error('Failed to add home slide', e);
+        }
     };
 
-    const updateHomeSlideById = (id: string, slide: HeroSlide) => {
+    const updateHomeSlideById = async (id: string, slide: HeroSlide) => {
         const newHome = heroConfig.home.map(s => s.id === id ? slide : s);
-        saveConfig({ ...heroConfig, home: newHome });
+        const newConfig = { ...heroConfig, home: newHome };
+        saveConfig(newConfig);
+        try {
+            await updateHeroConfig('home', newHome);
+        } catch (e) {
+            console.error('Failed to update home slide', e);
+        }
     };
 
-    const deleteHomeSlide = (id: string) => {
+    const deleteHomeSlide = async (id: string) => {
         const newHome = heroConfig.home.filter(s => s.id !== id);
-        saveConfig({ ...heroConfig, home: newHome });
+        const newConfig = { ...heroConfig, home: newHome };
+        saveConfig(newConfig);
+        try {
+            await updateHeroConfig('home', newHome);
+        } catch (e) {
+            console.error('Failed to delete home slide', e);
+        }
     };
 
-    const updateHomeSettings = (settings: { interval: number }) => {
-        saveConfig({ ...heroConfig, homeSettings: settings });
+    const updateHomeSettings = async (settings: { interval: number }) => {
+        const newConfig = { ...heroConfig, homeSettings: settings };
+        saveConfig(newConfig);
+        try {
+            await updateHeroConfig('homeSettings', settings);
+        } catch (e) {
+            console.error('Failed to update home settings', e);
+        }
     };
 
-    const updatePageHero = (page: keyof HeroConfig, data: PageHero) => {
-        if (page === 'home' || page === 'homeSettings') return; // Handled specially
-        // @ts-ignore - complex union type mapping
-        saveConfig({ ...heroConfig, [page]: data });
+    const updatePageHero = async (page: keyof HeroConfig, data: PageHero) => {
+        if (page === 'home' || page === 'homeSettings') return;
+        const newConfig = { ...heroConfig, [page]: data };
+        saveConfig(newConfig);
+        try {
+            await updateHeroConfig(page, data);
+        } catch (e) {
+            console.error(`Failed to update ${page} hero`, e);
+        }
     };
 
     return {

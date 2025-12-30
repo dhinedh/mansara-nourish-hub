@@ -1,47 +1,50 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { fetchProducts, fetchCombos, uploadImage } from '@/lib/api';
 
 // --- Types ---
 export interface Product {
     id: string;
-    name: string;
     slug: string;
+    name: string;
     category: string;
     price: number;
-    offer_price?: number;
-    image_url?: string;
-    stock: number;
-    is_offer: boolean;
-    is_active: boolean;
-    is_new_arrival: boolean;
-    is_featured: boolean;
-    short_description?: string;
+    offerPrice?: number;
+    image?: string;
     description?: string;
-    highlights?: string[];
-    specs?: Record<string, string>;
-    sub_category?: string;
-    weight?: string;
     ingredients?: string;
-    how_to_use?: string;
-    storage_instructions?: string;
+    howToUse?: string;
+    storage?: string;
+    weight?: string;
+    isOffer: boolean;
+    isNewArrival: boolean;
+    isFeatured: boolean;
+    isActive: boolean;
+    stock: number;
+    highlights?: string[];
     nutrition?: string;
     compliance?: string;
+    // Keeping some legacy optional fields just in case to prevent immediate breaks, but preferring above
+    short_description?: string;
+    sub_category?: string;
 }
 
 export interface Combo {
     id: string;
+    slug: string;
     name: string;
-    price: number;
-    discount_price?: number;
-    image_url?: string;
-    is_active: boolean;
-    description?: string;
-    items?: string[]; // IDs of products in combo
+    products?: string[]; // IDs
+    originalPrice: number;
+    comboPrice: number;
+    image: string;
+    description: string;
+    // Legacy support
+    isActive?: boolean;
 }
 
 export interface Category {
     id: string;
     name: string;
-    image?: string;
+    value: string; // value to match backend enum
 }
 
 interface StoreContextType {
@@ -49,197 +52,166 @@ interface StoreContextType {
     combos: Combo[];
     categories: Category[];
 
+    isLoading: boolean;
+    error: string | null;
+
     // Product Actions
-    addProduct: (product: Omit<Product, 'id'>) => void;
-    updateProduct: (id: string, updates: Partial<Product>) => void;
-    deleteProduct: (id: string) => void;
+    addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+    updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
+    deleteProduct: (id: string) => Promise<void>;
     getProduct: (id: string) => Product | undefined;
 
     // Combo Actions
-    addCombo: (combo: Omit<Combo, 'id'>) => void;
-    updateCombo: (id: string, updates: Partial<Combo>) => void;
-    deleteCombo: (id: string) => void;
+    addCombo: (combo: Omit<Combo, 'id'>) => Promise<void>;
+    updateCombo: (id: string, updates: Partial<Combo>) => Promise<void>;
+    deleteCombo: (id: string) => Promise<void>;
 
-    // Category Actions
+    // Category Actions (Still local likely, or derived)
     addCategory: (name: string) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-const KEYS = {
-    PRODUCTS: 'mansara_products',
-    COMBOS: 'mansara_combos',
-    CATEGORIES: 'mansara_categories',
-};
-
-// --- Mock Initial Data ---
-const INITIAL_PRODUCTS: Product[] = [
-    {
-        id: 'p1',
-        name: 'Traditional Groundnut Oil',
-        slug: 'traditional-groundnut-oil',
-        category: 'Oil & Ghee',
-        price: 350,
-        offer_price: 320,
-        stock: 50,
-        is_offer: true,
-        is_active: true,
-        is_new_arrival: true,
-        is_featured: true,
-        image_url: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&q=80&w=800',
-        short_description: 'Cold pressed, pure groundnut oil.'
-    },
-    {
-        id: 'p2',
-        name: 'Organic Ragi Flour',
-        slug: 'organic-ragi-flour',
-        category: 'Millet Foods',
-        price: 80,
-        stock: 100,
-        is_offer: false,
-        is_active: true,
-        is_new_arrival: true,
-        is_featured: true,
-        image_url: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800',
-        short_description: 'Rich in calcium, sprouted ragi flour.'
-    },
-    {
-        id: 'p3',
-        name: 'Homemade Ghee',
-        slug: 'homemade-ghee',
-        category: 'Oil & Ghee',
-        price: 650,
-        stock: 30,
-        is_offer: false,
-        is_active: true,
-        is_new_arrival: true,
-        is_featured: true,
-        image_url: 'https://images.unsplash.com/photo-1621966144883-8a3d5e2e8310?auto=format&fit=crop&q=80&w=800',
-        short_description: 'Pure cow ghee made from curd.'
-    },
-    {
-        id: 'p4',
-        name: 'Millet Muesli',
-        slug: 'millet-muesli',
-        category: 'Millet Foods',
-        price: 250,
-        offer_price: 220,
-        stock: 45,
-        is_offer: true,
-        is_active: true,
-        is_new_arrival: true,
-        is_featured: true,
-        image_url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&q=80&w=800',
-        short_description: 'Healthy breakfast spread with nuts.'
-    },
-    {
-        id: 'p5',
-        name: 'Turmeric Powder',
-        slug: 'turmeric-powder',
-        category: 'Spices',
-        price: 120,
-        stock: 80,
-        is_offer: false,
-        is_active: true,
-        is_new_arrival: false,
-        is_featured: true,
-        image_url: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&q=80&w=800',
-        short_description: 'High curcumin lakadong turmeric.'
-    }
-];
-
-const INITIAL_COMBOS: Combo[] = [
-    {
-        id: 'c1',
-        name: 'Wellness Starter Pack',
-        price: 800,
-        discount_price: 750,
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1615485925763-867862f80931?auto=format&fit=crop&q=80&w=800',
-        description: 'Includes Groundnut Oil and Millet Mix'
-    }
-];
-
-const INITIAL_CATEGORIES: Category[] = [
-    { id: 'cat1', name: 'Oil & Ghee' },
-    { id: 'cat2', name: 'Millet Foods' },
-    { id: 'cat3', name: 'Spices' },
-    { id: 'cat4', name: 'Porridge Mixes' },
-];
+const INITIAL_CATEGORIES: Category[] = [];
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [products, setProducts] = useState<Product[]>([]);
     const [combos, setCombos] = useState<Combo[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Load Initial Data
+    // Load Data from API
     useEffect(() => {
-        const loadData = (key: string, initial: any, setter: Function) => {
-            const saved = localStorage.getItem(key);
-            if (saved) {
-                try {
-                    setter(JSON.parse(saved));
-                } catch (e) { setter(initial); }
-            } else {
-                setter(initial);
+        const load = async () => {
+            setIsLoading(true);
+            try {
+                // Dynamic import to avoid circular dep issues if any, though explicit import is fine too
+                const { fetchProducts, fetchCombos, getCategories } = await import('@/lib/api');
+
+                const [productsData, combosData, categoriesData] = await Promise.all([
+                    fetchProducts(),
+                    fetchCombos(),
+                    getCategories()
+                ]);
+
+                const mapId = (item: any) => ({ ...item, id: item.id || item._id });
+
+                const mapCategory = (item: any) => ({
+                    ...item,
+                    id: item.id || item._id,
+                    value: item.slug || item.value // Ensure value exists for frontend compatibility
+                });
+
+                setProducts(productsData.map(mapId));
+                setCombos(combosData.map(mapId));
+                setCategories(categoriesData.map(mapCategory));
+            } catch (err: any) {
+                console.error("Failed to load store data:", err);
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
             }
         };
-
-        loadData(KEYS.PRODUCTS, INITIAL_PRODUCTS, setProducts);
-        loadData(KEYS.COMBOS, INITIAL_COMBOS, setCombos);
-        loadData(KEYS.CATEGORIES, INITIAL_CATEGORIES, setCategories);
+        load();
     }, []);
-
-    // Sync to LocalStorage
-    const save = (key: string, data: any) => localStorage.setItem(key, JSON.stringify(data));
 
     // --- Actions ---
 
-    const addProduct = (data: Omit<Product, 'id'>) => {
-        const newProduct = { ...data, id: crypto.randomUUID() };
-        const updated = [...products, newProduct];
-        setProducts(updated);
-        save(KEYS.PRODUCTS, updated);
+    // Helper to get token
+    const getToken = () => localStorage.getItem('mansara-token');
+
+    const addProduct = async (data: Omit<Product, 'id'>) => {
+        try {
+            const token = getToken();
+            if (!token) throw new Error("Authentication required");
+            const { createProduct } = await import('@/lib/api');
+            const newProduct = await createProduct(data, token);
+            setProducts([...products, { ...newProduct, id: newProduct._id || newProduct.id }]);
+        } catch (err: any) {
+            console.error("Failed to add product:", err);
+            setError(err.message);
+            throw err;
+        }
     };
 
-    const updateProduct = (id: string, updates: Partial<Product>) => {
-        const updated = products.map(p => p.id === id ? { ...p, ...updates } : p);
-        setProducts(updated);
-        save(KEYS.PRODUCTS, updated);
+    const updateProduct = async (id: string, updates: Partial<Product>) => {
+        try {
+            const token = getToken();
+            if (!token) throw new Error("Authentication required");
+            const { updateProduct } = await import('@/lib/api');
+            const updated = await updateProduct(id, updates, token);
+            const mapId = (item: any) => ({ ...item, id: item._id || item.id });
+            setProducts(products.map(p => p.id === id ? mapId(updated) : p));
+        } catch (err: any) {
+            console.error("Failed to update product:", err);
+            setError(err.message);
+            throw err;
+        }
     };
 
-    const deleteProduct = (id: string) => {
-        const updated = products.filter(p => p.id !== id);
-        setProducts(updated);
-        save(KEYS.PRODUCTS, updated);
+    const deleteProduct = async (id: string) => {
+        try {
+            const token = getToken();
+            if (!token) throw new Error("Authentication required");
+            const { deleteProduct } = await import('@/lib/api');
+            await deleteProduct(id, token);
+            setProducts(products.filter(p => p.id !== id));
+        } catch (err: any) {
+            console.error("Failed to delete product:", err);
+            setError(err.message);
+            throw err;
+        }
     };
 
-    const getProduct = (id: string) => products.find(p => p.id === id);
+    const getProduct = (id: string) => products.find(p => p.id === id || p.slug === id);
 
-    const addCombo = (data: Omit<Combo, 'id'>) => {
-        const newCombo = { ...data, id: crypto.randomUUID() };
-        const updated = [...combos, newCombo];
-        setCombos(updated);
-        save(KEYS.COMBOS, updated);
+    const addCombo = async (data: Omit<Combo, 'id'>) => {
+        try {
+            const token = getToken();
+            if (!token) throw new Error("Authentication required");
+            const { createCombo } = await import('@/lib/api');
+            const newCombo = await createCombo(data, token);
+            setCombos([...combos, { ...newCombo, id: newCombo._id || newCombo.id }]);
+        } catch (err: any) {
+            console.error("Failed to add combo:", err);
+            setError(err.message);
+            throw err;
+        }
     };
 
-    const updateCombo = (id: string, updates: Partial<Combo>) => {
-        const updated = combos.map(c => c.id === id ? { ...c, ...updates } : c);
-        setCombos(updated);
-        save(KEYS.COMBOS, updated);
+    const updateCombo = async (id: string, updates: Partial<Combo>) => {
+        try {
+            const token = getToken();
+            if (!token) throw new Error("Authentication required");
+            const { updateCombo } = await import('@/lib/api');
+            const updated = await updateCombo(id, updates, token);
+            const mapId = (item: any) => ({ ...item, id: item._id || item.id });
+            setCombos(combos.map(c => c.id === id ? mapId(updated) : c));
+        } catch (err: any) {
+            console.error("Failed to update combo:", err);
+            setError(err.message);
+            throw err;
+        }
     };
 
-    const deleteCombo = (id: string) => {
-        const updated = combos.filter(c => c.id !== id);
-        setCombos(updated);
-        save(KEYS.COMBOS, updated);
+    const deleteCombo = async (id: string) => {
+        try {
+            const token = getToken();
+            if (!token) throw new Error("Authentication required");
+            const { deleteCombo } = await import('@/lib/api');
+            await deleteCombo(id, token);
+            setCombos(combos.filter(c => c.id !== id));
+        } catch (err: any) {
+            console.error("Failed to delete combo:", err);
+            setError(err.message);
+            throw err;
+        }
     };
 
     const addCategory = (name: string) => {
-        const newCat = { id: crypto.randomUUID(), name };
-        const updated = [...categories, newCat];
-        setCategories(updated);
-        save(KEYS.CATEGORIES, updated);
+        // Categories are currently hardcoded/local-only or could be moved to DB later
+        setCategories([...categories, { id: crypto.randomUUID(), name, value: name.toLowerCase() }]);
     };
 
     return (
@@ -247,6 +219,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             products,
             combos,
             categories,
+            isLoading,
+            error,
             addProduct,
             updateProduct,
             deleteProduct,
