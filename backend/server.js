@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:8080', 'http://127.0.0.1:5173', process.env.FRONTEND_URL].filter(url => url && url !== 'undefined'),
+    origin: ['http://localhost:5173', 'http://localhost:8080', 'http://127.0.0.1:5173', 'https://mansarafoods-o9z6.vercel.app', 'https://mansarafoods-o9z6.vercel.app/', process.env.FRONTEND_URL].filter(url => url && url !== 'undefined'),
     credentials: true
 }));
 app.use(express.json());
