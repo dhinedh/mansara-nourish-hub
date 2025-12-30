@@ -25,6 +25,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Eye, MessageCircle } from "lucide-react";
 
 interface Order {
@@ -47,6 +49,7 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -108,6 +111,7 @@ const AdminOrders = () => {
 
   const handleViewDetails = (order: Order) => {
     setSelectedOrder(order);
+    setWhatsappNumber(order.customer_whatsapp || order.customer_phone || "");
     setShowDetails(true);
   };
 
@@ -141,7 +145,11 @@ const AdminOrders = () => {
       return clean.length >= 10 ? clean : ''; // Basic validation
     };
 
-    let phoneParam = cleanNumber(order.customer_whatsapp);
+    let phoneParam = cleanNumber(whatsappNumber);
+    if (!phoneParam) {
+      // Fallback to original data if input is somehow empty but data exists (unlikely given pre-fill)
+      phoneParam = cleanNumber(order.customer_whatsapp);
+    }
     if (!phoneParam) {
       phoneParam = cleanNumber(order.customer_phone);
     }
@@ -367,13 +375,25 @@ const AdminOrders = () => {
 
               <div>
                 <h3 className="font-semibold text-sm mb-3">Actions</h3>
-                <Button
-                  className="bg-green-600 hover:bg-green-700 text-white gap-2 w-full sm:w-auto"
-                  onClick={() => selectedOrder && handleConfirmAndWhatsApp(selectedOrder)}
-                >
-                  <MessageCircle size={18} />
-                  Confirm & Send WhatsApp
-                </Button>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="whatsapp-num" className="text-xs text-slate-500 uppercase font-semibold">WhatsApp Number</Label>
+                    <Input
+                      id="whatsapp-num"
+                      value={whatsappNumber}
+                      onChange={(e) => setWhatsappNumber(e.target.value)}
+                      placeholder="Enter mobile number"
+                      className="max-w-xs"
+                    />
+                  </div>
+                  <Button
+                    className="bg-green-600 hover:bg-green-700 text-white gap-2 w-full sm:w-auto"
+                    onClick={() => selectedOrder && handleConfirmAndWhatsApp(selectedOrder)}
+                  >
+                    <MessageCircle size={18} />
+                    Confirm & Send WhatsApp
+                  </Button>
+                </div>
               </div>
             </div>
           )}
