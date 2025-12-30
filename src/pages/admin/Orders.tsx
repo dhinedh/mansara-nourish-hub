@@ -82,7 +82,8 @@ const AdminOrders = () => {
           name: item.name,
           price: item.price,
           quantity: item.quantity
-        }))
+        })),
+        raw_data: order // Store raw data for debugging
       }));
 
       setOrders(mappedOrders);
@@ -185,6 +186,22 @@ const AdminOrders = () => {
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Orders</h1>
           <p className="text-slate-600 mt-1">Manage customer orders</p>
+          {orders.length > 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 p-4 mt-4 rounded text-xs font-mono overflow-auto max-h-60 text-slate-800">
+              <p className="font-bold text-red-600 mb-2">DEBUG MODE (Temporary): First Order Data Inspection</p>
+              <p><strong>Connected API:</strong> {import.meta.env.VITE_API_URL || "Default (Remote?)"}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <strong>Delivery Address (Raw):</strong>
+                  <pre>{JSON.stringify((orders[0] as any).raw_data?.deliveryAddress, null, 2)}</pre>
+                </div>
+                <div>
+                  <strong>User Info (Raw):</strong>
+                  <pre>{JSON.stringify((orders[0] as any).raw_data?.user, null, 2)}</pre>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
