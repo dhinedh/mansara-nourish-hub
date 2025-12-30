@@ -61,6 +61,13 @@ const Checkout: React.FC = () => {
           const { fetchUser } = await import('@/lib/api');
           const userData = await fetchUser(user.id);
 
+          // Construct base contact info from fresh user data
+          const baseContactInfo = {
+            firstName: userData.name || '',
+            phone: userData.phone || '',
+            whatsapp: userData.whatsapp || ''
+          };
+
           if (userData.addresses && userData.addresses.length > 0) {
             setSavedAddresses(userData.addresses);
 
@@ -70,8 +77,8 @@ const Checkout: React.FC = () => {
             setAddress({
               firstName: userData.name || '',
               lastName: '',
-              phone: userData.phone || '',
-              whatsapp: userData.whatsapp || '',
+              phone: userData.phone || '', // Enforce profile phone
+              whatsapp: userData.whatsapp || '', // Enforce profile whatsapp
               addressLine: defaultAddress.street || '',
               city: defaultAddress.city || '',
               pincode: defaultAddress.zip || ''
@@ -82,7 +89,11 @@ const Checkout: React.FC = () => {
             setIsAddressSaved(true);
             setEditingAddressId(null); // Not editing any specific address initially
           } else {
-            // No addresses, show form
+            // No addresses, show form but pre-fill profile data
+            setAddress(prev => ({
+              ...prev,
+              ...baseContactInfo
+            }));
             setIsEditing(true);
             setEditingAddressId(null); // Not editing any specific address
           }
@@ -174,9 +185,16 @@ const Checkout: React.FC = () => {
   };
 
   const handleAddNewAddress = () => {
-    // Keep name/phone/whatsapp, just clear address fields
+    // Keep name/phone/whatsapp from profile, just clear address fields
+    const baseContactInfo = {
+      firstName: user?.name || '',
+      phone: user?.phone || '',
+      whatsapp: user?.whatsapp || ''
+    };
+
     setAddress(prev => ({
       ...prev,
+      ...baseContactInfo,
       addressLine: '',
       city: '',
       pincode: ''
@@ -331,6 +349,16 @@ const Checkout: React.FC = () => {
                         <p className="text-slate-600 text-sm">{addr.street}</p>
                         <p className="text-slate-600 text-sm">{addr.city} - {addr.zip}</p>
                         <p className="text-slate-600 text-sm mt-1">{addr.state}</p>
+
+                        <div className="mt-3 pt-3 border-t border-dashed">
+                          <p className="text-xs text-muted-foreground font-medium">Contact:</p>
+                          <p className="text-sm">{address.phone || user?.phone || 'No phone set'}</p>
+                          {(address.whatsapp || user?.whatsapp) && (
+                            <p className="text-sm text-green-600 flex items-center gap-1">
+                              <span className="text-xs">WA:</span> {address.whatsapp || user?.whatsapp}
+                            </p>
+                          )}
+                        </div>
 
                         <div className="flex gap-2 mt-3">
                           <Button
