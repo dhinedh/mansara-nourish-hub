@@ -1,15 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Leaf, Heart, Target, Eye, Shield, Sparkles } from 'lucide-react';
+import { Leaf, Heart, Target, Eye, Shield, Sparkles, CheckCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import TrustStrip from '@/components/TrustStrip';
 import PageHero from '@/components/layout/PageHero';
-import { useContent } from '@/context/ContentContext';
 
 const About: React.FC = () => {
-  const { getContent } = useContent();
-
   return (
     <Layout>
       {/* Hero */}
@@ -51,7 +48,14 @@ const About: React.FC = () => {
 
             <div className="prose prose-lg text-muted-foreground space-y-6 whitespace-pre-line leading-relaxed text-justify relative z-10">
               <p>
-                {getContent('about', 'story', 'MANSARA began its journey with a focus on pure, traditionally prepared cooking essentials...')}
+                MANSARA began its journey with a focus on pure, traditionally prepared cooking essentials —
+                Groundnut oil, Sesame oil, Coconut oil, and Ghee — made with an uncompromising commitment to quality, purity, and honesty.
+              </p>
+              <p>
+                As trust grew, so did our offerings. We expanded into nutritious porridge mixes such as Urad Porridge Mix and Kavuni Porridge Mix, and later introduced authentic millet idly podi — combining traditional recipes with modern-day convenience.
+              </p>
+              <p>
+                Each product is designed to be easy to cook, clean in ingredients, and gentle in processing, making healthy eating practical for today’s lifestyle.
               </p>
             </div>
           </div>
@@ -68,15 +72,20 @@ const About: React.FC = () => {
               </h3>
               <div className="relative mt-8 p-6 bg-white rounded-xl shadow-sm border-l-4 border-brand-yellow">
                 <Sparkles className="absolute -top-3 -right-3 h-6 w-6 text-brand-yellow" />
-                <p className="italic text-foreground font-medium text-lg whitespace-pre-line">
-                  "{getContent('about', 'founder_note', 'MANSARA reflects this belief — that food should support the body, not burden it...')}"
+                <p className="text-foreground text-lg whitespace-pre-line leading-relaxed">
+                  MANSARA was founded by <strong>Deepika Harikrishnan</strong>, driven by her personal journey and lived experience with hormonal health challenges.
+                </p>
+                <p className="mt-4 text-foreground text-lg whitespace-pre-line leading-relaxed">
+                  Through this journey, she realized the powerful role that clean, balanced, and traditional foods play in supporting overall well-being. Her aim was never to create “special diet food,” but to make everyday food better, purer, and more nourishing — so families can support their health naturally through what they eat daily.
+                </p>
+                <p className="mt-4 italic text-brand-blue font-medium text-lg whitespace-pre-line leading-relaxed">
+                  "MANSARA reflects this belief — that food should support the body, not burden it, and that long-term wellness begins with mindful, honest nourishment."
                 </p>
               </div>
             </div>
 
             <div className="order-1 md:order-2 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
               <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-card border border-border/50 relative overflow-hidden group">
-                {/* Image placeholder matches existing design */}
                 <div className="w-24 h-24 bg-brand-cream rounded-full flex items-center justify-center mb-6 text-brand-blue mx-auto relative z-10 border-4 border-white shadow-md">
                   <Heart className="h-10 w-10 fill-current" />
                 </div>
@@ -92,7 +101,58 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Skipping Values section as it structure is complex list */}
+      {/* What MANSARA Stands For - Values Section */}
+      <section className="py-24 bg-brand-cream relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
+          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-brand-yellow/20 rounded-full blur-[100px]" />
+          <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-brand-light-yellow/40 rounded-full blur-[100px]" />
+        </div>
+
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto relative z-10">
+          <div className="text-center mb-16 animate-fade-in-up">
+            <span className="text-brand-pink font-bold tracking-[0.25em] uppercase text-xs mb-4 block">Our Core DNA</span>
+            <h2 className="font-heading text-3xl md:text-5xl font-bold mb-6 text-brand-blue tracking-tight">What <span className="text-brand-yellow">MANSARA</span> Stands For</h2>
+            <div className="h-0.5 w-20 bg-gradient-to-r from-transparent via-brand-yellow to-transparent mx-auto mb-6"></div>
+            <p className="text-brand-gray max-w-2xl mx-auto text-lg font-light leading-relaxed">
+              More than just a name, it is our promise of purity, authenticity, and responsibility.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {[
+              { letter: 'M', title: 'Modern, Cloud-Enabled Quality', desc: 'Using modern systems to ensure transparency, consistency, and trust.' },
+              { letter: 'A', title: 'Authentic, Heart-Centered Nutrition', desc: 'Products created with genuine care for family health.' },
+              { letter: 'N', title: 'Naturally Clean Ingredients', desc: 'Pure, safe, and wholesome — free from unnecessary additives.' },
+              { letter: 'S', title: 'Smart, Sustainable Systems', desc: 'Responsible processes that respect people, resources, and the planet.' },
+              { letter: 'A', title: 'Advanced, Light Processing', desc: 'Gentle methods that help retain natural nutrients and freshness.' },
+              { letter: 'R', title: 'Reliable & Responsible', desc: 'A brand that stands by its values at every step.' },
+              { letter: 'A', title: 'Always Pure', desc: 'An unwavering commitment to honesty and purity.', fullWidth: true },
+            ].map((item, index) => (
+              <div key={index} className={`relative group bg-white border border-brand-beige/50 rounded-2xl p-8 hover:bg-brand-light-yellow/30 hover:border-brand-yellow/30 transition-all duration-500 hover:-translate-y-1 hover:shadow-card ${item.fullWidth ? 'md:col-span-2 lg:col-span-3 lg:max-w-2xl lg:mx-auto w-full text-center' : ''}`} style={{ animationDelay: `${0.1 * index}s` }}>
+                <div className={`flex ${item.fullWidth ? 'flex-col items-center' : 'flex-col sm:flex-row items-start'} gap-6`}>
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-brand-yellow/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative w-14 h-14 rounded-xl bg-brand-cream border border-brand-beige flex items-center justify-center shadow-sm group-hover:border-brand-yellow/50 transition-colors duration-500">
+                      <span className="font-heading font-black text-3xl bg-clip-text text-transparent bg-gradient-to-br from-brand-yellow to-brand-pink">
+                        {item.letter}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-heading text-xl font-bold text-brand-blue mb-3 group-hover:text-brand-yellow transition-colors duration-300 ${item.fullWidth ? 'text-2xl' : ''}`}>
+                      {item.title}
+                    </h3>
+                    <p className="text-brand-gray leading-relaxed font-light text-base group-hover:text-foreground transition-colors duration-300">
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Vision & Mission */}
       <section className="py-24 bg-brand-light-yellow relative">
@@ -104,8 +164,8 @@ const About: React.FC = () => {
                 <Eye className="h-7 w-7" />
               </div>
               <h3 className="font-heading text-2xl font-bold text-foreground mb-4">Our Vision</h3>
-              <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-line">
-                {getContent('about', 'vision', 'To become a trusted wellness food brand...')}
+              <p className="text-muted-foreground leading-relaxed text-lg">
+                To become a trusted wellness food brand that supports healthier lifestyles by offering pure, nourishing food rooted in tradition and enhanced by modern practices.
               </p>
             </div>
 
@@ -115,9 +175,19 @@ const About: React.FC = () => {
                 <Target className="h-7 w-7" />
               </div>
               <h3 className="font-heading text-2xl font-bold text-foreground mb-4">Our Mission</h3>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                {getContent('about', 'mission', 'To provide clean, wholesome foods...')}
-              </p>
+              <ul className="space-y-4 text-muted-foreground">
+                {[
+                  "To provide clean, wholesome foods inspired by traditional wisdom",
+                  "To support everyday wellness through simple, nourishing ingredients",
+                  "To create easy-to-cook products suited for modern living",
+                  "To maintain purity, transparency, and responsibility across all processes"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-brand-green mt-1 flex-shrink-0" />
+                    <span className="leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>

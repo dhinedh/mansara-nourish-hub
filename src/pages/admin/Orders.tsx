@@ -120,23 +120,40 @@ const AdminOrders = () => {
     updateOrderStatus(order.id, 'confirmed');
 
     // 2. Construct WhatsApp Message
-    const newLine = '%0a';
+    const newLine = '\n';
     const bold = (text: string) => `*${text}*`;
+    const now = new Date();
+    const deliveryDate = new Date();
+    deliveryDate.setDate(now.getDate() + 5);
 
-    let itemDetails = '';
+    // Format dates
+    const orderDateStr = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+    const deliveryDateStr = deliveryDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+    let itemDetails = `${bold('Item')} - ${bold('Qty')} - ${bold('Price')} - ${bold('Total')}${newLine}`;
     order.items.forEach(item => {
-      itemDetails += `- ${item.name} (x${item.quantity}): ₹${item.price * item.quantity}${newLine}`;
+      itemDetails += `${item.name} - ${item.quantity} - ₹${item.price} - ₹${item.price * item.quantity}${newLine}`;
     });
 
-    const message = `*Mansara Nourish Hub*${newLine}${newLine}` +
-      `Hello ${order.customer_name},${newLine}` +
-      `Your order ${bold('#' + order.id.slice(0, 8))} has been ${bold('CONFIRMED')}! details below:${newLine}${newLine}` +
-      `${bold('Order Details:')}${newLine}` +
+    const paymentAlert = order.payment_status === 'pending'
+      ? `Payment Alert: ${bold('Payment Pending (COD) ⏳')}`
+      : `Payment Alert: ${bold('Payment Received ✅')}`;
+
+    const paymentMethodText = order.payment_status === 'pending' ? 'Cash on Delivery' : 'Online Payment';
+
+    const message = `*Order Confirmed!* ✅${newLine}` +
+      `Hi ${order.customer_name},${newLine}${newLine}` +
+      `Thank you for shopping with Mansara Nourish Hub. Your order has been placed successfully.${newLine}${newLine}` +
+      `${paymentAlert}${newLine}` +
+      `Order ID: #${order.id.slice(0, 8).toUpperCase()}${newLine}${newLine}` +
+      `Date: ${orderDateStr}${newLine}${newLine}` +
+      `Payment Method: ${paymentMethodText}${newLine}${newLine}` +
+      `${bold('Invoice Details')}${newLine}` +
       itemDetails +
-      `${newLine}` +
-      `${bold('Total Amount:')} ₹${order.total_amount}${newLine}` +
-      `${bold('Payment Status:')} ${order.payment_status}${newLine}${newLine}` +
-      `We will process your order shortly. Thank you for choosing Mansara!`;
+      `--------------------------------${newLine}` +
+      `${bold('Grand Total:')} ₹${order.total_amount}${newLine}${newLine}` +
+      `Your order is expected to be delivered by ${deliveryDateStr}.${newLine}${newLine}` +
+      `Track Your Order: ${window.location.origin}/track-order/${order.id}`;
 
     // 3. Open WhatsApp
     const cleanNumber = (num: string | undefined) => {
@@ -164,7 +181,7 @@ const AdminOrders = () => {
       return;
     }
 
-    const whatsappUrl = `https://wa.me/${phoneParam}?text=${message}`;
+    const whatsappUrl = `https://wa.me/${phoneParam}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     toast.success("Order confirmed and WhatsApp opened!");
   };
@@ -194,22 +211,7 @@ const AdminOrders = () => {
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Orders</h1>
           <p className="text-slate-600 mt-1">Manage customer orders</p>
-          {orders.length > 0 && (
-            <div className="bg-yellow-50 border border-yellow-200 p-4 mt-4 rounded text-xs font-mono overflow-auto max-h-60 text-slate-800">
-              <p className="font-bold text-red-600 mb-2">DEBUG MODE (Temporary): First Order Data Inspection</p>
-              <p><strong>Connected API:</strong> {import.meta.env.VITE_API_URL || "Default (Remote?)"}</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <strong>Delivery Address (Raw):</strong>
-                  <pre>{JSON.stringify((orders[0] as any).raw_data?.deliveryAddress, null, 2)}</pre>
-                </div>
-                <div>
-                  <strong>User Info (Raw):</strong>
-                  <pre>{JSON.stringify((orders[0] as any).raw_data?.user, null, 2)}</pre>
-                </div>
-              </div>
-            </div>
-          )}
+
         </div>
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
