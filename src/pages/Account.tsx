@@ -448,13 +448,22 @@ const Account: React.FC = () => {
                                                 const { updateProfile } = await import('@/lib/api');
                                                 const token = localStorage.getItem('mansara-token');
                                                 if (token) {
-                                                    await updateProfile({
+                                                    const updatedUserResponse = await updateProfile({
                                                         name: displayUser.name,
                                                         phone: displayUser.phone,
                                                         whatsapp: displayUser.whatsapp
                                                     }, token);
+
+                                                    // Immediately update local state with new values while preserving other data (e.g. addresses)
+                                                    setUserProfile((prev: any) => ({
+                                                        ...prev,
+                                                        ...updatedUserResponse,
+                                                        addresses: prev?.addresses || displayUser.addresses // Ensure addresses aren't lost if API doesn't return them
+                                                    }));
+
                                                     alert('Profile updated successfully!');
-                                                    fetchData(); // Refresh to ensure sync
+                                                    // We don't strictly need fetchData() if we updated state, but it handles side-effects
+                                                    fetchData();
                                                 }
                                             } catch (err) {
                                                 console.error(err);

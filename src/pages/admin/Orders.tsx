@@ -134,12 +134,24 @@ const AdminOrders = () => {
       `We will process your order shortly. Thank you for choosing Mansara!`;
 
     // 3. Open WhatsApp
-    const rawPhone = order.customer_whatsapp || order.customer_phone;
-    const cleanPhone = rawPhone ? rawPhone.replace(/\D/g, '') : '';
-    const phoneParam = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+    const cleanNumber = (num: string | undefined) => {
+      if (!num) return '';
+      const clean = num.replace(/\D/g, '');
+      return clean.length >= 10 ? clean : ''; // Basic validation
+    };
+
+    let phoneParam = cleanNumber(order.customer_whatsapp);
+    if (!phoneParam) {
+      phoneParam = cleanNumber(order.customer_phone);
+    }
+
+    // Format with country code if needed (defaulting to 91 for India if 10 digits)
+    if (phoneParam && phoneParam.length === 10) {
+      phoneParam = `91${phoneParam}`;
+    }
 
     if (!phoneParam) {
-      toast.error("Customer phone number is missing!");
+      toast.error("Customer phone number is missing or invalid!");
       return;
     }
 
