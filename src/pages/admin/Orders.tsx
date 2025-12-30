@@ -33,6 +33,7 @@ interface Order {
   customer_name: string;
   customer_email: string;
   customer_phone: string;
+  customer_whatsapp?: string;
   customer_address: string;
   total_amount: number;
   payment_status: string;
@@ -70,6 +71,7 @@ const AdminOrders = () => {
         customer_name: order.deliveryAddress?.firstName || order.user?.name || 'Guest',
         customer_email: order.user?.email || '',
         customer_phone: order.deliveryAddress?.phone || '',
+        customer_whatsapp: order.deliveryAddress?.whatsapp || order.user?.whatsapp || '',
         customer_address: `${order.deliveryAddress?.street}, ${order.deliveryAddress?.city}, ${order.deliveryAddress?.zip}`,
         total_amount: order.total,
         payment_status: order.paymentMethod === 'Cash on Delivery' ? 'pending' : 'paid', // Infer or add status field
@@ -132,7 +134,8 @@ const AdminOrders = () => {
       `We will process your order shortly. Thank you for choosing Mansara!`;
 
     // 3. Open WhatsApp
-    const cleanPhone = order.customer_phone ? order.customer_phone.replace(/\D/g, '') : '';
+    const rawPhone = order.customer_whatsapp || order.customer_phone;
+    const cleanPhone = rawPhone ? rawPhone.replace(/\D/g, '') : '';
     const phoneParam = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
 
     if (!phoneParam) {
@@ -287,6 +290,11 @@ const AdminOrders = () => {
                     <p>
                       <span className="text-slate-600">Phone:</span> {selectedOrder.customer_phone}
                     </p>
+                    {selectedOrder.customer_whatsapp && (
+                      <p>
+                        <span className="text-slate-600">WhatsApp:</span> {selectedOrder.customer_whatsapp}
+                      </p>
+                    )}
                     <p>
                       <span className="text-slate-600">Address:</span> {selectedOrder.customer_address}
                     </p>
