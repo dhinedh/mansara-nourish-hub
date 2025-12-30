@@ -455,6 +455,23 @@ const Account: React.FC = () => {
                                                         whatsapp: displayUser.whatsapp
                                                     }, token);
 
+                                                    // Update Local Storage key logic to persist changes on reload
+                                                    if (updatedUserResponse.token) {
+                                                        localStorage.setItem('mansara-token', updatedUserResponse.token);
+                                                    }
+
+                                                    // Construct full user object for storage, standardizing 'id'
+                                                    const updatedStorageUser = {
+                                                        ...displayUser,
+                                                        ...updatedUserResponse,
+                                                        id: updatedUserResponse._id || displayUser.id, // Ensure frontend 'id' is present
+                                                        addresses: displayUser.addresses // Keep addresses
+                                                    };
+                                                    // Remove _id from storage if you want to be cleaner, but keeping it doesn't hurt as long as 'id' is there
+
+                                                    localStorage.setItem('mansara-user', JSON.stringify(updatedStorageUser));
+
+
                                                     // Immediately update local state with new values while preserving other data (e.g. addresses)
                                                     setUserProfile((prev: any) => ({
                                                         ...prev,

@@ -60,7 +60,7 @@ export const createOrder = async (orderData: any, token: string) => {
 
 export const fetchUser = async (userId: string) => {
     try {
-        const response = await fetch(`${API_URL}/users/${userId}`, {
+        const response = await fetch(`${API_URL}/users/${userId}?time=${Date.now()}`, {
             headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
         });
         if (response.status === 404) {

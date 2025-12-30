@@ -70,7 +70,7 @@ const AdminOrders = () => {
         customer_id: order.user?._id || order.user?.id || 'guest',
         customer_name: order.deliveryAddress?.firstName || order.user?.name || 'Guest',
         customer_email: order.user?.email || '',
-        customer_phone: order.deliveryAddress?.phone || '',
+        customer_phone: order.deliveryAddress?.phone || order.user?.phone || '',
         customer_whatsapp: order.deliveryAddress?.whatsapp || order.user?.whatsapp || '',
         customer_address: `${order.deliveryAddress?.street}, ${order.deliveryAddress?.city}, ${order.deliveryAddress?.zip}`,
         total_amount: order.total,
@@ -193,6 +193,7 @@ const AdminOrders = () => {
               <TableRow>
                 <TableHead>Order ID</TableHead>
                 <TableHead>Customer Name</TableHead>
+                <TableHead>Phone</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Payment</TableHead>
@@ -203,13 +204,13 @@ const AdminOrders = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     No orders found
                   </TableCell>
                 </TableRow>
@@ -218,6 +219,7 @@ const AdminOrders = () => {
                   <TableRow key={order.id}>
                     <TableCell className="font-mono text-sm">{order.id.slice(0, 8)}</TableCell>
                     <TableCell>{order.customer_name}</TableCell>
+                    <TableCell className="text-sm">{order.customer_phone}</TableCell>
                     <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>₹{order.total_amount}</TableCell>
                     <TableCell>
