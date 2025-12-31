@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,27 +31,29 @@ const AdminLogin = () => {
         return;
       }
 
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (authError) throw authError;
+      const data = await response.json();
 
-      const { data: adminData } = await supabase
-        .from("admin_users")
-        .select("*")
-        .eq("id", authData.user.id)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (!adminData) {
-        await supabase.auth.signOut();
-        throw new Error("Unauthorized access. Admin account required.");
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
       }
 
+      if (data.role !== 'admin') {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      // Store auth data
+      localStorage.setItem('mansara-token', data.token);
+      localStorage.setItem('mansara-user', JSON.stringify(data));
+      localStorage.setItem('mansara-admin-session', 'true'); // Keep legacy flag for compatibility
+
       toast.success("Login successful!");
-      navigate("/admin/dashboard");
+      window.location.href = "/admin/dashboard";
     } catch (error: any) {
       toast.error(error.message || "Login failed");
     } finally {

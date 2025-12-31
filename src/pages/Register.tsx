@@ -12,6 +12,7 @@ import logo from '@/assets/logo.png';
 const Register: React.FC = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +35,7 @@ const Register: React.FC = () => {
         setIsLoading(true);
 
         try {
-            const success = await register(name, email, password);
+            const success = await register(name, email, password, phone);
             if (success) {
                 toast({
                     title: "Registration Successful",
@@ -96,6 +97,21 @@ const Register: React.FC = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="mt-1"
                                 placeholder="name@example.com"
+                            />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="phone">Phone Number</Label>
+                            <Input
+                                id="phone"
+                                name="phone"
+                                type="tel"
+                                autoComplete="tel"
+                                required
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                className="mt-1"
+                                placeholder="9876543210"
                             />
                         </div>
 

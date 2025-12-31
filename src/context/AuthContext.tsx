@@ -6,7 +6,7 @@ import { API_URL } from '../lib/api';
 interface AuthContextType {
     user: User | null;
     login: (email?: string, password?: string) => Promise<User | null>;
-    register: (name: string, email: string, password: string) => Promise<boolean>;
+    register: (name: string, email: string, password: string, phone: string) => Promise<boolean>;
     logout: () => void;
     isAuthenticated: boolean;
 }
@@ -29,14 +29,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, []);
 
-    const register = async (name: string, email: string, password: string): Promise<boolean> => {
+    const register = async (name: string, email: string, password: string, phone: string): Promise<boolean> => {
         try {
             const response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name, email, password }),
+                body: JSON.stringify({ name, email, password, phone }),
             });
 
             const data = await response.json();

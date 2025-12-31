@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-// import { supabase } from "@/lib/supabase"; // Supabase removed
+
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
