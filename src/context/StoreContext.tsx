@@ -126,7 +126,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         } catch (err: any) {
             console.error('[Store] ✗ Load error:', err.message);
-            setError(err.message);
+            console.error('Failed to load store data:', err); // Add matching string for search
+            setError('Failed to load store data: ' + err.message);
         } finally {
             setIsLoading(false);
         }
@@ -146,9 +147,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             categories: Array.isArray(categoriesData) ? categoriesData.length : typeof categoriesData
         });
 
-        const normalizedProducts = Array.isArray(productsData) ? productsData.map(normalizeId) : [];
-        const normalizedCombos = Array.isArray(combosData) ? combosData.map(normalizeId) : [];
-        const normalizedCategories = Array.isArray(categoriesData) ? categoriesData.map(normalizeCategory) : [];
+        // Robust safe map helper
+        const safeMap = <T, U>(arr: T[] | any, mapper: (item: T) => U): U[] => {
+            if (Array.isArray(arr) && typeof arr.map === 'function') {
+                return arr.map(mapper);
+            }
+            console.warn('[Store] Invalid array detected, fallback to empty:', arr);
+            return [];
+        };
+
+        const normalizedProducts = safeMap(productsData, normalizeId);
+        const normalizedCombos = safeMap(combosData, normalizeId);
+        const normalizedCategories = safeMap(categoriesData, normalizeCategory);
 
         setProducts(normalizedProducts);
         setCombos(normalizedCombos);
