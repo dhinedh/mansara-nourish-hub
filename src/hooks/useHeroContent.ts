@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchHeroConfig, updateHeroConfig } from '@/lib/api';
 
 export interface HeroSlide {
@@ -32,7 +32,9 @@ export interface HeroConfig {
     };
 }
 
-// Default config remains as fallback/initial state
+// ========================================
+// DEFAULT HERO CONFIG
+// ========================================
 const DEFAULT_CONFIG: HeroConfig = {
     home: [
         {
@@ -51,7 +53,6 @@ const DEFAULT_CONFIG: HeroConfig = {
             ctaText: 'View Products',
             ctaLink: '/products'
         },
-        // ... (other default slides)
     ],
     newArrivals: {
         image: 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
@@ -93,108 +94,205 @@ const DEFAULT_CONFIG: HeroConfig = {
     }
 };
 
+// ========================================
+// OPTIMIZED HERO HOOK WITH CACHING
+// ========================================
+const CACHE_KEY = 'mansara-hero-cache';
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+
+// Cache helpers
+const getCachedHero = (): HeroConfig | null => {
+    try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+
+        const { data, timestamp } = JSON.parse(cached);
+        
+        if (Date.now() - timestamp < CACHE_DURATION) {
+            return data;
+        }
+        
+        return null;
+    } catch {
+        return null;
+    }
+};
+
+const cacheHero = (config: HeroConfig) => {
+    try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+            data: config,
+            timestamp: Date.now()
+        }));
+    } catch (error) {
+        console.error('[Hero] ✗ Cache save failed:', error);
+    }
+};
+
+const clearHeroCache = () => {
+    localStorage.removeItem(CACHE_KEY);
+};
+
 export const useHeroContent = () => {
     const [heroConfig, setHeroConfig] = useState<HeroConfig>(DEFAULT_CONFIG);
+    const [isLoading, setIsLoading] = useState(true);
 
+    // ========================================
+    // LOAD CONFIG WITH CACHING
+    // ========================================
     useEffect(() => {
         const loadConfig = async () => {
+            setIsLoading(true);
+
+            // Check cache first
+            const cached = getCachedHero();
+            if (cached) {
+                setHeroConfig(cached);
+                setIsLoading(false);
+                console.log('[Hero] ✓ Loaded from cache');
+                
+                // Fetch in background to update cache
+                fetchAndCache();
+                return;
+            }
+
+            // Load from API
+            await fetchAndCache();
+            setIsLoading(false);
+        };
+
+        const fetchAndCache = async () => {
             try {
                 const apiConfig = await fetchHeroConfig();
-                // Merge API config with default to ensure structure
+                
                 if (apiConfig && Object.keys(apiConfig).length > 0) {
-                    // Normalize home slides ids
+                    // Normalize home slides IDs
                     if (apiConfig.home && Array.isArray(apiConfig.home)) {
                         apiConfig.home = apiConfig.home.map((slide: any) => ({
                             ...slide,
-                            id: slide.id || slide._id
+                            id: slide.id || slide._id || crypto.randomUUID()
                         }));
                     }
-                    setHeroConfig(prev => ({ ...prev, ...apiConfig }));
+                    
+                    // Merge with defaults
+                    const merged = { ...DEFAULT_CONFIG, ...apiConfig };
+                    setHeroConfig(merged);
+                    cacheHero(merged);
+                    console.log('[Hero] ✓ Loaded from API');
                 }
             } catch (error) {
-                console.error('Failed to load hero config', error);
+                console.error('[Hero] ✗ Load error:', error);
             }
         };
+
         loadConfig();
     }, []);
 
-    const saveConfig = (newConfig: HeroConfig) => {
+    // ========================================
+    // UPDATE FUNCTIONS
+    // ========================================
+    const saveConfig = useCallback((newConfig: HeroConfig) => {
         setHeroConfig(newConfig);
-    };
+        cacheHero(newConfig);
+    }, []);
 
-    const updateHomeSlide = async (index: number, slide: HeroSlide) => {
+    const updateHomeSlide = useCallback(async (index: number, slide: HeroSlide) => {
         const newHome = [...heroConfig.home];
         newHome[index] = slide;
         const newConfig = { ...heroConfig, home: newHome };
+        
         saveConfig(newConfig);
+        
         try {
             await updateHeroConfig('home', newHome);
+            console.log('[Hero] ✓ Home slide updated');
         } catch (e) {
-            console.error('Failed to update home slides', e);
+            console.error('[Hero] ✗ Failed to update home slides', e);
         }
-    };
+    }, [heroConfig, saveConfig]);
 
-    const addHomeSlide = async (slide: HeroSlide) => {
+    const addHomeSlide = useCallback(async (slide: HeroSlide) => {
         const newHome = [...heroConfig.home, slide];
         const newConfig = { ...heroConfig, home: newHome };
+        
         saveConfig(newConfig);
+        
         try {
             await updateHeroConfig('home', newHome);
+            console.log('[Hero] ✓ Home slide added');
         } catch (e) {
-            console.error('Failed to add home slide', e);
+            console.error('[Hero] ✗ Failed to add home slide', e);
         }
-    };
+    }, [heroConfig, saveConfig]);
 
-    const updateHomeSlideById = async (id: string, slide: HeroSlide) => {
+    const updateHomeSlideById = useCallback(async (id: string, slide: HeroSlide) => {
         const newHome = heroConfig.home.map(s => s.id === id ? slide : s);
         const newConfig = { ...heroConfig, home: newHome };
+        
         saveConfig(newConfig);
+        
         try {
             await updateHeroConfig('home', newHome);
+            console.log('[Hero] ✓ Home slide updated');
         } catch (e) {
-            console.error('Failed to update home slide', e);
+            console.error('[Hero] ✗ Failed to update home slide', e);
         }
-    };
+    }, [heroConfig, saveConfig]);
 
-    const deleteHomeSlide = async (id: string) => {
+    const deleteHomeSlide = useCallback(async (id: string) => {
         const newHome = heroConfig.home.filter(s => s.id !== id);
         const newConfig = { ...heroConfig, home: newHome };
+        
         saveConfig(newConfig);
+        
         try {
             await updateHeroConfig('home', newHome);
+            console.log('[Hero] ✓ Home slide deleted');
         } catch (e) {
-            console.error('Failed to delete home slide', e);
+            console.error('[Hero] ✗ Failed to delete home slide', e);
         }
-    };
+    }, [heroConfig, saveConfig]);
 
-    const updateHomeSettings = async (settings: { interval: number }) => {
+    const updateHomeSettings = useCallback(async (settings: { interval: number }) => {
         const newConfig = { ...heroConfig, homeSettings: settings };
+        
         saveConfig(newConfig);
+        
         try {
             await updateHeroConfig('homeSettings', settings);
+            console.log('[Hero] ✓ Home settings updated');
         } catch (e) {
-            console.error('Failed to update home settings', e);
+            console.error('[Hero] ✗ Failed to update home settings', e);
         }
-    };
+    }, [heroConfig, saveConfig]);
 
-    const updatePageHero = async (page: keyof HeroConfig, data: PageHero) => {
+    const updatePageHero = useCallback(async (page: keyof HeroConfig, data: PageHero) => {
         if (page === 'home' || page === 'homeSettings') return;
+        
         const newConfig = { ...heroConfig, [page]: data };
+        
         saveConfig(newConfig);
+        
         try {
             await updateHeroConfig(page, data);
+            console.log(`[Hero] ✓ ${page} hero updated`);
         } catch (e) {
-            console.error(`Failed to update ${page} hero`, e);
+            console.error(`[Hero] ✗ Failed to update ${page} hero`, e);
         }
-    };
+    }, [heroConfig, saveConfig]);
 
     return {
         heroConfig,
+        isLoading,
         updateHomeSlide,
         addHomeSlide,
         updateHomeSlideById,
         deleteHomeSlide,
         updateHomeSettings,
-        updatePageHero
+        updatePageHero,
+        refetch: () => {
+            clearHeroCache();
+            window.location.reload();
+        }
     };
 };

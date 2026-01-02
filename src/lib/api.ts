@@ -1,160 +1,104 @@
-export const API_URL = import.meta.env.VITE_API_URL || 'https://mansara-backend.onrender.com/api';
-// export const API_URL = 'http://localhost:5000/api';
+import axios from 'axios';
 
+export const API_URL = import.meta.env.VITE_API_URL || 'https://mansara-backend.onrender.com/api';
+
+// ========================================
+// OPTIMIZED AXIOS INSTANCE
+// ========================================
+
+// Create axios instance with better config
+const api = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    timeout: 30000, // 30 second timeout
+});
+
+// Request deduplication map
+const pendingRequests = new Map<string, Promise<any>>();
+
+// Request interceptor
+api.interceptors.request.use(
+    (config) => {
+        // Add auth token
+        const token = localStorage.getItem('mansara-token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        // Add cache-busting for GET requests if needed
+        if (config.method === 'get' && config.params?.noCache) {
+            config.params._t = Date.now();
+            delete config.params.noCache;
+        }
+
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Response interceptor
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // Unauthorized - clear auth
+            localStorage.removeItem('mansara-token');
+            localStorage.removeItem('mansara-user');
+
+            // Redirect to login if not already there
+            if (!window.location.pathname.includes('/login')) {
+                window.location.href = '/login';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
+export default api;
+
+// ========================================
+// REQUEST DEDUPLICATION HELPER
+// ========================================
+const dedupedFetch = async <T>(key: string, fetcher: () => Promise<T>): Promise<T> => {
+    // Check if request is already pending
+    if (pendingRequests.has(key)) {
+        console.log(`[API] Using deduped request: ${key}`);
+        return pendingRequests.get(key)!;
+    }
+
+    // Create new request
+    const promise = fetcher().finally(() => {
+        pendingRequests.delete(key);
+    });
+
+    pendingRequests.set(key, promise);
+    return promise;
+};
+
+// ========================================
+// PRODUCTS
+// ========================================
 export const fetchProducts = async () => {
-    const response = await fetch(`${API_URL}/products`);
-    if (!response.ok) throw new Error('Failed to fetch products');
-    return response.json();
+    return dedupedFetch('products', async () => {
+        const response = await fetch(`${API_URL}/products`);
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const data = await response.json();
+        return data.products || data;
+    });
 };
 
 export const fetchProductById = async (id: string) => {
-    const response = await fetch(`${API_URL}/products/${id}`);
-    if (!response.ok) throw new Error('Failed to fetch product');
-    return response.json();
-};
-
-export const fetchCombos = async () => {
-    const response = await fetch(`${API_URL}/combos`);
-    if (!response.ok) throw new Error('Failed to fetch combos');
-    return response.json();
-};
-
-export const fetchComboById = async (id: string) => {
-    const response = await fetch(`${API_URL}/combos/${id}`);
-    if (!response.ok) throw new Error('Failed to fetch combo');
-    return response.json();
-};
-
-export const uploadImage = async (file: File) => {
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const response = await fetch(`${API_URL}/upload`, {
-        method: 'POST',
-        body: formData,
+    return dedupedFetch(`product-${id}`, async () => {
+        const response = await fetch(`${API_URL}/products/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch product');
+        return response.json();
     });
-
-    if (!response.ok) throw new Error('Upload failed');
-    return response.json();
 };
 
-export const createOrder = async (orderData: any, token: string) => {
-    try {
-        const response = await fetch(`${API_URL}/orders`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(orderData),
-        });
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to create order');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Error creating order:', error);
-        throw error;
-    }
-};
-
-export const fetchUser = async (userId: string) => {
-    try {
-        const response = await fetch(`${API_URL}/users/${userId}?time=${Date.now()}`, {
-            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-        });
-        if (response.status === 404) {
-            throw new Error('USER_NOT_FOUND');
-        }
-        if (!response.ok) {
-            throw new Error('Failed to fetch user profile');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching user profile:', error);
-        throw error;
-    }
-};
-
-export const getUserOrders = async (userId: string) => {
-    try {
-        const response = await fetch(`${API_URL}/orders/user/${userId}`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch user orders');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching user orders:', error);
-        throw error;
-    }
-};
-
-export const addAddress = async (userId: string, addressData: any) => {
-    try {
-        const response = await fetch(`${API_URL}/users/${userId}/address`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(addressData),
-        });
-        if (!response.ok) throw new Error('Failed to add address');
-        return await response.json();
-    } catch (error) {
-        console.error('Error adding address:', error);
-        throw error;
-    }
-};
-
-export const updateAddress = async (userId: string, addressId: string, addressData: any) => {
-    try {
-        const response = await fetch(`${API_URL}/users/${userId}/address/${addressId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(addressData),
-        });
-        if (!response.ok) throw new Error('Failed to update address');
-        return await response.json();
-    } catch (error) {
-        console.error('Error updating address:', error);
-        throw error;
-    }
-};
-
-export const deleteAddress = async (userId: string, addressId: string) => {
-    try {
-        const response = await fetch(`${API_URL}/users/${userId}/address/${addressId}`, {
-            method: 'DELETE',
-        });
-        if (!response.ok) throw new Error('Failed to delete address');
-        return await response.json();
-    } catch (error) {
-        console.error('Error deleting address:', error);
-        throw error;
-    }
-};
-
-export const submitContact = async (contactData: any) => {
-    try {
-        const response = await fetch(`${API_URL}/contact`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(contactData),
-        });
-        if (!response.ok) throw new Error('Failed to submit message');
-        return await response.json();
-    } catch (error) {
-        console.error('Error submitting contact form:', error);
-        throw error;
-    }
-};
-
-// --- Product CRUD ---
 export const createProduct = async (productData: any, token: string) => {
     const response = await fetch(`${API_URL}/products`, {
         method: 'POST',
@@ -201,7 +145,26 @@ export const deleteProduct = async (id: string, token: string) => {
     return response.json();
 };
 
-// --- Combo CRUD ---
+// ========================================
+// COMBOS
+// ========================================
+export const fetchCombos = async () => {
+    return dedupedFetch('combos', async () => {
+        const response = await fetch(`${API_URL}/combos`);
+        if (!response.ok) throw new Error('Failed to fetch combos');
+        const data = await response.json();
+        return data.combos || data;
+    });
+};
+
+export const fetchComboById = async (id: string) => {
+    return dedupedFetch(`combo-${id}`, async () => {
+        const response = await fetch(`${API_URL}/combos/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch combo');
+        return response.json();
+    });
+};
+
 export const createCombo = async (comboData: any, token: string) => {
     const response = await fetch(`${API_URL}/combos`, {
         method: 'POST',
@@ -248,11 +211,15 @@ export const deleteCombo = async (id: string, token: string) => {
     return response.json();
 };
 
-// --- Category CRUD ---
+// ========================================
+// CATEGORIES
+// ========================================
 export const getCategories = async () => {
-    const response = await fetch(`${API_URL}/categories`);
-    if (!response.ok) throw new Error('Failed to fetch categories');
-    return response.json();
+    return dedupedFetch('categories', async () => {
+        const response = await fetch(`${API_URL}/categories`);
+        if (!response.ok) throw new Error('Failed to fetch categories');
+        return response.json();
+    });
 };
 
 export const createCategory = async (categoryData: any, token: string) => {
@@ -300,7 +267,65 @@ export const deleteCategory = async (id: string, token: string) => {
     return response.json();
 };
 
-// --- Admin Order ---
+// ========================================
+// UPLOAD
+// ========================================
+export const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${API_URL}/upload`, {
+        method: 'POST',
+        body: formData,
+    });
+
+    if (!response.ok) throw new Error('Upload failed');
+    return response.json();
+};
+
+// ========================================
+// ORDERS
+// ========================================
+export const createOrder = async (orderData: any, token: string) => {
+    try {
+        const response = await fetch(`${API_URL}/orders`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(orderData),
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to create order');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('[API] ✗ Create order error:', error);
+        throw error;
+    }
+};
+
+export const getUserOrders = async (userId: string) => {
+    return dedupedFetch(`user-orders-${userId}`, async () => {
+        const token = localStorage.getItem('mansara-token');
+        const headers: HeadersInit = {};
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`${API_URL}/orders/user/${userId}`, {
+            headers
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch user orders');
+        }
+        const data = await response.json();
+        return data.orders || data;
+    });
+};
+
 export const getAllOrders = async (token: string) => {
     const response = await fetch(`${API_URL}/orders`, {
         headers: {
@@ -310,23 +335,93 @@ export const getAllOrders = async (token: string) => {
     if (!response.ok) {
         throw new Error('Failed to fetch orders');
     }
-    return response.json();
+    const data = await response.json();
+    return data.orders || data;
 };
 
-// --- Dashboard Stats ---
-export const getDashboardStats = async (token: string) => {
-    const response = await fetch(`${API_URL}/stats`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-    if (!response.ok) {
-        throw new Error('Failed to fetch dashboard stats');
+export const getOrderById = async (orderId: string, token: string) => {
+    try {
+        const response = await api.get(`/orders/${orderId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch order');
     }
-    return response.json();
 };
 
-// --- Admin User Management ---
+export const confirmOrder = async (orderId: string, estimatedDeliveryDate?: string) => {
+    try {
+        const token = localStorage.getItem('mansara-token');
+        const response = await api.put(
+            `/orders/${orderId}/confirm`,
+            { estimatedDeliveryDate },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to confirm order');
+    }
+};
+
+export const updateOrderStatus = async (orderId: string, status: string) => {
+    try {
+        const token = localStorage.getItem('mansara-token');
+        const response = await api.put(
+            `/orders/${orderId}/status`,
+            { status },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to update order status');
+    }
+};
+
+export const cancelOrder = async (orderId: string) => {
+    try {
+        const token = localStorage.getItem('mansara-token');
+        const response = await api.put(
+            `/orders/${orderId}/cancel`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to cancel order');
+    }
+};
+
+// ========================================
+// USERS
+// ========================================
+export const fetchUser = async (userId: string) => {
+    try {
+        const token = localStorage.getItem('mansara-token');
+        const headers: HeadersInit = {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`${API_URL}/users/${userId}?time=${Date.now()}`, {
+            headers
+        });
+        if (response.status === 404) {
+            throw new Error('USER_NOT_FOUND');
+        }
+        if (!response.ok) {
+            throw new Error('Failed to fetch user profile');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('[API] ✗ Fetch user error:', error);
+        throw error;
+    }
+};
+
 export const getAllUsers = async (token: string) => {
     const response = await fetch(`${API_URL}/users`, {
         headers: {
@@ -339,11 +434,100 @@ export const getAllUsers = async (token: string) => {
     return response.json();
 };
 
-// --- Content Management ---
-export const fetchContentPages = async () => {
-    const response = await fetch(`${API_URL}/content/pages`);
-    if (!response.ok) throw new Error('Failed to fetch content pages');
+// ========================================
+// ADDRESSES
+// ========================================
+export const addAddress = async (userId: string, addressData: any) => {
+    try {
+        const response = await fetch(`${API_URL}/users/${userId}/address`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(addressData),
+        });
+        if (!response.ok) throw new Error('Failed to add address');
+        return await response.json();
+    } catch (error) {
+        console.error('[API] ✗ Add address error:', error);
+        throw error;
+    }
+};
+
+export const updateAddress = async (userId: string, addressId: string, addressData: any) => {
+    try {
+        const response = await fetch(`${API_URL}/users/${userId}/address/${addressId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(addressData),
+        });
+        if (!response.ok) throw new Error('Failed to update address');
+        return await response.json();
+    } catch (error) {
+        console.error('[API] ✗ Update address error:', error);
+        throw error;
+    }
+};
+
+export const deleteAddress = async (userId: string, addressId: string) => {
+    try {
+        const response = await fetch(`${API_URL}/users/${userId}/address/${addressId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('Failed to delete address');
+        return await response.json();
+    } catch (error) {
+        console.error('[API] ✗ Delete address error:', error);
+        throw error;
+    }
+};
+
+// ========================================
+// CONTACT
+// ========================================
+export const submitContact = async (contactData: any) => {
+    try {
+        const response = await fetch(`${API_URL}/contact`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contactData),
+        });
+        if (!response.ok) throw new Error('Failed to submit message');
+        return await response.json();
+    } catch (error) {
+        console.error('[API] ✗ Submit contact error:', error);
+        throw error;
+    }
+};
+
+// ========================================
+// DASHBOARD STATS
+// ========================================
+export const getDashboardStats = async (token: string) => {
+    const response = await fetch(`${API_URL}/stats`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch dashboard stats');
+    }
     return response.json();
+};
+
+// ========================================
+// CONTENT MANAGEMENT
+// ========================================
+export const fetchContentPages = async () => {
+    return dedupedFetch('content-pages', async () => {
+        const response = await fetch(`${API_URL}/content/pages`);
+        if (!response.ok) throw new Error('Failed to fetch content pages');
+        return response.json();
+    });
 };
 
 export const updateContentPage = async (slug: string, sections: any) => {
@@ -356,11 +540,15 @@ export const updateContentPage = async (slug: string, sections: any) => {
     return response.json();
 };
 
-// --- Banner Management ---
+// ========================================
+// BANNERS
+// ========================================
 export const fetchBanners = async () => {
-    const response = await fetch(`${API_URL}/content/banners`);
-    if (!response.ok) throw new Error('Failed to fetch banners');
-    return response.json();
+    return dedupedFetch('banners', async () => {
+        const response = await fetch(`${API_URL}/content/banners`);
+        if (!response.ok) throw new Error('Failed to fetch banners');
+        return response.json();
+    });
 };
 
 export const createBanner = async (bannerData: any) => {
@@ -391,11 +579,15 @@ export const deleteBanner = async (id: string) => {
     return response.json();
 };
 
-// --- Hero Management ---
+// ========================================
+// HERO CONFIG
+// ========================================
 export const fetchHeroConfig = async () => {
-    const response = await fetch(`${API_URL}/content/hero`);
-    if (!response.ok) throw new Error('Failed to fetch hero config');
-    return response.json();
+    return dedupedFetch('hero-config', async () => {
+        const response = await fetch(`${API_URL}/content/hero`);
+        if (!response.ok) throw new Error('Failed to fetch hero config');
+        return response.json();
+    });
 };
 
 export const updateHeroConfig = async (key: string, data: any) => {
@@ -408,11 +600,15 @@ export const updateHeroConfig = async (key: string, data: any) => {
     return response.json();
 };
 
-// --- Settings Management ---
+// ========================================
+// SETTINGS
+// ========================================
 export const fetchSettings = async () => {
-    const response = await fetch(`${API_URL}/settings`);
-    if (!response.ok) throw new Error('Failed to fetch settings');
-    return response.json();
+    return dedupedFetch('settings', async () => {
+        const response = await fetch(`${API_URL}/settings`);
+        if (!response.ok) throw new Error('Failed to fetch settings');
+        return response.json();
+    });
 };
 
 export const updateSettings = async (settingsData: any) => {
@@ -425,6 +621,9 @@ export const updateSettings = async (settingsData: any) => {
     return response.json();
 };
 
+// ========================================
+// AUTH
+// ========================================
 export const changePassword = async (passwordData: any, token: string) => {
     const response = await fetch(`${API_URL}/auth/change-password`, {
         method: 'PUT',
@@ -459,29 +658,6 @@ export const updateProfile = async (profileData: any, token: string) => {
     return response.json();
 };
 
-export const getCart = async (token: string) => {
-    const response = await fetch(`${API_URL}/cart`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-    if (!response.ok) throw new Error('Failed to fetch cart');
-    return response.json();
-};
-
-export const updateCart = async (cartItems: any[], token: string) => {
-    const response = await fetch(`${API_URL}/cart`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(cartItems),
-    });
-    if (!response.ok) throw new Error('Failed to update cart');
-    return response.json();
-};
-
 export const forgotPassword = async (email: string) => {
     const response = await fetch(`${API_URL}/auth/forgot-password`, {
         method: 'POST',
@@ -493,7 +669,7 @@ export const forgotPassword = async (email: string) => {
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to send reset email');
+        throw new Error(error.message || 'Failed to send reset OTP');
     }
     return response.json();
 };
@@ -543,5 +719,31 @@ export const resendOTP = async (email: string) => {
         const error = await response.json();
         throw new Error(error.message || 'Failed to resend OTP');
     }
+    return response.json();
+};
+
+// ========================================
+// CART
+// ========================================
+export const getCart = async (token: string) => {
+    const response = await fetch(`${API_URL}/cart`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to fetch cart');
+    return response.json();
+};
+
+export const updateCart = async (cartItems: any[], token: string) => {
+    const response = await fetch(`${API_URL}/cart`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(cartItems),
+    });
+    if (!response.ok) throw new Error('Failed to update cart');
     return response.json();
 };

@@ -1,9 +1,12 @@
 import * as React from "react";
-
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
-const TOAST_LIMIT = 1;
-const TOAST_REMOVE_DELAY = 1000000;
+// ========================================
+// OPTIMIZED TOAST HOOK
+// ========================================
+
+const TOAST_LIMIT = 3; // Increased from 1 for better UX
+const TOAST_REMOVE_DELAY = 5000; // Reduced from 1000000 (way too long!)
 
 type ToasterToast = ToastProps & {
   id: string;
@@ -79,14 +82,14 @@ export const reducer = (state: State, action: Action): State => {
     case "UPDATE_TOAST":
       return {
         ...state,
-        toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
+        toasts: state.toasts.map((t) =>
+          t.id === action.toast.id ? { ...t, ...action.toast } : t
+        ),
       };
 
     case "DISMISS_TOAST": {
       const { toastId } = action;
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId);
       } else {
@@ -103,10 +106,11 @@ export const reducer = (state: State, action: Action): State => {
                 ...t,
                 open: false,
               }
-            : t,
+            : t
         ),
       };
     }
+    
     case "REMOVE_TOAST":
       if (action.toastId === undefined) {
         return {
@@ -134,7 +138,10 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">;
 
-function toast({ ...props }: Toast) {
+// ========================================
+// HELPER FUNCTIONS FOR COMMON TOASTS
+// ========================================
+function createToast({ ...props }: Toast) {
   const id = genId();
 
   const update = (props: ToasterToast) =>
@@ -142,6 +149,7 @@ function toast({ ...props }: Toast) {
       type: "UPDATE_TOAST",
       toast: { ...props, id },
     });
+    
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id });
 
   dispatch({
@@ -162,6 +170,90 @@ function toast({ ...props }: Toast) {
     update,
   };
 }
+
+// Success toast helper
+function success(title: string, description?: string) {
+  return createToast({
+    title,
+    description,
+    variant: "default" as any,
+  });
+}
+
+// Error toast helper
+function error(title: string, description?: string) {
+  return createToast({
+    title,
+    description,
+    variant: "destructive" as any,
+  });
+}
+
+// Info toast helper
+function info(title: string, description?: string) {
+  return createToast({
+    title,
+    description,
+  });
+}
+
+// Warning toast helper
+function warning(title: string, description?: string) {
+  return createToast({
+    title: "⚠️ " + title,
+    description,
+  });
+}
+
+// Loading toast helper
+function loading(title: string, description?: string) {
+  return createToast({
+    title: "⏳ " + title,
+    description,
+    duration: Infinity, // Don't auto-dismiss loading toasts
+  });
+}
+
+// Promise toast helper
+async function promise<T>(
+  promise: Promise<T>,
+  {
+    loading: loadingMsg,
+    success: successMsg,
+    error: errorMsg,
+  }: {
+    loading: string;
+    success: string | ((data: T) => string);
+    error: string | ((error: any) => string);
+  }
+) {
+  const loadingToast = loading(loadingMsg);
+
+  try {
+    const data = await promise;
+    loadingToast.dismiss();
+    success(
+      typeof successMsg === "function" ? successMsg(data) : successMsg
+    );
+    return data;
+  } catch (err: any) {
+    loadingToast.dismiss();
+    error(
+      typeof errorMsg === "function" ? errorMsg(err) : errorMsg
+    );
+    throw err;
+  }
+}
+
+// Main toast object with helpers
+const toast = Object.assign(createToast, {
+  success,
+  error,
+  info,
+  warning,
+  loading,
+  promise,
+});
 
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, MapPin, Pencil, Plus, Loader2 } from 'lucide-react';
+import { CheckCircle, MapPin, Pencil, Plus, Loader2, MessageSquare } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
@@ -12,6 +12,7 @@ interface DeliveryAddress {
   firstName: string;
   lastName: string;
   phone: string;
+  whatsapp: string;
   addressLine: string;
   city: string;
   pincode: string;
@@ -23,6 +24,7 @@ const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = React.useState(1);
   const [orderPlaced, setOrderPlaced] = React.useState(false);
+  const [placedOrderId, setPlacedOrderId] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Address State
@@ -33,6 +35,7 @@ const Checkout: React.FC = () => {
     whatsapp: string;
     addressLine: string;
     city: string;
+    state: string; // Added state field
     pincode: string;
   }>({
     firstName: user?.name || '',
@@ -41,11 +44,12 @@ const Checkout: React.FC = () => {
     whatsapp: user?.whatsapp || '',
     addressLine: '',
     city: '',
+    state: 'Tamil Nadu', // Default to Tamil Nadu
     pincode: ''
   });
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [isAddressSaved, setIsAddressSaved] = useState(false);
-  const [isEditing, setIsEditing] = useState(true); // Now controls "List View" (false) vs "Form View" (true) if addresses exist
+  const [isEditing, setIsEditing] = useState(true);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
 
   React.useEffect(() => {
@@ -77,25 +81,24 @@ const Checkout: React.FC = () => {
             setAddress({
               firstName: userData.name || '',
               lastName: '',
-              phone: userData.phone || '', // Enforce profile phone
-              whatsapp: userData.whatsapp || '', // Enforce profile whatsapp
+              phone: userData.phone || '',
+              whatsapp: userData.whatsapp || '',
               addressLine: defaultAddress.street || '',
               city: defaultAddress.city || '',
+              state: defaultAddress.state || 'Tamil Nadu',
               pincode: defaultAddress.zip || ''
             });
 
-            // If we have addresses, default to List View
             setIsEditing(false);
             setIsAddressSaved(true);
-            setEditingAddressId(null); // Not editing any specific address initially
+            setEditingAddressId(null);
           } else {
-            // No addresses, show form but pre-fill profile data
             setAddress(prev => ({
               ...prev,
               ...baseContactInfo
             }));
             setIsEditing(true);
-            setEditingAddressId(null); // Not editing any specific address
+            setEditingAddressId(null);
           }
         } catch (error) {
           console.error("Failed to load user addresses", error);
@@ -116,8 +119,8 @@ const Checkout: React.FC = () => {
       ...prev,
       addressLine: addr.street,
       city: addr.city,
+      state: addr.state || 'Tamil Nadu',
       pincode: addr.zip
-      // Keep name/phone/whatsapp as currently set or from user profile, don't overwrite with blank if not in addr
     }));
   };
 
@@ -127,6 +130,7 @@ const Checkout: React.FC = () => {
       ...prev,
       addressLine: addr.street,
       city: addr.city,
+      state: addr.state || 'Tamil Nadu',
       pincode: addr.zip
     }));
     setIsEditing(true);
@@ -139,6 +143,12 @@ const Checkout: React.FC = () => {
       return;
     }
 
+    // Validate phone number
+    if (address.phone.replace(/\D/g, '').length < 10) {
+      toast.error("Please enter a valid phone number");
+      return;
+    }
+
     setIsProcessing(true);
     try {
       const { addAddress, updateAddress } = await import('@/lib/api');
@@ -147,10 +157,10 @@ const Checkout: React.FC = () => {
       const addressData = {
         street: address.addressLine,
         city: address.city,
-        state: '', // Add state input if needed
+        state: address.state || 'Tamil Nadu',
         zip: address.pincode,
-        type: 'Home', // Default
-        isDefault: savedAddresses.length === 0 // Make default if it's the first one
+        type: 'Home',
+        isDefault: savedAddresses.length === 0
       };
 
       let updatedUser;
@@ -160,64 +170,64 @@ const Checkout: React.FC = () => {
         updatedUser = await addAddress(user!.id, addressData);
       }
 
-      // Update local list with the newly returned addresses
       if (updatedUser && updatedUser.addresses) {
         setSavedAddresses(updatedUser.addresses);
       }
 
       setIsAddressSaved(true);
-      setIsEditing(false); // Go back to list view
-      setEditingAddressId(null); // Reset edit state
-      setStep(2); // Auto-advance to next step
+      setIsEditing(false);
+      setEditingAddressId(null);
+      setStep(2);
       toast.success(editingAddressId ? "Address updated and selected!" : "Address saved and selected!");
 
     } catch (error) {
       console.error("Failed to save address", error);
-      toast.error("Failed to save address. Continuing to payment.");
-      setStep(2); // Allow continuing even if save fails, or handle error
+      toast.error("Failed to save address. Please try again.");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleEditAddress = () => {
-    setIsEditing(true);
-  };
-
   const handleAddNewAddress = () => {
-    // Keep name/phone/whatsapp, just clear address fields
     setAddress(prev => ({
       ...prev,
       addressLine: '',
       city: '',
+      state: 'Tamil Nadu',
       pincode: ''
     }));
-    setEditingAddressId(null); // Ensure we are in "add mode"
-    setIsEditing(true); // Show form
-  };
-
-  const handleDeliverHere = () => {
-    setStep(2);
+    setEditingAddressId(null);
+    setIsEditing(true);
   };
 
   const handlePlaceOrder = async () => {
+    // Validation
     if (!address.phone) {
       toast.error("Phone number is required");
+      return;
+    }
+
+    if (!address.addressLine || !address.pincode) {
+      toast.error("Please complete your delivery address");
       return;
     }
 
     setIsProcessing(true);
     try {
       const token = localStorage.getItem('mansara-token');
-      if (!token) throw new Error("No auth token found");
+      if (!token) {
+        toast.error("Please login to continue");
+        navigate('/login');
+        return;
+      }
 
       // Sync Profile Data (Phone/WhatsApp) if changed
       const { updateProfile } = await import('@/lib/api');
       try {
         await updateProfile({
-          name: address.firstName, // Update name if changed
+          name: address.firstName,
           phone: address.phone,
-          whatsapp: address.whatsapp
+          whatsapp: address.whatsapp || address.phone
         }, token);
       } catch (err) {
         console.warn("Could not sync profile data", err);
@@ -225,7 +235,7 @@ const Checkout: React.FC = () => {
 
       const orderData = {
         items: items.map(item => ({
-          product: item.id, // Assuming item.id is the product ID
+          product: item.id,
           name: item.name,
           quantity: item.quantity,
           price: item.price
@@ -234,24 +244,30 @@ const Checkout: React.FC = () => {
         paymentMethod: 'Cash on Delivery',
         deliveryAddress: {
           firstName: address.firstName,
-          lastName: address.lastName,
+          lastName: address.lastName || '',
           street: address.addressLine,
           city: address.city,
           zip: address.pincode,
-          state: '', // Add state if needed
+          state: address.state || 'Tamil Nadu',
           phone: address.phone,
-          whatsapp: address.whatsapp
+          whatsapp: address.whatsapp || address.phone
         }
       };
 
-      await createOrder(orderData, token);
+      console.log('[Checkout] Placing order:', orderData);
 
+      const response = await createOrder(orderData, token);
+
+      console.log('[Checkout] Order placed successfully:', response);
+
+      setPlacedOrderId(response.orderId || response._id);
       setOrderPlaced(true);
       clearCart();
-      toast.success("Order placed successfully!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to place order. Please try again.");
+
+      toast.success("Order placed successfully! Check your WhatsApp for confirmation.");
+    } catch (error: any) {
+      console.error('[Checkout] Order placement failed:', error);
+      toast.error(error.response?.data?.message || "Failed to place order. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -261,21 +277,44 @@ const Checkout: React.FC = () => {
     return (
       <Layout>
         <section className="py-20 bg-background">
-          <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center max-w-lg mx-auto">
-            <div className="w-20 h-20 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="h-10 w-10 text-accent" />
+          <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
+            <div className="max-w-lg mx-auto text-center">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="h-10 w-10 text-green-600" />
+              </div>
+              <h1 className="font-heading text-3xl font-bold text-brand-blue mb-4">
+                Order Placed Successfully!
+              </h1>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-blue-900 mb-2">
+                  <strong>Order ID:</strong> {placedOrderId}
+                </p>
+                <div className="flex items-center justify-center gap-2 text-green-700">
+                  <MessageSquare className="h-5 w-5" />
+                  <p className="text-sm font-medium">
+                    Confirmation sent to your WhatsApp
+                  </p>
+                </div>
+              </div>
+              <p className="text-muted-foreground mb-2">
+                Thank you for your order! We'll confirm it shortly and send you updates via WhatsApp.
+              </p>
+              <p className="text-sm text-slate-600 mb-8">
+                You can track your order status in the Orders section.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <Link to="/orders">
+                  <Button variant="outline" size="lg">
+                    View Orders
+                  </Button>
+                </Link>
+                <Link to="/products">
+                  <Button variant="default" size="lg">
+                    Continue Shopping
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <h1 className="font-heading text-3xl font-bold text-brand-blue mb-4">
-              Order Placed Successfully!
-            </h1>
-            <p className="text-muted-foreground mb-8">
-              Thank you for your order. We'll send you a confirmation email shortly.
-            </p>
-            <Link to="/products">
-              <Button variant="default" size="lg">
-                Continue Shopping
-              </Button>
-            </Link>
           </div>
         </section>
       </Layout>
@@ -308,7 +347,8 @@ const Checkout: React.FC = () => {
             {['Address', 'Summary', 'Payment'].map((label, index) => (
               <div key={label} className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${step > index + 1 ? 'bg-accent text-accent-foreground' :
-                  step === index + 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                  step === index + 1 ? 'bg-primary text-primary-foreground' :
+                    'bg-muted text-muted-foreground'
                   }`}>
                   {index + 1}
                 </div>
@@ -332,7 +372,13 @@ const Checkout: React.FC = () => {
                 <div className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     {savedAddresses.map((addr, index) => (
-                      <div key={index} className={`p-4 border rounded-lg relative ${address.addressLine === addr.street && address.pincode === addr.zip ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                      <div
+                        key={index}
+                        className={`p-4 border rounded-lg relative ${address.addressLine === addr.street && address.pincode === addr.zip
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border'
+                          }`}
+                      >
                         {addr.isDefault && (
                           <div className="absolute top-2 right-2 bg-primary/10 text-primary px-2 py-0.5 rounded text-xs font-semibold">
                             Default
@@ -341,14 +387,15 @@ const Checkout: React.FC = () => {
                         <h3 className="font-bold text-lg mb-1">{user?.name}</h3>
                         <p className="text-slate-600 text-sm">{addr.street}</p>
                         <p className="text-slate-600 text-sm">{addr.city} - {addr.zip}</p>
-                        <p className="text-slate-600 text-sm mt-1">{addr.state}</p>
+                        {addr.state && <p className="text-slate-600 text-sm mt-1">{addr.state}</p>}
 
                         <div className="mt-3 pt-3 border-t border-dashed">
                           <p className="text-xs text-muted-foreground font-medium">Contact:</p>
                           <p className="text-sm">{address.phone || user?.phone || 'No phone set'}</p>
                           {(address.whatsapp || user?.whatsapp) && (
                             <p className="text-sm text-green-600 flex items-center gap-1">
-                              <span className="text-xs">WA:</span> {address.whatsapp || user?.whatsapp}
+                              <MessageSquare size={14} />
+                              <span>{address.whatsapp || user?.whatsapp}</span>
                             </p>
                           )}
                         </div>
@@ -356,10 +403,16 @@ const Checkout: React.FC = () => {
                         <div className="flex gap-2 mt-3">
                           <Button
                             className="flex-1"
-                            variant={address.addressLine === addr.street && address.pincode === addr.zip ? "default" : "outline"}
+                            variant={
+                              address.addressLine === addr.street && address.pincode === addr.zip
+                                ? "default"
+                                : "outline"
+                            }
                             onClick={() => handleSelectAddress(addr)}
                           >
-                            {address.addressLine === addr.street && address.pincode === addr.zip ? "Selected" : "Deliver Here"}
+                            {address.addressLine === addr.street && address.pincode === addr.zip
+                              ? "Selected"
+                              : "Deliver Here"}
                           </Button>
                           <Button
                             variant="ghost"
@@ -377,11 +430,14 @@ const Checkout: React.FC = () => {
                     ))}
                   </div>
 
-                  <Button onClick={handleAddNewAddress} variant="outline" className="w-full gap-2 border-dashed">
+                  <Button
+                    onClick={handleAddNewAddress}
+                    variant="outline"
+                    className="w-full gap-2 border-dashed"
+                  >
                     <Plus size={16} /> Add New Address
                   </Button>
 
-                  {/* Only show Continue if an address is selected (which implies address state is populated) */}
                   <Button onClick={() => setStep(2)} className="w-full mt-4" size="lg">
                     Continue with Selected Address
                   </Button>
@@ -411,6 +467,7 @@ const Checkout: React.FC = () => {
                       />
                     </div>
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Phone Number *</label>
                     <input
@@ -419,20 +476,29 @@ const Checkout: React.FC = () => {
                       value={address.phone}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 rounded-lg border border-border bg-background"
+                      placeholder="9876543210"
                       required
                     />
                   </div>
+
                   <div>
-                    <label className="block text-sm font-medium mb-2">WhatsApp Number (Optional)</label>
+                    <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                      <MessageSquare size={16} className="text-green-600" />
+                      WhatsApp Number (For Order Updates)
+                    </label>
                     <input
                       type="tel"
                       name="whatsapp"
                       value={address.whatsapp}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 rounded-lg border border-border bg-background"
-                      placeholder="For order updates"
+                      placeholder="9876543210 (will use phone if not provided)"
                     />
+                    <p className="text-xs text-slate-500 mt-1">
+                      You'll receive order updates via WhatsApp
+                    </p>
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Address *</label>
                     <textarea
@@ -441,18 +507,21 @@ const Checkout: React.FC = () => {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 rounded-lg border border-border bg-background"
                       rows={3}
+                      placeholder="House no., Building name, Street"
                       required
                     />
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">City</label>
+                      <label className="block text-sm font-medium mb-2">City *</label>
                       <input
                         type="text"
                         name="city"
                         value={address.city}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-lg border border-border bg-background"
+                        required
                       />
                     </div>
                     <div>
@@ -463,19 +532,50 @@ const Checkout: React.FC = () => {
                         value={address.pincode}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-lg border border-border bg-background"
+                        placeholder="600001"
+                        maxLength={6}
                         required
                       />
                     </div>
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">State *</label>
+                    <input
+                      type="text"
+                      name="state"
+                      value={address.state}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-background"
+                      placeholder="Tamil Nadu"
+                      required
+                    />
+                  </div>
+
                   <div className="flex gap-3 mt-6">
                     {savedAddresses.length > 0 && (
-                      <Button variant="outline" onClick={() => setIsEditing(false)} className="flex-1">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsEditing(false)}
+                        className="flex-1"
+                      >
                         Cancel
                       </Button>
                     )}
-                    <Button onClick={handleSaveAddress} className="flex-1" size="lg" disabled={isProcessing}>
-                      {isProcessing ? <Loader2 className="animate-spin mr-2" /> : null}
-                      Save & Deliver Here
+                    <Button
+                      onClick={handleSaveAddress}
+                      className="flex-1"
+                      size="lg"
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Save & Deliver Here'
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -489,16 +589,29 @@ const Checkout: React.FC = () => {
               <div className="bg-card rounded-xl p-6 shadow-card">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-heading text-xl font-bold text-brand-blue">Delivery to:</h2>
-                  <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="text-primary hover:text-primary/80">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setStep(1)}
+                    className="text-primary hover:text-primary/80"
+                  >
                     Change
                   </Button>
                 </div>
                 <div className="flex items-start gap-3 text-slate-600">
                   <MapPin className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-semibold text-foreground">{address.firstName} {address.lastName}</p>
+                    <p className="font-semibold text-foreground">
+                      {address.firstName} {address.lastName}
+                    </p>
                     <p>{address.addressLine}, {address.city} - {address.pincode}</p>
-                    <p>Phone: {address.phone}</p>
+                    <p className="mt-1">Phone: {address.phone}</p>
+                    {address.whatsapp && (
+                      <p className="text-green-600 flex items-center gap-1 mt-1">
+                        <MessageSquare size={14} />
+                        WhatsApp: {address.whatsapp}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -508,34 +621,47 @@ const Checkout: React.FC = () => {
                 <h2 className="font-heading text-xl font-bold text-brand-blue mb-6">Order Summary</h2>
                 <div className="space-y-4 mb-6">
                   {items.map(item => {
-                    // Calculate delivery date (today + 3-5 days)
                     const today = new Date();
                     const deliveryDate = new Date(today);
                     deliveryDate.setDate(today.getDate() + 4);
 
-                    const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+                    const options: Intl.DateTimeFormatOptions = {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric'
+                    };
                     const formattedDate = deliveryDate.toLocaleDateString('en-US', options);
 
                     return (
                       <div key={item.id} className="flex justify-between items-start py-4 border-b border-border">
                         <div className="flex items-start gap-4">
                           <div className="w-16 h-16 rounded bg-slate-100 overflow-hidden shrink-0 border border-border">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
                           <div>
                             <p className="font-medium line-clamp-1 text-base">{item.name}</p>
                             <p className="text-sm text-muted-foreground mt-1">Qty: {item.quantity}</p>
                             <div className="mt-2 text-sm flex items-center flex-wrap gap-x-2">
-                              <span className="font-medium text-slate-900">Delivery by {formattedDate}</span>
+                              <span className="font-medium text-slate-900">
+                                Delivery by {formattedDate}
+                              </span>
                               <span className="text-slate-300">|</span>
                               <span className="text-green-600 font-medium">Free Delivery</span>
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-lg">₹{(item.price * item.quantity).toFixed(2)}</p>
+                          <p className="font-bold text-lg">
+                            ₹{(item.price * item.quantity).toFixed(2)}
+                          </p>
                           {item.quantity > 1 && (
-                            <p className="text-xs text-muted-foreground mt-1">₹{item.price} each</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              ₹{item.price} each
+                            </p>
                           )}
                         </div>
                       </div>
@@ -547,10 +673,19 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <Button onClick={() => setStep(1)} variant="outline" className="flex-1" size="lg">
+                  <Button
+                    onClick={() => setStep(1)}
+                    variant="outline"
+                    className="flex-1"
+                    size="lg"
+                  >
                     Back
                   </Button>
-                  <Button onClick={() => setStep(3)} className="flex-1" size="lg">
+                  <Button
+                    onClick={() => setStep(3)}
+                    className="flex-1"
+                    size="lg"
+                  >
                     Continue to Payment
                   </Button>
                 </div>
@@ -561,31 +696,68 @@ const Checkout: React.FC = () => {
           {step === 3 && (
             <div className="bg-card rounded-xl p-6 shadow-card">
               <h2 className="font-heading text-xl font-bold text-brand-blue mb-6">Payment</h2>
+
               <div className="space-y-4 mb-6">
                 <div className="p-4 border border-primary rounded-lg bg-primary/5">
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="radio" name="payment" defaultChecked className="w-5 h-5 accent-primary" />
+                    <input
+                      type="radio"
+                      name="payment"
+                      defaultChecked
+                      className="w-5 h-5 accent-primary"
+                    />
                     <div>
                       <span className="font-medium block">Cash on Delivery</span>
-                      <span className="text-sm text-muted-foreground">Pay when you receive your order</span>
+                      <span className="text-sm text-muted-foreground">
+                        Pay when you receive your order
+                      </span>
                     </div>
                   </label>
                 </div>
                 <div className="p-4 border border-border rounded-lg opacity-60">
                   <label className="flex items-center gap-3 cursor-not-allowed">
-                    <input type="radio" name="payment" disabled className="w-5 h-5 accent-primary" />
+                    <input
+                      type="radio"
+                      name="payment"
+                      disabled
+                      className="w-5 h-5 accent-primary"
+                    />
                     <div>
                       <span className="font-medium block">Online Payment</span>
-                      <span className="text-sm text-muted-foreground">Currently unavailable</span>
+                      <span className="text-sm text-muted-foreground">
+                        Currently unavailable
+                      </span>
                     </div>
                   </label>
                 </div>
               </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <MessageSquare className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <div className="text-sm text-blue-900">
+                    <p className="font-semibold mb-1">WhatsApp Notifications</p>
+                    <p>You'll receive order confirmation and updates on:</p>
+                    <p className="font-medium mt-1">{address.whatsapp || address.phone}</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-4">
-                <Button onClick={() => setStep(2)} variant="outline" className="flex-1" size="lg">
+                <Button
+                  onClick={() => setStep(2)}
+                  variant="outline"
+                  className="flex-1"
+                  size="lg"
+                >
                   Back
                 </Button>
-                <Button onClick={handlePlaceOrder} className="flex-1" size="lg" disabled={isProcessing}>
+                <Button
+                  onClick={handlePlaceOrder}
+                  className="flex-1"
+                  size="lg"
+                  disabled={isProcessing}
+                >
                   {isProcessing ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

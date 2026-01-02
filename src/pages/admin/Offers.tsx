@@ -10,7 +10,7 @@ const AdminOffers = () => {
   const navigate = useNavigate();
 
   // Filter products that are marked as offers
-  const offers = products.filter(p => p.is_offer);
+  const offers = products.filter(p => p.isOffer);
 
   const calculateDiscount = (price: number, offerPrice?: number) => {
     if (!offerPrice) return 0;
@@ -35,9 +35,9 @@ const AdminOffers = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {offers.map((offer) => (
               <Card key={offer.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                {offer.image_url && (
+                {offer.image && (
                   <img
-                    src={offer.image_url}
+                    src={offer.image}
                     alt={offer.name}
                     className="w-full h-48 object-cover"
                   />
@@ -45,12 +45,12 @@ const AdminOffers = () => {
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-lg mb-2">{offer.name}</h3>
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl font-bold">₹{offer.offer_price || offer.price}</span>
-                    {offer.offer_price && (
+                    <span className="text-2xl font-bold">₹{offer.offerPrice || offer.price}</span>
+                    {offer.offerPrice && (
                       <>
                         <span className="line-through text-slate-500">₹{offer.price}</span>
                         <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-sm font-semibold">
-                          {calculateDiscount(offer.price, offer.offer_price)}% OFF
+                          {calculateDiscount(offer.price, offer.offerPrice)}% OFF
                         </span>
                       </>
                     )}

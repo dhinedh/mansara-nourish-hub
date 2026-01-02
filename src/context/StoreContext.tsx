@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchProducts, fetchCombos, uploadImage } from '@/lib/api';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { fetchProducts, fetchCombos, getCategories } from '@/lib/api';
 
-// --- Types ---
+// ========================================
+// TYPES
+// ========================================
 export interface Product {
     id: string;
     slug: string;
@@ -23,114 +25,203 @@ export interface Product {
     highlights?: string[];
     nutrition?: string;
     compliance?: string;
-    // Keeping some legacy optional fields just in case to prevent immediate breaks, but preferring above
-    short_description?: string;
     sub_category?: string;
+    short_description?: string;
 }
 
 export interface Combo {
     id: string;
     slug: string;
     name: string;
-    products?: string[]; // IDs
+    products?: string[];
     originalPrice: number;
     comboPrice: number;
     image: string;
     description: string;
-    // Legacy support
     isActive?: boolean;
 }
 
 export interface Category {
     id: string;
     name: string;
-    value: string; // value to match backend enum
+    value: string;
+    slug: string;
 }
 
 interface StoreContextType {
     products: Product[];
     combos: Combo[];
     categories: Category[];
-
     isLoading: boolean;
     error: string | null;
 
-    // Product Actions
+    // Actions
     addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
     updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
     deleteProduct: (id: string) => Promise<void>;
     getProduct: (id: string) => Product | undefined;
 
-    // Combo Actions
     addCombo: (combo: Omit<Combo, 'id'>) => Promise<void>;
     updateCombo: (id: string, updates: Partial<Combo>) => Promise<void>;
     deleteCombo: (id: string) => Promise<void>;
 
-    // Category Actions (Still local likely, or derived)
     addCategory: (name: string) => void;
+    refetch: () => Promise<void>;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-const INITIAL_CATEGORIES: Category[] = [];
+// ========================================
+// OPTIMIZED STORE CONTEXT
+// ========================================
+
+// Helper to normalize IDs
+const normalizeId = (item: any) => ({
+    ...item,
+    id: item.id || item._id
+});
+
+// Helper to normalize category
+const normalizeCategory = (item: any) => ({
+    ...item,
+    id: item.id || item._id,
+    value: item.slug || item.value || item.name.toLowerCase(),
+    slug: item.slug || item.name.toLowerCase().replace(/\s+/g, '-')
+});
+
+// Helper to get auth token
+const getToken = () => localStorage.getItem('mansara-token');
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [products, setProducts] = useState<Product[]>([]);
     const [combos, setCombos] = useState<Combo[]>([]);
-    const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Load Data from API
-    useEffect(() => {
-        const load = async () => {
-            setIsLoading(true);
-            try {
-                // Dynamic import to avoid circular dep issues if any, though explicit import is fine too
-                const { fetchProducts, fetchCombos, getCategories } = await import('@/lib/api');
+    // ========================================
+    // LOAD DATA (WITH CACHING)
+    // ========================================
+    const loadData = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
 
-                const [productsData, combosData, categoriesData] = await Promise.all([
-                    fetchProducts(),
-                    fetchCombos(),
-                    getCategories()
-                ]);
-
-                const mapId = (item: any) => ({ ...item, id: item.id || item._id });
-
-                const mapCategory = (item: any) => ({
-                    ...item,
-                    id: item.id || item._id,
-                    value: item.slug || item.value // Ensure value exists for frontend compatibility
-                });
-
-                setProducts(productsData.map(mapId));
-                setCombos(combosData.map(mapId));
-                setCategories(categoriesData.map(mapCategory));
-            } catch (err: any) {
-                console.error("Failed to load store data:", err);
-                setError(err.message);
-            } finally {
+        try {
+            // Check cache first (5 minute cache)
+            const cachedData = getCachedData();
+            if (cachedData) {
+                setProducts(cachedData.products);
+                setCombos(cachedData.combos);
+                setCategories(cachedData.categories);
                 setIsLoading(false);
+                console.log('[Store] ✓ Loaded from cache');
+
+                // Fetch in background to update cache
+                fetchAndCache();
+                return;
             }
-        };
-        load();
+
+            // Fetch from API
+            await fetchAndCache();
+
+        } catch (err: any) {
+            console.error('[Store] ✗ Load error:', err.message);
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
 
-    // --- Actions ---
+    // Fetch and cache helper
+    const fetchAndCache = async () => {
+        const [productsData, combosData, categoriesData] = await Promise.all([
+            fetchProducts(),
+            fetchCombos(),
+            getCategories()
+        ]);
 
-    // Helper to get token
-    const getToken = () => localStorage.getItem('mansara-token');
+        const normalizedProducts = productsData.map(normalizeId);
+        const normalizedCombos = combosData.map(normalizeId);
+        const normalizedCategories = categoriesData.map(normalizeCategory);
 
+        setProducts(normalizedProducts);
+        setCombos(normalizedCombos);
+        setCategories(normalizedCategories);
+
+        // Cache data
+        cacheData({
+            products: normalizedProducts,
+            combos: normalizedCombos,
+            categories: normalizedCategories
+        });
+
+        console.log('[Store] ✓ Loaded from API');
+    };
+
+    // ========================================
+    // CACHING HELPERS
+    // ========================================
+    const CACHE_KEY = 'mansara-store-cache';
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+    const getCachedData = () => {
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (!cached) return null;
+
+            const { data, timestamp } = JSON.parse(cached);
+
+            // Check if cache is still valid
+            if (Date.now() - timestamp < CACHE_DURATION) {
+                return data;
+            }
+
+            // Cache expired
+            return null;
+        } catch {
+            return null;
+        }
+    };
+
+    const cacheData = (data: any) => {
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                data,
+                timestamp: Date.now()
+            }));
+        } catch (error) {
+            console.error('[Store] ✗ Cache save failed:', error);
+        }
+    };
+
+    const clearCache = () => {
+        localStorage.removeItem(CACHE_KEY);
+    };
+
+    // ========================================
+    // INITIAL LOAD
+    // ========================================
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
+
+    // ========================================
+    // PRODUCT ACTIONS
+    // ========================================
     const addProduct = async (data: Omit<Product, 'id'>) => {
         try {
             const token = getToken();
-            if (!token) throw new Error("Authentication required");
+            if (!token) throw new Error('Authentication required');
+
             const { createProduct } = await import('@/lib/api');
             const newProduct = await createProduct(data, token);
-            setProducts([...products, { ...newProduct, id: newProduct._id || newProduct.id }]);
+
+            setProducts(prev => [...prev, normalizeId(newProduct)]);
+            clearCache();
+
+            console.log('[Store] ✓ Product added');
         } catch (err: any) {
-            console.error("Failed to add product:", err);
-            setError(err.message);
+            console.error('[Store] ✗ Add product failed:', err.message);
             throw err;
         }
     };
@@ -138,14 +229,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const updateProduct = async (id: string, updates: Partial<Product>) => {
         try {
             const token = getToken();
-            if (!token) throw new Error("Authentication required");
-            const { updateProduct } = await import('@/lib/api');
-            const updated = await updateProduct(id, updates, token);
-            const mapId = (item: any) => ({ ...item, id: item._id || item.id });
-            setProducts(products.map(p => p.id === id ? mapId(updated) : p));
+            if (!token) throw new Error('Authentication required');
+
+            const { updateProduct: apiUpdate } = await import('@/lib/api');
+            const updated = await apiUpdate(id, updates, token);
+
+            setProducts(prev => prev.map(p =>
+                p.id === id ? normalizeId(updated) : p
+            ));
+            clearCache();
+
+            console.log('[Store] ✓ Product updated');
         } catch (err: any) {
-            console.error("Failed to update product:", err);
-            setError(err.message);
+            console.error('[Store] ✗ Update product failed:', err.message);
             throw err;
         }
     };
@@ -153,29 +249,42 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const deleteProduct = async (id: string) => {
         try {
             const token = getToken();
-            if (!token) throw new Error("Authentication required");
-            const { deleteProduct } = await import('@/lib/api');
-            await deleteProduct(id, token);
-            setProducts(products.filter(p => p.id !== id));
+            if (!token) throw new Error('Authentication required');
+
+            const { deleteProduct: apiDelete } = await import('@/lib/api');
+            await apiDelete(id, token);
+
+            setProducts(prev => prev.filter(p => p.id !== id));
+            clearCache();
+
+            console.log('[Store] ✓ Product deleted');
         } catch (err: any) {
-            console.error("Failed to delete product:", err);
-            setError(err.message);
+            console.error('[Store] ✗ Delete product failed:', err.message);
             throw err;
         }
     };
 
-    const getProduct = (id: string) => products.find(p => p.id === id || p.slug === id);
+    const getProduct = useCallback((id: string) => {
+        return products.find(p => p.id === id || p.slug === id);
+    }, [products]);
 
+    // ========================================
+    // COMBO ACTIONS
+    // ========================================
     const addCombo = async (data: Omit<Combo, 'id'>) => {
         try {
             const token = getToken();
-            if (!token) throw new Error("Authentication required");
+            if (!token) throw new Error('Authentication required');
+
             const { createCombo } = await import('@/lib/api');
             const newCombo = await createCombo(data, token);
-            setCombos([...combos, { ...newCombo, id: newCombo._id || newCombo.id }]);
+
+            setCombos(prev => [...prev, normalizeId(newCombo)]);
+            clearCache();
+
+            console.log('[Store] ✓ Combo added');
         } catch (err: any) {
-            console.error("Failed to add combo:", err);
-            setError(err.message);
+            console.error('[Store] ✗ Add combo failed:', err.message);
             throw err;
         }
     };
@@ -183,14 +292,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const updateCombo = async (id: string, updates: Partial<Combo>) => {
         try {
             const token = getToken();
-            if (!token) throw new Error("Authentication required");
-            const { updateCombo } = await import('@/lib/api');
-            const updated = await updateCombo(id, updates, token);
-            const mapId = (item: any) => ({ ...item, id: item._id || item.id });
-            setCombos(combos.map(c => c.id === id ? mapId(updated) : c));
+            if (!token) throw new Error('Authentication required');
+
+            const { updateCombo: apiUpdate } = await import('@/lib/api');
+            const updated = await apiUpdate(id, updates, token);
+
+            setCombos(prev => prev.map(c =>
+                c.id === id ? normalizeId(updated) : c
+            ));
+            clearCache();
+
+            console.log('[Store] ✓ Combo updated');
         } catch (err: any) {
-            console.error("Failed to update combo:", err);
-            setError(err.message);
+            console.error('[Store] ✗ Update combo failed:', err.message);
             throw err;
         }
     };
@@ -198,20 +312,40 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const deleteCombo = async (id: string) => {
         try {
             const token = getToken();
-            if (!token) throw new Error("Authentication required");
-            const { deleteCombo } = await import('@/lib/api');
-            await deleteCombo(id, token);
-            setCombos(combos.filter(c => c.id !== id));
+            if (!token) throw new Error('Authentication required');
+
+            const { deleteCombo: apiDelete } = await import('@/lib/api');
+            await apiDelete(id, token);
+
+            setCombos(prev => prev.filter(c => c.id !== id));
+            clearCache();
+
+            console.log('[Store] ✓ Combo deleted');
         } catch (err: any) {
-            console.error("Failed to delete combo:", err);
-            setError(err.message);
+            console.error('[Store] ✗ Delete combo failed:', err.message);
             throw err;
         }
     };
 
+    // ========================================
+    // CATEGORY ACTIONS
+    // ========================================
     const addCategory = (name: string) => {
-        // Categories are currently hardcoded/local-only or could be moved to DB later
-        setCategories([...categories, { id: crypto.randomUUID(), name, value: name.toLowerCase() }]);
+        const newCategory: Category = {
+            id: crypto.randomUUID(),
+            name,
+            value: name.toLowerCase().replace(/\s+/g, '-'),
+            slug: name.toLowerCase().replace(/\s+/g, '-')
+        };
+        setCategories(prev => [...prev, newCategory]);
+    };
+
+    // ========================================
+    // REFETCH
+    // ========================================
+    const refetch = async () => {
+        clearCache();
+        await loadData();
     };
 
     return (
@@ -228,13 +362,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             addCombo,
             updateCombo,
             deleteCombo,
-            addCategory
+            addCategory,
+            refetch
         }}>
             {children}
         </StoreContext.Provider>
     );
 };
 
+// ========================================
+// HOOK
+// ========================================
 export const useStore = () => {
     const context = useContext(StoreContext);
     if (context === undefined) {

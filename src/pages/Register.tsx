@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -6,17 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MessageSquare } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
 const Register: React.FC = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
+    const [whatsapp, setWhatsapp] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const { register } = useAuth(); // We need to add this to AuthContext
+    const { register } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
 
@@ -32,14 +32,26 @@ const Register: React.FC = () => {
             return;
         }
 
+        if (password.length < 6) {
+            toast({
+                title: "Password too short",
+                description: "Password must be at least 6 characters long.",
+                variant: "destructive",
+            });
+            return;
+        }
+
         setIsLoading(true);
 
         try {
-            const success = await register(name, email, password, phone);
+            // Use whatsapp if provided, otherwise use phone
+            const whatsappNumber = whatsapp || phone;
+            
+            const success = await register(name, email, password, phone, whatsappNumber);
             if (success) {
                 toast({
                     title: "Registration Successful",
-                    description: "Please check your email for the verification OTP.",
+                    description: "Please check your WhatsApp for the verification OTP.",
                     duration: 5000,
                 });
                 navigate('/verify-email', { state: { email } });
@@ -54,6 +66,16 @@ const Register: React.FC = () => {
             });
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    // Auto-fill WhatsApp with phone number if they're the same
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setPhone(value);
+        // Auto-fill WhatsApp if it's empty
+        if (!whatsapp) {
+            setWhatsapp(value);
         }
     };
 
@@ -109,10 +131,31 @@ const Register: React.FC = () => {
                                 autoComplete="tel"
                                 required
                                 value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
+                                onChange={handlePhoneChange}
                                 className="mt-1"
                                 placeholder="9876543210"
                             />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="whatsapp" className="flex items-center gap-2">
+                                <MessageSquare className="h-4 w-4" />
+                                WhatsApp Number
+                            </Label>
+                            <Input
+                                id="whatsapp"
+                                name="whatsapp"
+                                type="tel"
+                                autoComplete="tel"
+                                required
+                                value={whatsapp}
+                                onChange={(e) => setWhatsapp(e.target.value)}
+                                className="mt-1"
+                                placeholder="9876543210"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                                OTP will be sent to this WhatsApp number
+                            </p>
                         </div>
 
                         <div>
@@ -127,7 +170,11 @@ const Register: React.FC = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="mt-1"
                                 placeholder="••••••••"
+                                minLength={6}
                             />
+                            <p className="text-xs text-muted-foreground mt-1">
+                                Minimum 6 characters
+                            </p>
                         </div>
 
                         <div>
@@ -146,6 +193,13 @@ const Register: React.FC = () => {
                         </div>
                     </div>
 
+                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                        <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                            <MessageSquare className="h-4 w-4" />
+                            You'll receive a verification code on WhatsApp
+                        </p>
+                    </div>
+
                     <Button type="submit" className="w-full" disabled={isLoading}>
                         {isLoading ? (
                             <>
@@ -155,19 +209,6 @@ const Register: React.FC = () => {
                         ) : (
                             'Sign up'
                         )}
-                    </Button>
-
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-border" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-                        </div>
-                    </div>
-
-                    <Button variant="outline" type="button" className="w-full" onClick={() => { }}>
-                        Google
                     </Button>
 
                     <p className="text-center text-sm text-muted-foreground">

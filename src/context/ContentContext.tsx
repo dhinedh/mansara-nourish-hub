@@ -1,7 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchBanners, createBanner, updateBanner as apiUpdateBanner, deleteBanner, fetchContentPages, updateContentPage, fetchSettings } from '@/lib/api';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { 
+    fetchBanners, 
+    createBanner, 
+    updateBanner as apiUpdateBanner, 
+    deleteBanner, 
+    fetchContentPages, 
+    updateContentPage, 
+    fetchSettings 
+} from '@/lib/api';
 
-// Types
+// ========================================
+// TYPES
+// ========================================
 export interface Banner {
     _id?: string;
     id: string;
@@ -14,14 +24,16 @@ export interface Banner {
 }
 
 export interface PageContent {
-    slug: string; // e.g., 'about', 'contact'
-    sections: Record<string, string>; // key-value pairs for editable text areas
+    slug: string;
+    sections: Record<string, string>;
 }
 
 interface ContentContextType {
     banners: Banner[];
     contents: PageContent[];
     settings: any;
+    isLoading: boolean;
+    
     addBanner: (banner: Omit<Banner, 'id' | 'active'>) => Promise<void>;
     updateBanner: (id: string, updates: Partial<Banner>) => Promise<void>;
     deleteBanner: (id: string) => Promise<void>;
@@ -29,14 +41,14 @@ interface ContentContextType {
     getContent: (page: string, section: string, defaultVal?: string) => string;
     toggleBanner: (id: string) => Promise<void>;
     getBannersByPage: (page: string) => Banner[];
+    refetch: () => Promise<void>;
 }
 
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
 
-const STORAGE_KEY_BANNERS = 'mansara_banners';
-const STORAGE_KEY_CONTENT = 'mansara_content';
-
-// Default Data
+// ========================================
+// DEFAULT CONTENT
+// ========================================
 const DEFAULT_CONTENT: PageContent[] = [
     {
         slug: 'about',
@@ -69,50 +81,183 @@ const DEFAULT_CONTENT: PageContent[] = [
     }
 ];
 
+// ========================================
+// OPTIMIZED CONTENT PROVIDER
+// ========================================
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [contents, setContents] = useState<PageContent[]>(DEFAULT_CONTENT);
     const [banners, setBanners] = useState<Banner[]>([]);
     const [settings, setSettings] = useState<any>({});
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Load from API on mount
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                // Parallel fetch
-                const [apiBanners, apiPages, apiSettings] = await Promise.all([
-                    fetchBanners(),
-                    fetchContentPages(),
-                    fetchSettings()
-                ]);
+    // ========================================
+    // CACHING
+    // ========================================
+    const CACHE_KEY = 'mansara-content-cache';
+    const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
-                // Normalize banners (ensure id exists from _id)
-                const normalizedBanners = apiBanners.map((b: any) => ({
-                    ...b,
-                    id: b.id || b._id
-                }));
-                setBanners(normalizedBanners);
-                setSettings(apiSettings || {});
+    const getCachedData = () => {
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (!cached) return null;
 
-                // Merge API pages with defaults to ensure all sections exist
-                if (apiPages && apiPages.length > 0) {
-                    const mergedContent = [...DEFAULT_CONTENT];
-                    apiPages.forEach((apiPage: any) => {
-                        const index = mergedContent.findIndex(p => p.slug === apiPage.slug);
-                        if (index >= 0) {
-                            mergedContent[index] = {
-                                ...mergedContent[index],
-                                sections: { ...mergedContent[index].sections, ...apiPage.sections }
-                            };
-                        }
-                    });
-                    setContents(mergedContent);
-                }
-            } catch (error) {
-                console.error('Failed to load content data', error);
+            const { data, timestamp } = JSON.parse(cached);
+            
+            if (Date.now() - timestamp < CACHE_DURATION) {
+                return data;
             }
-        };
-        loadData();
+            
+            return null;
+        } catch {
+            return null;
+        }
+    };
+
+    const cacheData = (data: any) => {
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                data,
+                timestamp: Date.now()
+            }));
+        } catch (error) {
+            console.error('[Content] ✗ Cache save failed:', error);
+        }
+    };
+
+    const clearCache = () => {
+        localStorage.removeItem(CACHE_KEY);
+    };
+
+    // ========================================
+    // LOAD DATA
+    // ========================================
+    const loadData = useCallback(async () => {
+        setIsLoading(true);
+        
+        try {
+            // Check cache first
+            const cachedData = getCachedData();
+            if (cachedData) {
+                setBanners(cachedData.banners || []);
+                setContents(cachedData.contents || DEFAULT_CONTENT);
+                setSettings(cachedData.settings || {});
+                setIsLoading(false);
+                console.log('[Content] ✓ Loaded from cache');
+                
+                // Fetch in background
+                fetchAndCache();
+                return;
+            }
+
+            await fetchAndCache();
+            
+        } catch (error) {
+            console.error('[Content] ✗ Load error:', error);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
+
+    const fetchAndCache = async () => {
+        const [apiBanners, apiPages, apiSettings] = await Promise.all([
+            fetchBanners().catch(() => []),
+            fetchContentPages().catch(() => []),
+            fetchSettings().catch(() => ({}))
+        ]);
+
+        // Normalize banners
+        const normalizedBanners = apiBanners.map((b: any) => ({
+            ...b,
+            id: b.id || b._id
+        }));
+
+        // Merge content pages
+        const mergedContent = [...DEFAULT_CONTENT];
+        if (apiPages && apiPages.length > 0) {
+            apiPages.forEach((apiPage: any) => {
+                const index = mergedContent.findIndex(p => p.slug === apiPage.slug);
+                if (index >= 0) {
+                    mergedContent[index] = {
+                        ...mergedContent[index],
+                        sections: { 
+                            ...mergedContent[index].sections, 
+                            ...apiPage.sections 
+                        }
+                    };
+                } else {
+                    mergedContent.push(apiPage);
+                }
+            });
+        }
+
+        setBanners(normalizedBanners);
+        setContents(mergedContent);
+        setSettings(apiSettings || {});
+
+        // Cache data
+        cacheData({
+            banners: normalizedBanners,
+            contents: mergedContent,
+            settings: apiSettings
+        });
+
+        console.log('[Content] ✓ Loaded from API');
+    };
+
+    // Initial load
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
+
+    // ========================================
+    // BANNER ACTIONS
+    // ========================================
+    const addBanner = async (banner: Omit<Banner, 'id'>) => {
+        try {
+            const newBanner = await createBanner(banner);
+            setBanners(prev => [...prev, { ...newBanner, id: newBanner._id || newBanner.id }]);
+            clearCache();
+            console.log('[Content] ✓ Banner added');
+        } catch (error) {
+            console.error('[Content] ✗ Add banner failed:', error);
+            throw error;
+        }
+    };
+
+    const updateBanner = async (id: string, updates: Partial<Banner>) => {
+        try {
+            // Optimistic update
+            setBanners(prev => prev.map(b => 
+                b.id === id ? { ...b, ...updates } : b
+            ));
+
+            const banner = banners.find(b => b.id === id);
+            if (!banner) return;
+
+            const apiId = banner._id || banner.id;
+            await apiUpdateBanner(apiId, updates);
+            clearCache();
+            
+            console.log('[Content] ✓ Banner updated');
+        } catch (error) {
+            console.error('[Content] ✗ Update banner failed:', error);
+            // Revert on error
+            await loadData();
+            throw error;
+        }
+    };
+
+    const deleteBannerAction = async (id: string) => {
+        try {
+            await deleteBanner(id);
+            setBanners(prev => prev.filter(b => b._id !== id && b.id !== id));
+            clearCache();
+            console.log('[Content] ✓ Banner deleted');
+        } catch (error) {
+            console.error('[Content] ✗ Delete banner failed:', error);
+            throw error;
+        }
+    };
 
     const toggleBanner = async (id: string) => {
         const banner = banners.find(b => b.id === id);
@@ -121,106 +266,85 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
     };
 
-    // Actions
-    const addBanner = async (banner: Omit<Banner, 'id'>) => {
-        try {
-            const newBanner = await createBanner(banner);
-            setBanners(prev => [...prev, newBanner]);
-        } catch (error) {
-            console.error('Failed to add banner', error);
-        }
-    };
+    const getBannersByPage = useCallback((page: string) => {
+        return banners.filter(b => b.page === page && b.active);
+    }, [banners]);
 
-    const updateBanner = async (id: string, updates: Partial<Banner>) => {
+    // ========================================
+    // CONTENT ACTIONS
+    // ========================================
+    const updateContent = async (slug: string, sectionKey: string, value: string) => {
         try {
             // Optimistic update
-            setBanners(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
+            const newContents = [...contents];
+            const pageIndex = newContents.findIndex(p => p.slug === slug);
+            let currentSections = {};
 
-            // Find full banner to merge updates if needed, though partial usually fine for our API wrapper if generic
-            // For safety with mongoose findByIdAndUpdate, we send the fields we want to update.
-            // But we need the _id to call the API if 'id' is our local ID but API expects _id.
-            // Let's find the banner first.
-            const banner = banners.find(b => b.id === id);
-            if (!banner) return;
+            if (pageIndex >= 0) {
+                currentSections = { 
+                    ...newContents[pageIndex].sections, 
+                    [sectionKey]: value 
+                };
+                newContents[pageIndex] = {
+                    ...newContents[pageIndex],
+                    sections: currentSections
+                };
+            } else {
+                currentSections = { [sectionKey]: value };
+                newContents.push({ slug, sections: currentSections });
+            }
+            
+            setContents(newContents);
 
-            // Map 'id' vs '_id'. If id is UUID (local) and _id is missing, we can't update backend unless we rely on something else.
-            // But valid synced banners have _id.
-            // The API expects the MongoDB _id string.
-            const apiId = banner._id || banner.id;
-
-            await apiUpdateBanner(apiId, updates);
-        } catch (error) {
-            console.error('Failed to update banner', error);
-            // Revert on failure? For now just log
-        }
-    };
-
-    const deleteBannerAction = async (id: string) => {
-        try {
-            await deleteBanner(id);
-            setBanners(prev => prev.filter(b => b._id !== id && b.id !== id)); // Handle both _id (mongo) and id (local legacy)
-        } catch (error) {
-            console.error('Failed to delete banner', error);
-        }
-    };
-
-    const getBannersByPage = (page: string) => {
-        return banners.filter(b => b.page === page && b.active);
-    };
-
-    const updateContent = async (slug: string, sectionKey: string, value: string) => {
-        // 1. Optimistic Update
-        const newContents = [...contents];
-        const pageIndex = newContents.findIndex(p => p.slug === slug);
-        let currentSections = {};
-
-        if (pageIndex >= 0) {
-            currentSections = { ...newContents[pageIndex].sections, [sectionKey]: value };
-            newContents[pageIndex] = {
-                ...newContents[pageIndex],
-                sections: currentSections
-            };
-        } else {
-            // Should not happen with default content but safe to handle
-            currentSections = { [sectionKey]: value };
-            newContents.push({ slug, sections: currentSections });
-        }
-        setContents(newContents);
-
-        // 2. API Call
-        try {
-            // We need to send ALL sections for the page to the put endpoint or merge on server
-            // The endpoint we made expects { sections: ... }
+            // API call
             await updateContentPage(slug, currentSections);
+            clearCache();
+            
+            console.log('[Content] ✓ Content updated');
         } catch (error) {
-            console.error('Failed to update content', error);
-            // Revert ? For now just log error
+            console.error('[Content] ✗ Update content failed:', error);
+            // Revert on error
+            await loadData();
+            throw error;
         }
     };
 
-    const getContent = (slug: string, sectionKey: string, defaultValue: string = '') => {
+    const getContent = useCallback((slug: string, sectionKey: string, defaultValue: string = '') => {
         const page = contents.find(p => p.slug === slug);
         return page?.sections[sectionKey] || defaultValue;
+    }, [contents]);
+
+    // ========================================
+    // REFETCH
+    // ========================================
+    const refetch = async () => {
+        clearCache();
+        await loadData();
     };
 
     return (
         <ContentContext.Provider value={{
             banners,
             contents,
-            settings, // Added settings here
+            settings,
+            isLoading,
             addBanner,
             updateBanner,
             deleteBanner: deleteBannerAction,
             toggleBanner,
             getBannersByPage,
             updateContent,
-            getContent
+            getContent,
+            refetch
         }}>
             {children}
         </ContentContext.Provider>
     );
 };
 
+// ========================================
+// HOOK
+// ========================================
 export const useContent = () => {
     const context = useContext(ContentContext);
     if (context === undefined) {

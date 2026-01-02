@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, ArrowLeft, KeyRound } from 'lucide-react';
+import { Loader2, ArrowLeft, KeyRound, MessageSquare } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { forgotPassword, resetPassword } from '@/lib/api';
 
@@ -27,14 +27,14 @@ const ForgotPassword: React.FC = () => {
             await forgotPassword(email);
             setStep(2);
             toast({
-                title: "OTP Sent",
-                description: "Please check your email for the OTP.",
+                title: "OTP Sent Successfully",
+                description: "Please check your WhatsApp for the verification code.",
                 duration: 5000,
             });
         } catch (error: any) {
             toast({
-                title: "Request Failed",
-                description: error.message || "Something went wrong. Please try again.",
+                title: "Failed to Send OTP",
+                description: error.message || "Unable to send OTP. Please try again.",
                 variant: "destructive",
             });
         } finally {
@@ -47,8 +47,17 @@ const ForgotPassword: React.FC = () => {
 
         if (newPassword !== confirmPassword) {
             toast({
-                title: "Passwords do not match",
-                description: "Please ensure both passwords match.",
+                title: "Passwords Don't Match",
+                description: "Please ensure both passwords are identical.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            toast({
+                title: "Password Too Short",
+                description: "Password must be at least 6 characters long.",
                 variant: "destructive"
             });
             return;
@@ -67,7 +76,27 @@ const ForgotPassword: React.FC = () => {
         } catch (error: any) {
             toast({
                 title: "Reset Failed",
-                description: error.message || "Invalid OTP or expired.",
+                description: error.message || "Invalid or expired OTP. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleResendOTP = async () => {
+        setIsLoading(true);
+        try {
+            await forgotPassword(email);
+            toast({
+                title: "OTP Resent",
+                description: "A new OTP has been sent to your WhatsApp.",
+                duration: 5000,
+            });
+        } catch (error: any) {
+            toast({
+                title: "Failed to Resend",
+                description: error.message || "Unable to resend OTP.",
                 variant: "destructive",
             });
         } finally {
@@ -85,8 +114,8 @@ const ForgotPassword: React.FC = () => {
                     </h2>
                     <p className="mt-2 text-sm text-muted-foreground">
                         {step === 1
-                            ? 'Enter your email to receive an OTP'
-                            : 'Enter the OTP sent to your email and your new password'}
+                            ? 'Enter your email to receive an OTP on WhatsApp'
+                            : 'Enter the OTP sent to your WhatsApp and set a new password'}
                     </p>
                 </div>
 
@@ -114,7 +143,10 @@ const ForgotPassword: React.FC = () => {
                                     Sending OTP...
                                 </>
                             ) : (
-                                'Send OTP'
+                                <>
+                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                    Send OTP via WhatsApp
+                                </>
                             )}
                         </Button>
                     </form>
@@ -122,30 +154,48 @@ const ForgotPassword: React.FC = () => {
                     <form className="mt-4 space-y-6" onSubmit={handleResetPassword}>
                         <div className="bg-primary/5 p-3 rounded-lg flex items-center gap-3 mb-4">
                             <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                                <KeyRound size={16} />
+                                <MessageSquare size={16} />
                             </div>
-                            <div className="text-sm">
-                                <p className="text-muted-foreground">OTP sent to:</p>
+                            <div className="text-sm flex-1">
+                                <p className="text-muted-foreground">OTP sent to WhatsApp for:</p>
                                 <p className="font-medium">{email}</p>
                             </div>
-                            <Button variant="ghost" size="sm" className="ml-auto text-xs" onClick={() => setStep(1)}>
+                            <Button 
+                                type="button"
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-xs" 
+                                onClick={() => setStep(1)}
+                            >
                                 Change
                             </Button>
                         </div>
 
                         <div>
-                            <Label htmlFor="otp">Enter OTP</Label>
+                            <Label htmlFor="otp">Enter OTP (6 digits)</Label>
                             <Input
                                 id="otp"
                                 name="otp"
                                 type="text"
                                 required
                                 value={otp}
-                                onChange={(e) => setOtp(e.target.value)}
-                                className="mt-1 tracking-widest"
+                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                                className="mt-1 tracking-widest text-center text-lg"
                                 placeholder="123456"
                                 maxLength={6}
                             />
+                            <div className="mt-2 text-right">
+                                <Button
+                                    type="button"
+                                    variant="link"
+                                    size="sm"
+                                    onClick={handleResendOTP}
+                                    disabled={isLoading}
+                                    className="text-xs"
+                                >
+                                    Resend OTP
+                                </Button>
+                            </div>
                         </div>
 
                         <div>
@@ -159,6 +209,7 @@ const ForgotPassword: React.FC = () => {
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 className="mt-1"
                                 placeholder="••••••••"
+                                minLength={6}
                             />
                         </div>
 
@@ -173,6 +224,7 @@ const ForgotPassword: React.FC = () => {
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 className="mt-1"
                                 placeholder="••••••••"
+                                minLength={6}
                             />
                         </div>
 
@@ -180,17 +232,23 @@ const ForgotPassword: React.FC = () => {
                             {isLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Resetting...
+                                    Resetting Password...
                                 </>
                             ) : (
-                                'Reset Password'
+                                <>
+                                    <KeyRound className="mr-2 h-4 w-4" />
+                                    Reset Password
+                                </>
                             )}
                         </Button>
                     </form>
                 )}
 
-                <div className="text-center">
-                    <Link to="/login" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+                <div className="text-center pt-4 border-t">
+                    <Link 
+                        to="/login" 
+                        className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to Login
                     </Link>

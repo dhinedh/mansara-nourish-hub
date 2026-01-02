@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
-
 import { toast } from "sonner";
 import {
   Table,
@@ -27,21 +26,42 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, MessageCircle } from "lucide-react";
+import { Eye, MessageCircle, Loader2, Package, Truck, CheckCircle } from "lucide-react";
+import api from '@/lib/api';
 
 interface Order {
-  id: string;
-  customer_id: string;
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string;
-  customer_whatsapp?: string;
-  customer_address: string;
-  total_amount: number;
-  payment_status: string;
-  order_status: string;
-  created_at: string;
-  items: any[];
+  _id: string;
+  orderId: string;
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+    whatsapp: string;
+  };
+  items: Array<{
+    product: string;
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+  total: number;
+  paymentStatus: string;
+  paymentMethod: string;
+  orderStatus: string;
+  deliveryAddress: {
+    firstName: string;
+    lastName: string;
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    phone: string;
+    whatsapp: string;
+  };
+  estimatedDeliveryDate?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const AdminOrders = () => {
@@ -49,7 +69,8 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showDetails, setShowDetails] = useState(false);
-  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [confirmingOrderId, setConfirmingOrderId] = useState<string | null>(null);
+  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -57,161 +78,213 @@ const AdminOrders = () => {
 
   const fetchOrders = async () => {
     try {
-      const { getAllOrders } = await import('@/lib/api');
       const token = localStorage.getItem('mansara-token');
-      if (!token) return; // Or redirect to login
+      if (!token) {
+        toast.error("Please login to continue");
+        return;
+      }
 
-      const data = await getAllOrders(token);
-      console.log("Fetched Orders:", data); // Debugging log
+      const response = await api.get('/orders', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-      // Map backend data to frontend Order interface if needed
-      // Backend returns: { _id, user: { name, email }, total, status, items, deliveryAddress... }
-      // Frontend expects: { id, customer_name, ... }
-
-      const mappedOrders = data.map((order: any) => ({
-        id: order._id || order.id || order.orderId,
-        customer_id: order.user?._id || order.user?.id || 'guest',
-        customer_name: order.deliveryAddress?.firstName || order.user?.name || 'Guest',
-        customer_email: order.user?.email || '',
-        customer_phone: order.deliveryAddress?.phone || order.user?.phone || '',
-        customer_whatsapp: order.deliveryAddress?.whatsapp || order.user?.whatsapp || '',
-        customer_address: `${order.deliveryAddress?.street}, ${order.deliveryAddress?.city}, ${order.deliveryAddress?.zip}`,
-        total_amount: order.total,
-        payment_status: order.paymentMethod === 'Cash on Delivery' ? 'pending' : 'paid', // Infer or add status field
-        order_status: order.status || 'pending',
-        created_at: order.createdAt,
-        items: order.items.map((item: any) => ({
-          id: item.product, // Product ID
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity
-        })),
-        raw_data: order // Store raw data for debugging
-      }));
-
-      setOrders(mappedOrders);
+      console.log("Fetched Orders:", response.data);
+      setOrders(response.data.orders || response.data);
     } catch (error: any) {
-      console.error(error);
-      toast.error("Failed to fetch orders");
+      console.error("Failed to fetch orders:", error);
+      toast.error(error.response?.data?.message || "Failed to fetch orders");
     } finally {
       setLoading(false);
     }
   };
 
-  const updateOrderStatus = async (orderId: string, newStatus: string) => {
-    // TODO: Implement updateOrderStatus in backend and api.ts
-    // For now, optimistic update or just toast
-    toast.info("Status update not yet connected to backend API");
-    // Optimistic update
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, order_status: newStatus } : o));
-    if (selectedOrder?.id === orderId) {
-      setSelectedOrder({ ...selectedOrder, order_status: newStatus });
+  const handleConfirmOrder = async (order: Order) => {
+    if (order.orderStatus !== 'Ordered') {
+      toast.error("Only orders with 'Ordered' status can be confirmed");
+      return;
+    }
+
+    setConfirmingOrderId(order._id);
+
+    try {
+      const token = localStorage.getItem('mansara-token');
+
+      // Calculate delivery date (4 days from now)
+      const deliveryDate = new Date();
+      deliveryDate.setDate(deliveryDate.getDate() + 4);
+
+      const response = await api.put(
+        `/orders/${order._id}/confirm`,
+        { estimatedDeliveryDate: deliveryDate.toISOString() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success('Order confirmed! Customer notified via WhatsApp');
+
+      // Update local state
+      setOrders(prev => prev.map(o =>
+        o._id === order._id ? { ...o, ...response.data } : o
+      ));
+
+      if (selectedOrder?._id === order._id) {
+        setSelectedOrder(response.data);
+      }
+
+      await fetchOrders(); // Refresh to get latest data
+    } catch (error: any) {
+      console.error('Failed to confirm order:', error);
+      toast.error(error.response?.data?.message || 'Failed to confirm order');
+    } finally {
+      setConfirmingOrderId(null);
+    }
+  };
+
+  const handleUpdateStatus = async (orderId: string, newStatus: string) => {
+    setUpdatingStatusId(orderId);
+
+    try {
+      const token = localStorage.getItem('mansara-token');
+
+      const response = await api.put(
+        `/orders/${orderId}/status`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success(`Order status updated to ${newStatus}. Customer notified via WhatsApp`);
+
+      // Update local state
+      setOrders(prev => prev.map(o =>
+        o._id === orderId ? { ...o, ...response.data } : o
+      ));
+
+      if (selectedOrder?._id === orderId) {
+        setSelectedOrder(response.data);
+      }
+
+      await fetchOrders();
+    } catch (error: any) {
+      console.error('Failed to update status:', error);
+      toast.error(error.response?.data?.message || 'Failed to update order status');
+    } finally {
+      setUpdatingStatusId(null);
     }
   };
 
   const handleViewDetails = (order: Order) => {
     setSelectedOrder(order);
-    setWhatsappNumber(order.customer_whatsapp || order.customer_phone || "");
     setShowDetails(true);
   };
 
-  const handleConfirmAndWhatsApp = (order: Order) => {
-    // 1. Update status to 'confirmed' (optimistic)
-    updateOrderStatus(order.id, 'confirmed');
+  const handleManualWhatsApp = (order: Order) => {
+    const whatsappNumber = order.deliveryAddress.whatsapp || order.user.whatsapp || order.deliveryAddress.phone || order.user.phone;
 
-    // 2. Construct WhatsApp Message
-    const newLine = '\n';
-    const bold = (text: string) => `*${text}*`;
-    const now = new Date();
-    const deliveryDate = new Date();
-    deliveryDate.setDate(now.getDate() + 5);
+    if (!whatsappNumber) {
+      toast.error("No WhatsApp number available for this customer");
+      return;
+    }
 
-    // Format dates
-    const orderDateStr = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
-    const deliveryDateStr = deliveryDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    // Format delivery date
+    const deliveryDate = order.estimatedDeliveryDate
+      ? new Date(order.estimatedDeliveryDate)
+      : new Date(Date.now() + 4 * 24 * 60 * 60 * 1000);
 
-    let itemDetails = `${bold('Item')} - ${bold('Qty')} - ${bold('Price')} - ${bold('Total')}${newLine}`;
-    order.items.forEach(item => {
-      itemDetails += `${item.name} - ${item.quantity} - ₹${item.price} - ₹${item.price * item.quantity}${newLine}`;
+    const formattedDate = deliveryDate.toLocaleDateString('en-IN', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
     });
 
-    const paymentAlert = order.payment_status === 'pending'
-      ? `Payment Alert: ${bold('Payment Pending (COD) ⏳')}`
-      : `Payment Alert: ${bold('Payment Received ✅')}`;
+    // Construct WhatsApp message
+    const newLine = '\n';
+    const bold = (text: string) => `*${text}*`;
 
-    const paymentMethodText = order.payment_status === 'pending' ? 'Cash on Delivery' : 'Online Payment';
+    let itemDetails = '';
+    order.items.forEach(item => {
+      itemDetails += `• ${item.quantity}x ${item.name} - ₹${item.price * item.quantity}${newLine}`;
+    });
 
-    const message = `*Order Confirmed!* ✅${newLine}` +
-      `Hi ${order.customer_name},${newLine}${newLine}` +
-      `Thank you for shopping with Mansara Nourish Hub. Your order has been placed successfully.${newLine}${newLine}` +
-      `${paymentAlert}${newLine}` +
-      `Order ID: #${order.id.slice(0, 8).toUpperCase()}${newLine}${newLine}` +
-      `Date: ${orderDateStr}${newLine}${newLine}` +
-      `Payment Method: ${paymentMethodText}${newLine}${newLine}` +
-      `${bold('Invoice Details')}${newLine}` +
+    const statusMessage = order.orderStatus === 'Ordered'
+      ? '⏳ Waiting for Confirmation'
+      : order.orderStatus === 'Processing'
+        ? '✅ Order Confirmed'
+        : `📦 ${order.orderStatus}`;
+
+    const message = `${bold('Mansara Foods')} 🌿${newLine}${newLine}` +
+      `Hi ${order.user.name},${newLine}${newLine}` +
+      `${bold('Order Update')}${newLine}` +
+      `Order ID: ${order.orderId}${newLine}` +
+      `Status: ${statusMessage}${newLine}${newLine}` +
+      `${bold('Order Items:')}${newLine}` +
       itemDetails +
-      `--------------------------------${newLine}` +
-      `${bold('Grand Total:')} ₹${order.total_amount}${newLine}${newLine}` +
-      `Your order is expected to be delivered by ${deliveryDateStr}.${newLine}${newLine}` +
-      `Track Your Order: ${window.location.origin}/track-order/${order.id}`;
+      `${newLine}${bold('Total:')} ₹${order.total}${newLine}` +
+      `${bold('Payment:')} ${order.paymentMethod}${newLine}${newLine}` +
+      (order.estimatedDeliveryDate
+        ? `${bold('Expected Delivery:')} ${formattedDate}${newLine}${newLine}`
+        : '') +
+      `Track: ${window.location.origin}/order-tracking/${order.orderId}${newLine}${newLine}` +
+      `Thank you for choosing Mansara Foods! 🙏`;
 
-    // 3. Open WhatsApp
-    const cleanNumber = (num: string | undefined) => {
-      if (!num) return '';
-      const clean = num.replace(/\D/g, '');
-      return clean.length >= 10 ? clean : ''; // Basic validation
-    };
+    // Clean and format phone number
+    let phoneParam = whatsappNumber.replace(/\D/g, '');
 
-    let phoneParam = cleanNumber(whatsappNumber);
-    if (!phoneParam) {
-      // Fallback to original data if input is somehow empty but data exists (unlikely given pre-fill)
-      phoneParam = cleanNumber(order.customer_whatsapp);
-    }
-    if (!phoneParam) {
-      phoneParam = cleanNumber(order.customer_phone);
-    }
-
-    // Format with country code if needed (defaulting to 91 for India if 10 digits)
-    if (phoneParam && phoneParam.length === 10) {
+    if (phoneParam.length === 10) {
       phoneParam = `91${phoneParam}`;
     }
 
-    if (!phoneParam) {
-      toast.error("Customer phone number is missing or invalid!");
+    if (!phoneParam || phoneParam.length < 10) {
+      toast.error("Invalid WhatsApp number");
       return;
     }
 
     const whatsappUrl = `https://wa.me/${phoneParam}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
-    toast.success("Order confirmed and WhatsApp opened!");
+    toast.success("WhatsApp opened!");
   };
 
-
-  const statusOptions = ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled"];
-  // ... (rest of generic code)
-
-
-
+  const statusOptions = [
+    { value: "Ordered", label: "Ordered", icon: Package },
+    { value: "Processing", label: "Processing", icon: Package },
+    { value: "Shipped", label: "Shipped", icon: Truck },
+    { value: "Out for Delivery", label: "Out for Delivery", icon: Truck },
+    { value: "Delivered", label: "Delivered", icon: CheckCircle },
+    { value: "Cancelled", label: "Cancelled", icon: Package }
+  ];
 
   const getStatusBadge = (status: string) => {
-    const colors: any = {
-      pending: "outline",
-      confirmed: "secondary",
-      packed: "secondary",
-      shipped: "default",
-      delivered: "default",
-      cancelled: "destructive",
+    const statusMap: any = {
+      "Ordered": "secondary",
+      "Processing": "default",
+      "Shipped": "default",
+      "Out for Delivery": "default",
+      "Delivered": "default",
+      "Cancelled": "destructive",
     };
-    return colors[status] || "outline";
+    return statusMap[status] || "outline";
+  };
+
+  const getPaymentBadge = (status: string) => {
+    const statusMap: any = {
+      "Paid": "default",
+      "Pending": "outline",
+      "Failed": "destructive"
+    };
+    return statusMap[status] || "outline";
   };
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Orders</h1>
-          <p className="text-slate-600 mt-1">Manage customer orders</p>
-
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Orders Management</h1>
+            <p className="text-slate-600 mt-1">View and manage customer orders</p>
+          </div>
+          <Button onClick={fetchOrders} variant="outline" disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Refresh
+          </Button>
         </div>
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -219,7 +292,7 @@ const AdminOrders = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Order ID</TableHead>
-                <TableHead>Customer Name</TableHead>
+                <TableHead>Customer</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Amount</TableHead>
@@ -232,31 +305,51 @@ const AdminOrders = () => {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8">
-                    Loading...
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                    <p className="mt-2 text-sm text-slate-500">Loading orders...</p>
                   </TableCell>
                 </TableRow>
               ) : orders.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8">
-                    No orders found
+                    <Package className="h-12 w-12 text-slate-300 mx-auto mb-2" />
+                    <p className="text-slate-600">No orders found</p>
                   </TableCell>
                 </TableRow>
               ) : (
                 orders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-mono text-sm">{order.id.slice(0, 8)}</TableCell>
-                    <TableCell>{order.customer_name}</TableCell>
-                    <TableCell className="text-sm">{order.customer_phone}</TableCell>
-                    <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>₹{order.total_amount}</TableCell>
+                  <TableRow key={order._id}>
+                    <TableCell className="font-mono text-sm font-medium">
+                      {order.orderId}
+                    </TableCell>
                     <TableCell>
-                      <Badge variant={order.payment_status === "paid" ? "default" : "outline"}>
-                        {order.payment_status}
+                      <div>
+                        <p className="font-medium">{order.user?.name || order.deliveryAddress.firstName}</p>
+                        <p className="text-xs text-slate-500">{order.user?.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      <div>
+                        <p>{order.deliveryAddress.phone || order.user?.phone}</p>
+                        {(order.deliveryAddress.whatsapp || order.user?.whatsapp) && (
+                          <p className="text-xs text-green-600">
+                            WA: {order.deliveryAddress.whatsapp || order.user?.whatsapp}
+                          </p>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {new Date(order.createdAt).toLocaleDateString('en-IN')}
+                    </TableCell>
+                    <TableCell className="font-semibold">₹{order.total}</TableCell>
+                    <TableCell>
+                      <Badge variant={getPaymentBadge(order.paymentStatus)}>
+                        {order.paymentStatus}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusBadge(order.order_status)}>
-                        {order.order_status}
+                      <Badge variant={getStatusBadge(order.orderStatus)}>
+                        {order.orderStatus}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -277,174 +370,192 @@ const AdminOrders = () => {
         </div>
       </div>
 
+      {/* Order Details Dialog */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Order Details</DialogTitle>
+            <DialogTitle>Order Details - {selectedOrder?.orderId}</DialogTitle>
           </DialogHeader>
 
           {selectedOrder && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-semibold text-sm mb-2">Order Information</h3>
-                  <div className="text-sm space-y-1">
-                    <p>
-                      <span className="text-slate-600">Order ID:</span>{" "}
-                      <span className="font-mono text-slate-900 font-medium">#{selectedOrder.id.slice(0, 8).toUpperCase()}</span>
-                    </p>
-                    <p>
-                      <span className="text-slate-600">Invoice No:</span>{" "}
-                      <span className="font-mono text-slate-900 font-medium">INV-{selectedOrder.id.slice(0, 8).toUpperCase()}</span>
-                    </p>
-                    <p>
-                      <span className="text-slate-600">Date:</span>{" "}
-                      {new Date(selectedOrder.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm mb-2">Payment & Status</h3>
+              {/* Order Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-50 p-4 rounded-lg border">
+                  <h3 className="font-semibold text-sm mb-3 text-slate-700">Order Information</h3>
                   <div className="text-sm space-y-2">
-                    <p>
-                      <Badge variant={selectedOrder.payment_status === "paid" ? "default" : "outline"}>
-                        {selectedOrder.payment_status}
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Order ID:</span>
+                      <span className="font-mono font-medium">{selectedOrder.orderId}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Date:</span>
+                      <span>{new Date(selectedOrder.createdAt).toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Payment Method:</span>
+                      <span>{selectedOrder.paymentMethod}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">Payment Status:</span>
+                      <Badge variant={getPaymentBadge(selectedOrder.paymentStatus)}>
+                        {selectedOrder.paymentStatus}
                       </Badge>
-                    </p>
-                    <p>
-                      <Badge variant={getStatusBadge(selectedOrder.order_status)}>
-                        {selectedOrder.order_status}
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">Order Status:</span>
+                      <Badge variant={getStatusBadge(selectedOrder.orderStatus)}>
+                        {selectedOrder.orderStatus}
                       </Badge>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-sm mb-2">Customer Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="text-sm space-y-1 p-3 bg-slate-50 rounded border">
-                    <h4 className="font-semibold text-xs uppercase text-slate-500 mb-2">Shipping Details</h4>
-                    <p>
-                      <span className="text-slate-600">Name:</span> {selectedOrder.customer_name}
-                    </p>
-                    <p>
-                      <span className="text-slate-600">Phone:</span> {selectedOrder.customer_phone}
-                    </p>
-                    {selectedOrder.customer_whatsapp && (
-                      <p>
-                        <span className="text-slate-600">WhatsApp:</span> {selectedOrder.customer_whatsapp}
-                      </p>
+                    </div>
+                    {selectedOrder.estimatedDeliveryDate && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Est. Delivery:</span>
+                        <span className="font-medium">
+                          {new Date(selectedOrder.estimatedDeliveryDate).toLocaleDateString('en-IN', {
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </div>
                     )}
-                    <p>
-                      <span className="text-slate-600">Address:</span> {selectedOrder.customer_address}
-                    </p>
                   </div>
+                </div>
 
-                  <div className="text-sm space-y-1 p-3 bg-slate-50 rounded border">
-                    <h4 className="font-semibold text-xs uppercase text-slate-500 mb-2">Billing / Invoice To</h4>
-                    <p>
-                      <span className="text-slate-600">Name:</span> {selectedOrder.customer_name}
-                    </p>
-                    <p>
-                      <span className="text-slate-600">Email:</span> {selectedOrder.customer_email}
-                    </p>
-                    <p>
-                      <span className="text-slate-600">Address:</span> {selectedOrder.customer_address}
-                    </p>
+                <div className="bg-slate-50 p-4 rounded-lg border">
+                  <h3 className="font-semibold text-sm mb-3 text-slate-700">Customer Information</h3>
+                  <div className="text-sm space-y-2">
+                    <div>
+                      <span className="text-slate-600">Name:</span>
+                      <p className="font-medium">{selectedOrder.user?.name || selectedOrder.deliveryAddress.firstName}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-600">Email:</span>
+                      <p>{selectedOrder.user?.email}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-600">Phone:</span>
+                      <p>{selectedOrder.deliveryAddress.phone || selectedOrder.user?.phone}</p>
+                    </div>
+                    {(selectedOrder.deliveryAddress.whatsapp || selectedOrder.user?.whatsapp) && (
+                      <div>
+                        <span className="text-slate-600">WhatsApp:</span>
+                        <p className="text-green-600 font-medium">
+                          {selectedOrder.deliveryAddress.whatsapp || selectedOrder.user?.whatsapp}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
+              {/* Delivery Address */}
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h3 className="font-semibold text-sm mb-2 text-blue-900">Delivery Address</h3>
+                <p className="text-sm text-blue-800">
+                  {selectedOrder.deliveryAddress.firstName} {selectedOrder.deliveryAddress.lastName}<br />
+                  {selectedOrder.deliveryAddress.street}<br />
+                  {selectedOrder.deliveryAddress.city}, {selectedOrder.deliveryAddress.state} - {selectedOrder.deliveryAddress.zip}
+                </p>
+              </div>
+
+              {/* Order Items */}
               <div>
+                <h3 className="font-semibold text-sm mb-3">Order Items</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50">
+                        <TableHead>Product</TableHead>
+                        <TableHead className="text-center">Qty</TableHead>
+                        <TableHead className="text-right">Price</TableHead>
+                        <TableHead className="text-right">Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedOrder.items.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{item.name}</TableCell>
+                          <TableCell className="text-center">{item.quantity}</TableCell>
+                          <TableCell className="text-right">₹{item.price}</TableCell>
+                          <TableCell className="text-right font-semibold">
+                            ₹{item.price * item.quantity}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow className="bg-slate-50 font-bold">
+                        <TableCell colSpan={3} className="text-right">Grand Total:</TableCell>
+                        <TableCell className="text-right text-lg">₹{selectedOrder.total}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* Status Update */}
+              <div className="bg-slate-50 p-4 rounded-lg border">
                 <h3 className="font-semibold text-sm mb-3">Update Order Status</h3>
                 <Select
-                  value={selectedOrder.order_status}
-                  onValueChange={(newStatus) => updateOrderStatus(selectedOrder.id, newStatus)}
+                  value={selectedOrder.orderStatus}
+                  onValueChange={(newStatus) => handleUpdateStatus(selectedOrder._id, newStatus)}
+                  disabled={updatingStatusId === selectedOrder._id}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {statusOptions.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      <SelectItem key={status.value} value={status.value}>
+                        <div className="flex items-center gap-2">
+                          <status.icon size={16} />
+                          {status.label}
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-slate-500 mt-2">
+                  Customer will be automatically notified via WhatsApp when status changes
+                </p>
               </div>
 
-              <div>
-                <h3 className="font-semibold text-sm mb-3">Actions</h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="whatsapp-num" className="text-xs text-slate-500 uppercase font-semibold">WhatsApp Number</Label>
-                    <Input
-                      id="whatsapp-num"
-                      value={whatsappNumber}
-                      onChange={(e) => setWhatsappNumber(e.target.value)}
-                      placeholder="Enter mobile number"
-                      className="max-w-xs"
-                    />
-                  </div>
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t">
+                {selectedOrder.orderStatus === 'Ordered' && (
                   <Button
-                    className="bg-green-600 hover:bg-green-700 text-white gap-2 w-full sm:w-auto"
-                    onClick={() => selectedOrder && handleConfirmAndWhatsApp(selectedOrder)}
+                    onClick={() => handleConfirmOrder(selectedOrder)}
+                    disabled={confirmingOrderId === selectedOrder._id}
+                    className="flex-1 bg-green-600 hover:bg-green-700"
                   >
-                    <MessageCircle size={18} />
-                    Confirm & Send WhatsApp
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-          {selectedOrder && (
-            <div className="mt-6 border-t pt-6">
-              <h3 className="font-semibold text-sm mb-3">Order Items</h3>
-              <div className="bg-white rounded-lg border overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-slate-50">
-                      <TableHead className="w-[50%]">Product</TableHead>
-                      <TableHead className="text-center">Qty</TableHead>
-                      <TableHead className="text-right">Price</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selectedOrder.items && selectedOrder.items.length > 0 ? (
-                      selectedOrder.items.map((item: any, index: number) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">
-                            <div className="flex flex-col">
-                              <span>{item.name || "Product Name"}</span>
-                              <span className="text-xs text-slate-500">{item.id?.slice(0, 8)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">{item.quantity} x</TableCell>
-                          <TableCell className="text-right">₹{item.price}</TableCell>
-                          <TableCell className="text-right font-medium">₹{item.price * item.quantity}</TableCell>
-                        </TableRow>
-                      ))
+                    {confirmingOrderId === selectedOrder._id ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Confirming...
+                      </>
                     ) : (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center text-slate-500 py-4">No items details available</TableCell>
-                      </TableRow>
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Confirm Order & Notify
+                      </>
                     )}
-                    <TableRow className="bg-slate-50 font-bold">
-                      <TableCell colSpan={3} className="text-right">Total Amount:</TableCell>
-                      <TableCell className="text-right text-lg">₹{selectedOrder.total_amount}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
+                  </Button>
+                )}
+
+                <Button
+                  onClick={() => handleManualWhatsApp(selectedOrder)}
+                  variant="outline"
+                  className="flex-1 border-green-600 text-green-600 hover:bg-green-50"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Send WhatsApp Message
+                </Button>
               </div>
             </div>
           )}
-
         </DialogContent>
       </Dialog>
-    </AdminLayout >
+    </AdminLayout>
   );
 };
 

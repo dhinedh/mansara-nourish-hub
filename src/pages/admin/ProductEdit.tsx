@@ -121,11 +121,16 @@ const AdminProductEdit = () => {
     }
 
     try {
+      const productData = {
+        ...formData,
+        slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+      };
+
       if (id && id !== "new") {
-        await updateProduct(id, formData);
+        await updateProduct(id, productData);
         toast.success("Product updated successfully");
       } else {
-        await addProduct(formData);
+        await addProduct(productData);
         toast.success("Product created successfully");
       }
       setTimeout(() => {
