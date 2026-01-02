@@ -92,6 +92,20 @@ const normalizeCategory = (item: any) => ({
 // Helper to get auth token
 const getToken = () => localStorage.getItem('mansara-token');
 
+// Helper to safely extract array from API response
+const extractArray = (data: any): any[] => {
+    if (Array.isArray(data)) {
+        return data;
+    }
+    if (data && typeof data === 'object') {
+        // Handle common API response formats
+        if (Array.isArray(data.data)) return data.data;
+        if (Array.isArray(data.results)) return data.results;
+        if (Array.isArray(data.items)) return data.items;
+    }
+    return [];
+};
+
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [products, setProducts] = useState<Product[]>([]);
     const [combos, setCombos] = useState<Combo[]>([]);
@@ -125,9 +139,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             await fetchAndCache();
 
         } catch (err: any) {
-            console.error('[Store] ✗ Load error:', err.message);
-            console.error('Failed to load store data:', err); // Add matching string for search
-            setError('Failed to load store data: ' + err.message);
+            console.error('[Store] ✗ Load error:', err);
+            setError('Failed to load store data: ' + (err.message || 'Unknown error'));
         } finally {
             setIsLoading(false);
         }
@@ -135,43 +148,67 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // Fetch and cache helper
     const fetchAndCache = async () => {
-        const [productsData, combosData, categoriesData] = await Promise.all([
-            fetchProducts().catch(e => { console.error('Products fetch error:', e); return []; }),
-            fetchCombos().catch(e => { console.error('Combos fetch error:', e); return []; }),
-            getCategories().catch(e => { console.error('Categories fetch error:', e); return []; })
-        ]);
+        try {
+            const [productsData, combosData, categoriesData] = await Promise.all([
+                fetchProducts().catch(e => { 
+                    console.error('Products fetch error:', e); 
+                    return []; 
+                }),
+                fetchCombos().catch(e => { 
+                    console.error('Combos fetch error:', e); 
+                    return []; 
+                }),
+                getCategories().catch(e => { 
+                    console.error('Categories fetch error:', e); 
+                    return []; 
+                })
+            ]);
 
-        console.log('[Store] Raw Data:', {
-            products: Array.isArray(productsData) ? productsData.length : typeof productsData,
-            combos: Array.isArray(combosData) ? combosData.length : typeof combosData,
-            categories: Array.isArray(categoriesData) ? categoriesData.length : typeof categoriesData
-        });
+            console.log('[Store] Raw API Response:', {
+                productsType: Array.isArray(productsData) ? 'array' : typeof productsData,
+                combosType: Array.isArray(combosData) ? 'array' : typeof combosData,
+                categoriesType: Array.isArray(categoriesData) ? 'array' : typeof categoriesData,
+                productsData: productsData,
+                combosData: combosData,
+                categoriesData: categoriesData
+            });
 
-        // Robust safe map helper
-        const safeMap = <T, U>(arr: T[] | any, mapper: (item: T) => U): U[] => {
-            if (Array.isArray(arr) && typeof arr.map === 'function') {
-                return arr.map(mapper);
-            }
-            console.warn('[Store] Invalid array detected, fallback to empty:', arr);
-            return [];
-        };
+            // Safely extract arrays from API responses
+            const productsArray = extractArray(productsData);
+            const combosArray = extractArray(combosData);
+            const categoriesArray = extractArray(categoriesData);
 
-        const normalizedProducts = safeMap(productsData, normalizeId);
-        const normalizedCombos = safeMap(combosData, normalizeId);
-        const normalizedCategories = safeMap(categoriesData, normalizeCategory);
+            console.log('[Store] Extracted Arrays:', {
+                products: productsArray.length,
+                combos: combosArray.length,
+                categories: categoriesArray.length
+            });
 
-        setProducts(normalizedProducts);
-        setCombos(normalizedCombos);
-        setCategories(normalizedCategories);
+            // Normalize data
+            const normalizedProducts = productsArray.map(normalizeId);
+            const normalizedCombos = combosArray.map(normalizeId);
+            const normalizedCategories = categoriesArray.map(normalizeCategory);
 
-        // Cache data
-        cacheData({
-            products: normalizedProducts,
-            combos: normalizedCombos,
-            categories: normalizedCategories
-        });
+            setProducts(normalizedProducts);
+            setCombos(normalizedCombos);
+            setCategories(normalizedCategories);
 
-        console.log('[Store] ✓ Loaded from API');
+            // Cache data
+            cacheData({
+                products: normalizedProducts,
+                combos: normalizedCombos,
+                categories: normalizedCategories
+            });
+
+            console.log('[Store] ✓ Loaded from API:', {
+                products: normalizedProducts.length,
+                combos: normalizedCombos.length,
+                categories: normalizedCategories.length
+            });
+        } catch (error) {
+            console.error('[Store] ✗ Fatal error in fetchAndCache:', error);
+            throw error;
+        }
     };
 
     // ========================================
@@ -189,12 +226,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
             // Check if cache is still valid
             if (Date.now() - timestamp < CACHE_DURATION) {
-                return data;
+                // Validate cached data structure
+                if (data && 
+                    Array.isArray(data.products) && 
+                    Array.isArray(data.combos) && 
+                    Array.isArray(data.categories)) {
+                    return data;
+                }
             }
 
-            // Cache expired
+            // Cache expired or invalid
             return null;
-        } catch {
+        } catch (error) {
+            console.error('[Store] ✗ Cache read failed:', error);
             return null;
         }
     };
@@ -211,7 +255,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     const clearCache = () => {
-        localStorage.removeItem(CACHE_KEY);
+        try {
+            localStorage.removeItem(CACHE_KEY);
+        } catch (error) {
+            console.error('[Store] ✗ Cache clear failed:', error);
+        }
     };
 
     // ========================================
