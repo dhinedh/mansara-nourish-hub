@@ -135,14 +135,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Fetch and cache helper
     const fetchAndCache = async () => {
         const [productsData, combosData, categoriesData] = await Promise.all([
-            fetchProducts(),
-            fetchCombos(),
-            getCategories()
+            fetchProducts().catch(e => { console.error('Products fetch error:', e); return []; }),
+            fetchCombos().catch(e => { console.error('Combos fetch error:', e); return []; }),
+            getCategories().catch(e => { console.error('Categories fetch error:', e); return []; })
         ]);
 
-        const normalizedProducts = productsData.map(normalizeId);
-        const normalizedCombos = combosData.map(normalizeId);
-        const normalizedCategories = categoriesData.map(normalizeCategory);
+        console.log('[Store] Raw Data:', {
+            products: Array.isArray(productsData) ? productsData.length : typeof productsData,
+            combos: Array.isArray(combosData) ? combosData.length : typeof combosData,
+            categories: Array.isArray(categoriesData) ? categoriesData.length : typeof categoriesData
+        });
+
+        const normalizedProducts = Array.isArray(productsData) ? productsData.map(normalizeId) : [];
+        const normalizedCombos = Array.isArray(combosData) ? combosData.map(normalizeId) : [];
+        const normalizedCategories = Array.isArray(categoriesData) ? categoriesData.map(normalizeCategory) : [];
 
         setProducts(normalizedProducts);
         setCombos(normalizedCombos);
