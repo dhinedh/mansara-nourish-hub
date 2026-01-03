@@ -15,8 +15,16 @@ const ProductDetail: React.FC = () => {
   const [addSuccess, setAddSuccess] = useState(false);
   const { addToCart } = useCart();
   const { toast } = useToast();
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
 
   const product = slug ? getProduct(slug) : undefined;
+
+  // Update selected image when product loads
+  React.useEffect(() => {
+    if (product) {
+      setSelectedImage(product.image);
+    }
+  }, [product]);
 
   if (!product) {
     return (
@@ -65,10 +73,11 @@ const ProductDetail: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-sm">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 items-start">
               {/* Product Image - Sticky */}
-              <div className="lg:sticky lg:top-24">
-                <div className="aspect-square rounded-xl overflow-hidden mb-4 bg-gray-50 border">
+              {/* Product Image Gallery - Sticky */}
+              <div className="lg:sticky lg:top-24 space-y-4">
+                <div className="aspect-square rounded-xl overflow-hidden bg-gray-50 border">
                   <img
-                    src={product.image}
+                    src={selectedImage || product.image}
                     alt={product.name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -79,6 +88,21 @@ const ProductDetail: React.FC = () => {
                     }}
                   />
                 </div>
+                {/* Thumbnails */}
+                {product.images && product.images.length > 1 && (
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {product.images.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedImage(img)}
+                        className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImage === img ? 'border-[#1F2A7C]' : 'border-transparent hover:border-gray-300'
+                          }`}
+                      >
+                        <img src={img} alt={`View ${idx + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Product Details - Scrollable */}

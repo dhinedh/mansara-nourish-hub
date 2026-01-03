@@ -12,6 +12,7 @@ export interface Product {
     price: number;
     offerPrice?: number;
     image?: string;
+    images?: string[];
     description?: string;
     ingredients?: string;
     howToUse?: string;
@@ -150,17 +151,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const fetchAndCache = async () => {
         try {
             const [productsData, combosData, categoriesData] = await Promise.all([
-                fetchProducts().catch(e => { 
-                    console.error('Products fetch error:', e); 
-                    return []; 
+                fetchProducts().catch(e => {
+                    console.error('Products fetch error:', e);
+                    return [];
                 }),
-                fetchCombos().catch(e => { 
-                    console.error('Combos fetch error:', e); 
-                    return []; 
+                fetchCombos().catch(e => {
+                    console.error('Combos fetch error:', e);
+                    return [];
                 }),
-                getCategories().catch(e => { 
-                    console.error('Categories fetch error:', e); 
-                    return []; 
+                getCategories().catch(e => {
+                    console.error('Categories fetch error:', e);
+                    return [];
                 })
             ]);
 
@@ -227,9 +228,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             // Check if cache is still valid
             if (Date.now() - timestamp < CACHE_DURATION) {
                 // Validate cached data structure
-                if (data && 
-                    Array.isArray(data.products) && 
-                    Array.isArray(data.combos) && 
+                if (data &&
+                    Array.isArray(data.products) &&
+                    Array.isArray(data.combos) &&
                     Array.isArray(data.categories)) {
                     return data;
                 }

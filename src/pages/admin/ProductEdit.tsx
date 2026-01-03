@@ -35,6 +35,7 @@ const AdminProductEdit = () => {
     isActive: true,
     highlights: [],
     image: "",
+    images: [],
     sub_category: "", // Kept as optional legacy
     weight: "",
     description: "",
@@ -62,6 +63,7 @@ const AdminProductEdit = () => {
           howToUse: product.howToUse || (product as any).how_to_use || "",
           storage: product.storage || (product as any).storage_instructions || "",
           offerPrice: product.offerPrice || (product as any).offer_price || 0,
+          images: product.images || (product.image ? [product.image] : []),
         });
         if (product.highlights) {
           setHighlightsText(product.highlights.join("\n"));
@@ -323,12 +325,59 @@ const AdminProductEdit = () => {
               </CardHeader>
               <CardContent>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Product Image</label>
-                  <div className="space-y-4">
-                    <ImageUpload
-                      value={formData.image}
-                      onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
-                    />
+                  <label className="block text-sm font-medium mb-2">Product Images</label>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Add multiple images. The first image will be the main cover image.
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Existing Images */}
+                    {formData.images?.map((img, index) => (
+                      <div key={index} className="relative group">
+                        <ImageUpload
+                          value={img}
+                          onChange={(url) => {
+                            setFormData(prev => {
+                              const newImages = [...(prev.images || [])];
+                              if (!url) {
+                                // Remove image
+                                newImages.splice(index, 1);
+                              } else {
+                                // Update image
+                                newImages[index] = url;
+                              }
+                              // Always sync first image to 'image' field
+                              return {
+                                ...prev,
+                                images: newImages,
+                                image: newImages[0] || ""
+                              };
+                            });
+                          }}
+                        />
+                        <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                          {index === 0 ? "Main Image" : `Image ${index + 1}`}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add New Image Button */}
+                    <div className="aspect-square">
+                      <ImageUpload
+                        onChange={(url) => {
+                          if (url) {
+                            setFormData(prev => {
+                              const newImages = [...(prev.images || []), url];
+                              return {
+                                ...prev,
+                                images: newImages,
+                                image: newImages[0] || ""
+                              };
+                            });
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               </CardContent>

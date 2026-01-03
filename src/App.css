@@ -40,3 +40,22 @@
 .read-the-docs {
   color: #888;
 }
+/* Google Sign-In Button Styles */
+.google-signin-button {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Override Google button styles if needed */
+div[id^="google-sign-in"] {
+  width: 100% !important;
+  display: flex;
+  justify-content: center;
+}
+
+/* Make Google button visible */
+iframe[id^="gsi_"] {
+  width: 100% !important;
+}

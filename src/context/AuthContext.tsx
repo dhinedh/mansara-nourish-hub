@@ -1,33 +1,48 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User } from '@/data/mockData';
 import { API_URL } from '../lib/api';
+
+// ========================================
+// TYPES & INTERFACES
+// ========================================
 
 interface AuthContextType {
     user: User | null;
     login: (email?: string, password?: string) => Promise<User | null>;
+    loginWithGoogle: (userData: any, token: string) => void;
     register: (name: string, email: string, password: string, phone: string, whatsapp: string) => Promise<boolean>;
     logout: () => void;
     isAuthenticated: boolean;
     isLoading: boolean;
+    updateUser: (userData: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ========================================
-// OPTIMIZED AUTH CONTEXT
+// CONSTANTS
 // ========================================
 
-// Constants
 const STORAGE_KEYS = {
     USER: 'mansara-user',
     TOKEN: 'mansara-token',
     ADMIN: 'mansara-admin-session'
 } as const;
 
-// Helper to get token
-const getToken = () => localStorage.getItem(STORAGE_KEYS.TOKEN);
+// ========================================
+// HELPER FUNCTIONS
+// ========================================
 
-// Helper to get stored user
+/**
+ * Get JWT token from localStorage
+ */
+const getToken = (): string | null => {
+    return localStorage.getItem(STORAGE_KEYS.TOKEN);
+};
+
+/**
+ * Get stored user from localStorage
+ */
 const getStoredUser = (): User | null => {
     try {
         const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
@@ -38,28 +53,75 @@ const getStoredUser = (): User | null => {
     }
 };
 
-// Helper to validate token expiry (if JWT)
+/**
+ * Check if JWT token is valid (not expired)
+ */
 const isTokenValid = (token: string | null): boolean => {
     if (!token) return false;
-    
+
     try {
-        // Decode JWT to check expiry
+        // Decode JWT payload
         const payload = JSON.parse(atob(token.split('.')[1]));
+
+        // Check expiration
         if (payload.exp) {
             return payload.exp * 1000 > Date.now();
         }
-        return true; // If no expiry, assume valid
+
+        return true;
     } catch {
-        return true; // If not JWT or decode fails, assume valid
+        return false;
     }
 };
+
+/**
+ * Verify token with backend
+ */
+const verifyTokenWithBackend = async (token: string): Promise<User | null> => {
+    try {
+        const response = await fetch(`${API_URL}/auth/profile`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const userData = await response.json();
+            return normalizeUserData(userData);
+        }
+
+        return null;
+    } catch (error) {
+        console.error('[Auth] Token verification failed:', error);
+        return null;
+    }
+};
+
+/**
+ * Normalize user data from backend
+ */
+const normalizeUserData = (userData: any): User => {
+    return {
+        id: userData._id || userData.id,
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone || '',
+        whatsapp: userData.whatsapp || '',
+        avatar: userData.avatar || userData.picture || '',
+        role: userData.role || 'user'
+    };
+};
+
+// ========================================
+// AUTH PROVIDER COMPONENT
+// ========================================
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     // ========================================
-    // RESTORE SESSION ON MOUNT
+    // SESSION RESTORATION
     // ========================================
     useEffect(() => {
         const restoreSession = async () => {
@@ -67,44 +129,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const storedUser = getStoredUser();
                 const token = getToken();
 
-                if (storedUser && token && isTokenValid(token)) {
-                    // Optionally verify token with backend
-                    try {
-                        const response = await fetch(`${API_URL}/auth/profile`, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
+                console.log('[Auth] Restoring session...', {
+                    hasUser: !!storedUser,
+                    hasToken: !!token,
+                    isTokenValid: isTokenValid(token)
+                });
 
-                        if (response.ok) {
-                            const userData = await response.json();
-                            const normalizedUser: User = {
-                                id: userData._id || userData.id,
-                                name: userData.name,
-                                email: userData.email,
-                                phone: userData.phone || '',
-                                whatsapp: userData.whatsapp || '',
-                                avatar: userData.avatar,
-                                role: userData.role
-                            };
-                            setUser(normalizedUser);
-                            // Update stored user if needed
-                            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(normalizedUser));
+                // If we have both user and valid token
+                if (storedUser && token && isTokenValid(token)) {
+                    try {
+                        // Verify token with backend
+                        const verifiedUser = await verifyTokenWithBackend(token);
+
+                        if (verifiedUser) {
+                            console.log('[Auth] ✓ Session restored from backend');
+                            setUser(verifiedUser);
+                            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(verifiedUser));
                         } else {
-                            // Token invalid, clear session
-                            console.log('[Auth] Token verification failed, logging out');
-                            logout();
+                            console.log('[Auth] ✗ Token verification failed, logging out');
+                            clearSession();
                         }
                     } catch (error) {
-                        // Network error, use stored user
-                        console.log('[Auth] Using stored session (offline)');
+                        // If backend is unreachable, use cached user (offline mode)
+                        console.log('[Auth] ⚠ Backend unreachable, using cached session');
                         setUser(storedUser);
                     }
                 } else {
-                    // No valid session
+                    // If token is expired, clear session
                     if (token && !isTokenValid(token)) {
                         console.log('[Auth] Token expired, clearing session');
-                        logout();
+                        clearSession();
                     }
                 }
             } catch (error) {
@@ -118,27 +172,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     // ========================================
+    // CLEAR SESSION HELPER
+    // ========================================
+    const clearSession = useCallback(() => {
+        setUser(null);
+        localStorage.removeItem(STORAGE_KEYS.USER);
+        localStorage.removeItem(STORAGE_KEYS.TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.ADMIN);
+    }, []);
+
+    // ========================================
     // REGISTER
     // ========================================
-    const register = async (
-        name: string, 
-        email: string, 
-        password: string, 
-        phone: string, 
+    const register = useCallback(async (
+        name: string,
+        email: string,
+        password: string,
+        phone: string,
         whatsapp: string
     ): Promise<boolean> => {
         try {
+            console.log('[Auth] Registering user:', { email, name });
+
             const response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 
-                    name, 
-                    email, 
-                    password, 
-                    phone, 
-                    whatsapp 
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                    phone,
+                    whatsapp
                 }),
             });
 
@@ -148,19 +214,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 throw new Error(data.message || 'Registration failed');
             }
 
-            console.log('[Auth] ✓ Registration successful - OTP sent to WhatsApp');
+            console.log('[Auth] ✓ Registration successful');
             return true;
         } catch (error: any) {
             console.error('[Auth] ✗ Registration error:', error.message);
             throw error;
         }
-    };
+    }, []);
 
     // ========================================
-    // LOGIN
+    // LOGIN (EMAIL/PASSWORD)
     // ========================================
-    const login = async (email?: string, password?: string): Promise<User | null> => {
+    const login = useCallback(async (email?: string, password?: string): Promise<User | null> => {
         try {
+            console.log('[Auth] Logging in:', { email });
+
             const response = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
@@ -175,20 +243,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 throw new Error(data.message || 'Login failed');
             }
 
-            const userData: User = {
-                id: data._id || data.id,
-                name: data.name,
-                email: data.email,
-                phone: data.phone || '',
-                whatsapp: data.whatsapp || '',
-                avatar: data.avatar,
-                role: data.role,
-            };
+            // Normalize user data
+            const userData = normalizeUserData(data);
 
-            // Update state
+            // Save to state and localStorage
             setUser(userData);
-            
-            // Save to localStorage
             localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
             localStorage.setItem(STORAGE_KEYS.TOKEN, data.token);
 
@@ -198,28 +257,78 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             console.error('[Auth] ✗ Login error:', error.message);
             throw error;
         }
-    };
+    }, []);
+
+    // ========================================
+    // LOGIN WITH GOOGLE
+    // ========================================
+    const loginWithGoogle = useCallback((userData: any, token: string) => {
+        console.log('[Auth] Google login:', { email: userData.email });
+
+        // Normalize user data
+        const user: User = {
+            id: userData.id || userData._id,
+            name: userData.name,
+            email: userData.email,
+            phone: userData.phone || '',
+            whatsapp: userData.whatsapp || '',
+            avatar: userData.avatar || userData.picture || '',
+            role: userData.role || 'user'
+        };
+
+        // Save to state and localStorage
+        setUser(user);
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+        localStorage.setItem(STORAGE_KEYS.TOKEN, token);
+
+        console.log('[Auth] ✓ Google login successful');
+    }, []);
 
     // ========================================
     // LOGOUT
     // ========================================
-    const logout = () => {
+    const logout = useCallback(() => {
+        console.log('[Auth] Logging out');
+
         setUser(null);
         localStorage.removeItem(STORAGE_KEYS.USER);
         localStorage.removeItem(STORAGE_KEYS.TOKEN);
         localStorage.removeItem(STORAGE_KEYS.ADMIN);
+
         console.log('[Auth] ✓ User logged out');
+    }, []);
+
+    // ========================================
+    // UPDATE USER
+    // ========================================
+    const updateUser = useCallback((userData: Partial<User>) => {
+        setUser(prev => {
+            if (!prev) return null;
+
+            const updated = { ...prev, ...userData };
+            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updated));
+
+            console.log('[Auth] ✓ User updated');
+            return updated;
+        });
+    }, []);
+
+    // ========================================
+    // CONTEXT VALUE
+    // ========================================
+    const value: AuthContextType = {
+        user,
+        login,
+        loginWithGoogle,
+        register,
+        logout,
+        isAuthenticated: !!user,
+        isLoading,
+        updateUser
     };
 
     return (
-        <AuthContext.Provider value={{
-            user,
-            login,
-            register,
-            logout,
-            isAuthenticated: !!user,
-            isLoading
-        }}>
+        <AuthContext.Provider value={value}>
             {children}
         </AuthContext.Provider>
     );
@@ -228,10 +337,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 // ========================================
 // HOOK
 // ========================================
+
 export const useAuth = () => {
     const context = useContext(AuthContext);
+
     if (!context) {
         throw new Error('useAuth must be used within an AuthProvider');
     }
+
     return context;
 };
+
+export default AuthContext;
