@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+export const API_URL = import.meta.env.VITE_API_URL || 'https://mansara-backend.onrender.com/api';
 
 // ========================================
 // OPTIMIZED AXIOS INSTANCE
@@ -431,7 +431,8 @@ export const getAllUsers = async (token: string) => {
     if (!response.ok) {
         throw new Error('Failed to fetch users');
     }
-    return response.json();
+    const data = await response.json();
+    return data.users || data;
 };
 
 // ========================================
