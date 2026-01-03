@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
-
-
 import { toast } from "sonner";
 import {
     Table,
@@ -18,12 +16,13 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogDescription,
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 
 interface Category {
-    id: string;
+    _id: string; // Updated to match MongoDB _id
     name: string;
     slug: string;
     description?: string;
@@ -81,7 +80,8 @@ const AdminCategories = () => {
             const { createCategory, updateCategory } = await import('@/lib/api');
 
             if (editingCategory) {
-                await updateCategory(editingCategory.id, dataToSave, token);
+                // Use _id for update
+                await updateCategory(editingCategory._id, dataToSave, token);
                 toast.success("Category updated");
             } else {
                 await createCategory(dataToSave, token);
@@ -144,6 +144,9 @@ const AdminCategories = () => {
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>{editingCategory ? "Edit Category" : "Add Category"}</DialogTitle>
+                                <DialogDescription>
+                                    {editingCategory ? "Update the category details below." : "Create a new category for your products."}
+                                </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4 py-4">
                                 <div className="space-y-2">
@@ -192,7 +195,7 @@ const AdminCategories = () => {
                                 </TableRow>
                             ) : (
                                 categories.map((category) => (
-                                    <TableRow key={category.id}>
+                                    <TableRow key={category._id}>
                                         <TableCell className="font-medium">{category.name}</TableCell>
                                         <TableCell>{category.slug}</TableCell>
                                         <TableCell>{category.description}</TableCell>
@@ -201,7 +204,7 @@ const AdminCategories = () => {
                                                 <Button variant="ghost" size="icon" onClick={() => openEdit(category)}>
                                                     <Edit2 size={16} />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600" onClick={() => handleDelete(category.id)}>
+                                                <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600" onClick={() => handleDelete(category._id)}>
                                                     <Trash2 size={16} />
                                                 </Button>
                                             </div>
