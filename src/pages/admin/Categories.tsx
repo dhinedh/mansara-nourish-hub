@@ -79,14 +79,25 @@ const AdminCategories = () => {
                 description: formData.description,
             };
 
+            console.log('[Categories] Saving category:', {
+                mode: editingCategory ? 'edit' : 'create',
+                id: editingCategory?._id,
+                data: dataToSave
+            });
+
             const { createCategory, updateCategory } = await import('@/lib/api');
 
             if (editingCategory) {
                 // Use _id for update
-                await updateCategory(editingCategory._id, dataToSave, token);
+                if (!editingCategory._id) {
+                    throw new Error("Category ID is missing for update");
+                }
+                const response = await updateCategory(editingCategory._id, dataToSave, token);
+                console.log('[Categories] Update response:', response);
                 toast.success("Category updated");
             } else {
-                await createCategory(dataToSave, token);
+                const response = await createCategory(dataToSave, token);
+                console.log('[Categories] Create response:', response);
                 toast.success("Category created");
             }
 
@@ -97,7 +108,10 @@ const AdminCategories = () => {
             resetForm();
             fetchCategories();
         } catch (error: any) {
-            toast.error(error.message || "Failed to save category");
+            console.error('[Categories] Save error:', error);
+            // Try to extract backend error message
+            const message = error.response?.data?.message || error.message || "Failed to save category";
+            toast.error(`Error: ${message}`);
         } finally {
             setSaving(false);
         }
