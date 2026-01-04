@@ -20,6 +20,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus, Edit2, Trash2 } from "lucide-react";
+import { useStore } from "@/context/StoreContext";
 
 interface Category {
     _id: string; // Updated to match MongoDB _id
@@ -29,6 +30,7 @@ interface Category {
 }
 
 const AdminCategories = () => {
+    const { refetch } = useStore();
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -88,6 +90,9 @@ const AdminCategories = () => {
                 toast.success("Category created");
             }
 
+            // Sync with storefront
+            await refetch();
+
             setIsDialogOpen(false);
             resetForm();
             fetchCategories();
@@ -106,6 +111,10 @@ const AdminCategories = () => {
 
             const { deleteCategory } = await import('@/lib/api');
             await deleteCategory(id, token);
+
+            // Sync with storefront
+            await refetch();
+
             toast.success("Category deleted");
             fetchCategories();
         } catch (error: any) {
