@@ -28,6 +28,7 @@ const AdminCombos = () => {
     originalPrice: 0,
     comboPrice: 0,
     image: '',
+    images: [],
     description: '',
     isActive: true
   });
@@ -51,6 +52,7 @@ const AdminCombos = () => {
       originalPrice: combo.originalPrice,
       comboPrice: combo.comboPrice,
       image: combo.image,
+      images: combo.images || (combo.image ? [combo.image] : []),
       description: combo.description,
       isActive: combo.isActive !== undefined ? combo.isActive : true
     });
@@ -65,6 +67,7 @@ const AdminCombos = () => {
       originalPrice: 0,
       comboPrice: 0,
       image: '',
+      images: [],
       description: '',
       isActive: true
     });
@@ -243,12 +246,56 @@ const AdminCombos = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-start gap-4">
-                <Label className="text-right pt-2">Image</Label>
-                <div className="col-span-3">
-                  <ImageUpload
-                    value={formData.image}
-                    onChange={(url) => setFormData({ ...formData, image: url })}
-                  />
+                <Label className="text-right pt-2">Images</Label>
+                <div className="col-span-3 space-y-4">
+                  <p className="text-sm text-muted-foreground">Add multiple images. First image is the main cover.</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Existing Images */}
+                    {(formData.images || (formData.image ? [formData.image] : [])).map((img, index) => (
+                      <div key={index} className="relative group">
+                        <ImageUpload
+                          value={img}
+                          onChange={(url) => {
+                            setFormData(prev => {
+                              const newImages = [...(prev.images || (prev.image ? [prev.image] : []))];
+                              if (!url) {
+                                newImages.splice(index, 1);
+                              } else {
+                                newImages[index] = url;
+                              }
+                              return {
+                                ...prev,
+                                images: newImages,
+                                image: newImages[0] || ""
+                              };
+                            });
+                          }}
+                        />
+                        <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-xs z-10">
+                          {index === 0 ? "Main" : `#${index + 1}`}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add New Image Button */}
+                    <div className="aspect-square">
+                      <ImageUpload
+                        onChange={(url) => {
+                          if (url) {
+                            setFormData(prev => {
+                              const currentImages = prev.images || (prev.image ? [prev.image] : []);
+                              const newImages = [...currentImages, url];
+                              return {
+                                ...prev,
+                                images: newImages,
+                                image: newImages[0] || ""
+                              };
+                            });
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">

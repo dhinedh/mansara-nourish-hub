@@ -38,6 +38,7 @@ export interface Combo {
     originalPrice: number;
     comboPrice: number;
     image: string;
+    images?: string[];
     description: string;
     isActive?: boolean;
 }
