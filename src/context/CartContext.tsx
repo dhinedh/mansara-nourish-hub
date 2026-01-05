@@ -36,7 +36,17 @@ const STORAGE_KEY = 'mansara-cart';
 const getStoredCart = (): CartItem[] => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+
+    // Sanitize stored data
+    return parsed.map((item: any) => ({
+      ...item,
+      quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
+      price: Number(item.price) || 0
+    }));
   } catch (error) {
     console.error('[Cart] Failed to parse stored cart:', error);
     return [];
@@ -56,7 +66,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const loadCart = async () => {
       setIsLoading(true);
-      
+
       if (user) {
         // User logged in - fetch from server
         try {
@@ -68,18 +78,18 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
 
           const serverCart = await getCart(token);
-          
+
           // Merge with local cart if user just logged in
           const localCart = getStoredCart();
           const mergedCart = mergeCarts(serverCart, localCart);
-          
+
           setItems(mergedCart);
-          
+
           // Save merged cart back to server if changed
           if (mergedCart.length !== serverCart.length) {
             await syncCartToServer(mergedCart, token);
           }
-          
+
           console.log('[Cart] ✓ Loaded from server');
         } catch (error) {
           console.error('[Cart] ✗ Failed to load from server:', error);
@@ -91,7 +101,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setItems(getStoredCart());
         console.log('[Cart] ✓ Loaded from local storage');
       }
-      
+
       setIsLoading(false);
     };
 
@@ -110,7 +120,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Debounce server sync
     const syncToServer = async () => {
       if (!user) return;
-      
+
       const token = localStorage.getItem('mansara-token');
       if (!token) return;
 
@@ -137,22 +147,22 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // ========================================
   // HELPER FUNCTIONS
   // ========================================
-  
+
   // Merge local and server carts (prevent duplicates)
   const mergeCarts = (serverCart: CartItem[], localCart: CartItem[]): CartItem[] => {
     const merged = [...serverCart];
-    
+
     localCart.forEach(localItem => {
       const existingIndex = merged.findIndex(item => item.id === localItem.id);
       if (existingIndex >= 0) {
         // Merge quantities
-        merged[existingIndex].quantity += localItem.quantity;
+        merged[existingIndex].quantity = (Number(merged[existingIndex].quantity) || 0) + (Number(localItem.quantity) || 0);
       } else {
         // Add new item
         merged.push(localItem);
       }
     });
-    
+
     return merged;
   };
 
@@ -168,16 +178,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // ========================================
   // CART ACTIONS
   // ========================================
-  
+
   const addToCart = useCallback((item: Product | Combo, type: 'product' | 'combo') => {
     setItems(prev => {
       const existingItem = prev.find(i => i.id === item.id);
-      
+
       if (existingItem) {
         // Update quantity
         return prev.map(i =>
           i.id === item.id
-            ? { ...i, quantity: i.quantity + 1 }
+            ? { ...i, quantity: (parseInt(i.quantity as any) || 0) + 1 }
             : i
         );
       }
@@ -204,13 +214,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const updateQuantity = useCallback((id: string, quantity: number) => {
-    if (quantity < 1) {
+    // Ensure quantity is a valid number
+    const newQuantity = Math.max(0, Math.floor(Number(quantity)));
+
+    if (newQuantity < 1) {
       removeFromCart(id);
       return;
     }
-    
+
     setItems(prev => prev.map(i =>
-      i.id === id ? { ...i, quantity } : i
+      i.id === id ? { ...i, quantity: newQuantity } : i
     ));
   }, [removeFromCart]);
 
