@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft } from "lucide-react";
 import { useStore, Product } from "@/context/StoreContext";
 import ImageUpload from "@/components/admin/ImageUpload";
+import VideoUpload from "@/components/admin/VideoUpload";
 
 const AdminProductEdit = () => {
   const { id } = useParams();
@@ -36,6 +37,7 @@ const AdminProductEdit = () => {
     highlights: [],
     image: "",
     images: [],
+    video: "",
     sub_category: "", // Kept as optional legacy
     weight: "",
     description: "",
@@ -64,6 +66,7 @@ const AdminProductEdit = () => {
           storage: product.storage || (product as any).storage_instructions || "",
           offerPrice: product.offerPrice || (product as any).offer_price || 0,
           images: product.images || (product.image ? [product.image] : []),
+          video: product.video || "",
         });
         if (product.highlights) {
           setHighlightsText(product.highlights.join("\n"));
@@ -380,6 +383,19 @@ const AdminProductEdit = () => {
                     </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Product Video</CardTitle>
+                <CardDescription>Add a video for the product (optional)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <VideoUpload
+                  value={formData.video}
+                  onChange={(url) => setFormData(prev => ({ ...prev, video: url }))}
+                />
               </CardContent>
             </Card>
           </div>

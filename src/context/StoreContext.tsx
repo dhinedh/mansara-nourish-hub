@@ -13,6 +13,7 @@ export interface Product {
     offerPrice?: number;
     image?: string;
     images?: string[];
+    video?: string;
     description?: string;
     ingredients?: string;
     howToUse?: string;
