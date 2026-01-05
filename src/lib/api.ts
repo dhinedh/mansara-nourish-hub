@@ -440,11 +440,17 @@ export const getAllUsers = async (token: string) => {
 // ========================================
 export const addAddress = async (userId: string, addressData: any) => {
     try {
+        const token = localStorage.getItem('mansara-token');
+        const headers: HeadersInit = {
+            'Content-Type': 'application/json',
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${API_URL}/users/${userId}/address`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers,
             body: JSON.stringify(addressData),
         });
         if (!response.ok) throw new Error('Failed to add address');
@@ -457,11 +463,17 @@ export const addAddress = async (userId: string, addressData: any) => {
 
 export const updateAddress = async (userId: string, addressId: string, addressData: any) => {
     try {
+        const token = localStorage.getItem('mansara-token');
+        const headers: HeadersInit = {
+            'Content-Type': 'application/json',
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${API_URL}/users/${userId}/address/${addressId}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers,
             body: JSON.stringify(addressData),
         });
         if (!response.ok) throw new Error('Failed to update address');
@@ -474,8 +486,15 @@ export const updateAddress = async (userId: string, addressId: string, addressDa
 
 export const deleteAddress = async (userId: string, addressId: string) => {
     try {
+        const token = localStorage.getItem('mansara-token');
+        const headers: HeadersInit = {};
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${API_URL}/users/${userId}/address/${addressId}`, {
             method: 'DELETE',
+            headers,
         });
         if (!response.ok) throw new Error('Failed to delete address');
         return await response.json();
