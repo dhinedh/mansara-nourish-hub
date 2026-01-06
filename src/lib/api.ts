@@ -942,6 +942,12 @@ export const fetchCareers = async () => {
     return response.json();
 };
 
+export const fetchCareerById = async (id: string) => {
+    const response = await fetch(`${API_URL}/careers/${id}`);
+    if (!response.ok) throw new Error('Failed to fetch career');
+    return response.json();
+};
+
 export const createCareer = async (data: any, token: string) => {
     const response = await fetch(`${API_URL}/careers`, {
         method: 'POST',

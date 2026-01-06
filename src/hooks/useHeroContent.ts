@@ -27,6 +27,9 @@ export interface HeroConfig {
     about: PageHero;
     contact: PageHero;
     cart: PageHero;
+    blog: PageHero;
+    press: PageHero;
+    careers: PageHero;
     homeSettings: {
         interval: number;
     };
@@ -89,6 +92,21 @@ const DEFAULT_CONFIG: HeroConfig = {
         title: 'Your Cart',
         subtitle: 'Review your selected items before checkout.'
     },
+    blog: {
+        image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+        title: 'Latest Insights',
+        subtitle: 'Stories, recipes, and wellness tips from Mansara.'
+    },
+    press: {
+        image: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+        title: 'Newsroom',
+        subtitle: 'Latest updates and announcements from Mansara Foods.'
+    },
+    careers: {
+        image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+        title: 'Join Our Team',
+        subtitle: 'Build the future of healthy food with us.'
+    },
     homeSettings: {
         interval: 5000
     }
@@ -107,11 +125,11 @@ const getCachedHero = (): HeroConfig | null => {
         if (!cached) return null;
 
         const { data, timestamp } = JSON.parse(cached);
-        
+
         if (Date.now() - timestamp < CACHE_DURATION) {
             return data;
         }
-        
+
         return null;
     } catch {
         return null;
@@ -150,7 +168,7 @@ export const useHeroContent = () => {
                 setHeroConfig(cached);
                 setIsLoading(false);
                 console.log('[Hero] ✓ Loaded from cache');
-                
+
                 // Fetch in background to update cache
                 fetchAndCache();
                 return;
@@ -164,7 +182,7 @@ export const useHeroContent = () => {
         const fetchAndCache = async () => {
             try {
                 const apiConfig = await fetchHeroConfig();
-                
+
                 if (apiConfig && Object.keys(apiConfig).length > 0) {
                     // Normalize home slides IDs
                     if (apiConfig.home && Array.isArray(apiConfig.home)) {
@@ -173,7 +191,7 @@ export const useHeroContent = () => {
                             id: slide.id || slide._id || crypto.randomUUID()
                         }));
                     }
-                    
+
                     // Merge with defaults
                     const merged = { ...DEFAULT_CONFIG, ...apiConfig };
                     setHeroConfig(merged);
@@ -200,9 +218,9 @@ export const useHeroContent = () => {
         const newHome = [...heroConfig.home];
         newHome[index] = slide;
         const newConfig = { ...heroConfig, home: newHome };
-        
+
         saveConfig(newConfig);
-        
+
         try {
             await updateHeroConfig('home', newHome);
             console.log('[Hero] ✓ Home slide updated');
@@ -214,9 +232,9 @@ export const useHeroContent = () => {
     const addHomeSlide = useCallback(async (slide: HeroSlide) => {
         const newHome = [...heroConfig.home, slide];
         const newConfig = { ...heroConfig, home: newHome };
-        
+
         saveConfig(newConfig);
-        
+
         try {
             await updateHeroConfig('home', newHome);
             console.log('[Hero] ✓ Home slide added');
@@ -228,9 +246,9 @@ export const useHeroContent = () => {
     const updateHomeSlideById = useCallback(async (id: string, slide: HeroSlide) => {
         const newHome = heroConfig.home.map(s => s.id === id ? slide : s);
         const newConfig = { ...heroConfig, home: newHome };
-        
+
         saveConfig(newConfig);
-        
+
         try {
             await updateHeroConfig('home', newHome);
             console.log('[Hero] ✓ Home slide updated');
@@ -242,9 +260,9 @@ export const useHeroContent = () => {
     const deleteHomeSlide = useCallback(async (id: string) => {
         const newHome = heroConfig.home.filter(s => s.id !== id);
         const newConfig = { ...heroConfig, home: newHome };
-        
+
         saveConfig(newConfig);
-        
+
         try {
             await updateHeroConfig('home', newHome);
             console.log('[Hero] ✓ Home slide deleted');
@@ -255,9 +273,9 @@ export const useHeroContent = () => {
 
     const updateHomeSettings = useCallback(async (settings: { interval: number }) => {
         const newConfig = { ...heroConfig, homeSettings: settings };
-        
+
         saveConfig(newConfig);
-        
+
         try {
             await updateHeroConfig('homeSettings', settings);
             console.log('[Hero] ✓ Home settings updated');
@@ -268,11 +286,11 @@ export const useHeroContent = () => {
 
     const updatePageHero = useCallback(async (page: keyof HeroConfig, data: PageHero) => {
         if (page === 'home' || page === 'homeSettings') return;
-        
+
         const newConfig = { ...heroConfig, [page]: data };
-        
+
         saveConfig(newConfig);
-        
+
         try {
             await updateHeroConfig(page, data);
             console.log(`[Hero] ✓ ${page} hero updated`);

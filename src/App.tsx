@@ -11,8 +11,11 @@ import Products from "./pages/Products";
 import Offers from "./pages/Offers";
 import Combos from "./pages/Combos";
 import Blog from "./pages/Blog";
-import PressReleases from "./pages/PressReleases";
+import BlogDetail from "./pages/BlogDetail";
+import Press from "./pages/Press";
+import PressDetail from "./pages/PressDetail";
 import Careers from "./pages/Careers";
+import CareerDetail from "./pages/CareerDetail";
 import NewArrivals from "./pages/NewArrivals";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
@@ -117,9 +120,13 @@ const App = () => {
                       <Route path="/cart" element={<Cart />} />
 
                       {/* Content Pages */}
-                      <Route path="/blog" element={<AdminBlog />} />
-                      <Route path="/press" element={<AdminPress />} />
-                      <Route path="/careers" element={<AdminCareers />} />
+                      {/* Content Pages */}
+                      <Route path="/blog" element={<Blog />} />
+                      <Route path="/blog/:slug" element={<BlogDetail />} />
+                      <Route path="/press" element={<Press />} />
+                      <Route path="/press/:slug" element={<PressDetail />} />
+                      <Route path="/careers" element={<Careers />} />
+                      <Route path="/careers/:id" element={<CareerDetail />} />
 
                       {/* User */}        <Route path="/checkout" element={<Checkout />} />
 

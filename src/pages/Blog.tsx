@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import Layout from '@/components/layout/Layout';
+import PageHero from '@/components/layout/PageHero';
 import { fetchBlogPosts } from '@/lib/api';
-import { Calendar, User } from 'lucide-react';
+import { Calendar, User, ArrowRight, Loader2 } from 'lucide-react';
+import { useContent } from '@/context/ContentContext';
 
 interface BlogPost {
     _id: string;
     title: string;
     excerpt: string;
-    content: string;
     image: string;
-    isPublished: boolean;
+    slug?: string;
     createdAt: string;
-    slug: string;
+    author: string;
 }
 
 const Blog = () => {
+    const { getContent } = useContent();
     const [posts, setPosts] = useState<BlogPost[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -21,10 +25,10 @@ const Blog = () => {
         const loadPosts = async () => {
             try {
                 const data = await fetchBlogPosts();
-                // Filter for published posts only
-                setPosts(data.filter((p: BlogPost) => p.isPublished));
+                // Check if data is array (backend might return list directly)
+                setPosts(Array.isArray(data) ? data : []);
             } catch (error) {
-                console.error("Failed to load blog posts");
+                console.error('Failed to load blog posts:', error);
             } finally {
                 setIsLoading(false);
             }
@@ -33,60 +37,88 @@ const Blog = () => {
     }, []);
 
     return (
-        <div className="bg-white min-h-screen py-16 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-16">
-                    <h1 className="text-4xl font-extrabold text-[#131A4E] sm:text-5xl">
-                        Our Blog
-                    </h1>
-                    <p className="mt-4 text-xl text-gray-500">
-                        Insights, nutrition tips, and stories from Mansara Foods.
-                    </p>
-                </div>
+        <Layout>
+            <PageHero pageKey="blog">
+                <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/30">
+                    {getContent('blog', 'tagline', 'Insights & Stories')}
+                </span>
+            </PageHero>
 
-                {isLoading ? (
-                    <div className="text-center py-20 text-gray-500">Loading articles...</div>
-                ) : posts.length === 0 ? (
-                    <div className="text-center py-20 bg-gray-50 rounded-lg">
-                        <h3 className="text-xl font-medium text-gray-900">No articles yet</h3>
-                        <p className="mt-2 text-gray-500">Check back soon for updates!</p>
-                    </div>
-                ) : (
-                    <div className="grid gap-8 lg:grid-cols-3 md:grid-cols-2">
-                        {posts.map((post) => (
-                            <article key={post._id} className="flex flex-col overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                                <div className="flex-shrink-0">
-                                    <img
-                                        className="h-48 w-full object-cover"
-                                        src={post.image || "https://images.unsplash.com/photo-1490818387583-1baba5e638af?auto=format&fit=crop&q=80"}
-                                        alt={post.title}
-                                    />
-                                </div>
-                                <div className="flex-1 bg-white p-6 flex flex-col justify-between">
-                                    <div className="flex-1">
-                                        <div className="block mt-2">
-                                            <p className="text-xl font-semibold text-gray-900">{post.title}</p>
-                                            <p className="mt-3 text-base text-gray-500 line-clamp-3">{post.excerpt}</p>
+            <section className="py-20 bg-background">
+                <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
+                    {isLoading ? (
+                        <div className="flex justify-center items-center py-20">
+                            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                        </div>
+                    ) : posts.length > 0 ? (
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {posts.map((post, index) => (
+                                <article
+                                    key={post._id}
+                                    className="group bg-card rounded-3xl overflow-hidden border border-border/50 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-full animate-fade-in-up"
+                                    style={{ animationDelay: `${index * 100}ms` }}
+                                >
+                                    <Link to={`/blog/${post.slug || post._id}`} className="block relative overflow-hidden aspect-[16/10]">
+                                        {post.image ? (
+                                            <img
+                                                src={post.image}
+                                                alt={post.title}
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-secondary flex items-center justify-center">
+                                                <span className="text-muted-foreground font-medium">No Image</span>
+                                            </div>
+                                        )}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    </Link>
+
+                                    <div className="p-8 flex flex-col flex-grow relative">
+                                        <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground mb-4">
+                                            <div className="flex items-center gap-1.5">
+                                                <Calendar className="w-4 h-4 text-primary" />
+                                                {new Date(post.createdAt).toLocaleDateString(undefined, {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}
+                                            </div>
+                                            <div className="flex items-center gap-1.5">
+                                                <User className="w-4 h-4 text-primary" />
+                                                {post.author || 'Mansara Team'}
+                                            </div>
                                         </div>
+
+                                        <h2 className="text-xl font-bold font-heading mb-3 text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                                            <Link to={`/blog/${post.slug || post._id}`}>
+                                                {post.title}
+                                            </Link>
+                                        </h2>
+
+                                        <p className="text-muted-foreground text-sm line-clamp-3 mb-6 flex-grow leading-relaxed">
+                                            {post.excerpt}
+                                        </p>
+
+                                        <Link
+                                            to={`/blog/${post.slug || post._id}`}
+                                            className="inline-flex items-center text-sm font-bold text-primary hover:text-primary/80 transition-colors uppercase tracking-wider group/link"
+                                        >
+                                            Read Article
+                                            <ArrowRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover/link:translate-x-1" />
+                                        </Link>
                                     </div>
-                                    <div className="mt-6 flex items-center text-sm text-gray-500 gap-4">
-                                        <div className="flex items-center">
-                                            <Calendar className="flex-shrink-0 mr-1.5 h-4 w-4 text-brand-orange" />
-                                            <p>{new Date(post.createdAt).toLocaleDateString()}</p>
-                                        </div>
-                                        {/* Optional: Add Author if available */}
-                                        <div className="flex items-center">
-                                            <User className="flex-shrink-0 mr-1.5 h-4 w-4 text-brand-orange" />
-                                            <p>Admin</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
+                                </article>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 bg-secondary/30 rounded-3xl border border-dashed border-border">
+                            <h3 className="text-xl font-medium text-muted-foreground">No updates available at the moment.</h3>
+                            <p className="text-sm text-muted-foreground/70 mt-2">Check back soon for our latest stories!</p>
+                        </div>
+                    )}
+                </div>
+            </section>
+        </Layout>
     );
 };
 
