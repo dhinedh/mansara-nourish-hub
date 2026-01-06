@@ -30,12 +30,18 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 // OPTIMIZED CART CONTEXT
 // ========================================
 
-const STORAGE_KEY = 'mansara-cart';
+const LEGACY_STORAGE_KEY = 'mansara-cart';
+
+// Helper to get correct storage key
+const getStorageKey = (userId?: string) => {
+  if (userId) return `mansara-cart-user-${userId}`;
+  return 'mansara-cart-guest';
+};
 
 // Helper to get stored cart
-const getStoredCart = (): CartItem[] => {
+const getStoredCart = (key: string): CartItem[] => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(key);
     if (!stored) return [];
 
     const parsed = JSON.parse(stored);
@@ -70,11 +76,24 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [lastSyncTime, setLastSyncTime] = useState<number>(0);
 
   // ========================================
+  // CLEANUP LEGACY DATA
+  // ========================================
+  useEffect(() => {
+    // Remove the old global cart key to fix "default products" issue
+    if (localStorage.getItem(LEGACY_STORAGE_KEY)) {
+      console.log('[Cart] Cleaning up legacy storage key');
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
+    }
+  }, []);
+
+  // ========================================
   // LOAD CART ON MOUNT & USER CHANGE
   // ========================================
   useEffect(() => {
     const loadCart = async () => {
       setIsLoading(true);
+
+      const storageKey = getStorageKey(user?.id);
 
       if (user) {
         // User logged in - fetch from server
@@ -102,12 +121,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           // console.log('[Cart] ✓ Loaded from server');
         } catch (error) {
           console.error('[Cart] ✗ Failed to load from server:', error);
-          // Fallback to local storage
-          setItems(getStoredCart());
+          // Fallback to user-specific local storage
+          setItems(getStoredCart(storageKey));
         }
       } else {
-        // Not logged in - use local storage
-        setItems(getStoredCart());
+        // Not logged in - use guest local storage
+        setItems(getStoredCart(storageKey));
         // console.log('[Cart] ✓ Loaded from local storage');
       }
 
@@ -123,8 +142,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     if (isLoading) return; // Don't sync during initial load
 
+    const storageKey = getStorageKey(user?.id);
+
     // Save to local storage immediately
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(storageKey, JSON.stringify(items));
 
     // Debounce server sync
     const syncToServer = async () => {
