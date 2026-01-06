@@ -505,14 +505,31 @@ const AdminOrders = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {statusOptions.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        <div className="flex items-center gap-2">
-                          <status.icon size={16} />
-                          {status.label}
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {statusOptions.map((status) => {
+                      const statusOrder = ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
+                      const currentIndex = statusOrder.indexOf(selectedOrder.orderStatus);
+                      const optionIndex = statusOrder.indexOf(status.value);
+
+                      // Disable if moving backwards (unless it's Cancelled or current status is Cancelled/Delivered)
+                      // Cancelled is always allowed unless already Delivered
+                      // Delivered is final state
+
+                      let isDisabled = false;
+
+                      if (selectedOrder.orderStatus === 'Cancelled') isDisabled = true;
+                      else if (selectedOrder.orderStatus === 'Delivered') isDisabled = true;
+                      else if (status.value === 'Cancelled') isDisabled = false; // Can always cancel unless delivered
+                      else if (optionIndex < currentIndex) isDisabled = true; // Cannot move backwards
+
+                      return (
+                        <SelectItem key={status.value} value={status.value} disabled={isDisabled}>
+                          <div className="flex items-center gap-2">
+                            <status.icon size={16} />
+                            {status.label}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-slate-500 mt-2">

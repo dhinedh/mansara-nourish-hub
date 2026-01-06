@@ -772,50 +772,103 @@ export const updateCart = async (cartItems: any[], token: string) => {
 // BLOG
 // ========================================
 export const fetchBlogPosts = async () => {
-    const response = await fetch(`${API_URL}/blog`);
-    if (!response.ok) throw new Error('Failed to fetch blog posts');
-    return response.json();
+    try {
+        const response = await fetch(`${API_URL}/blog`);
+        if (!response.ok) throw new Error('Failed to fetch blog posts');
+        return response.json();
+    } catch (error) {
+        console.error('[API] Fetch blog posts error:', error);
+        throw error;
+    }
 };
 
 export const fetchBlogPostById = async (id: string) => {
-    const response = await fetch(`${API_URL}/blog/${id}`);
-    if (!response.ok) throw new Error('Failed to fetch blog post');
-    return response.json();
+    try {
+        const response = await fetch(`${API_URL}/blog/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch blog post');
+        return response.json();
+    } catch (error) {
+        console.error('[API] Fetch blog post error:', error);
+        throw error;
+    }
 };
 
 export const createBlogPost = async (data: any, token: string) => {
-    const response = await fetch(`${API_URL}/blog`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
-    });
-    if (!response.ok) throw new Error('Failed to create blog post');
-    return response.json();
+    try {
+        console.log('[API] Creating blog post:', data);
+
+        const response = await fetch(`${API_URL}/blog`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            console.error('[API] Create blog post failed:', responseData);
+            throw new Error(responseData.message || 'Failed to create blog post');
+        }
+
+        console.log('[API] Blog post created:', responseData);
+        return responseData;
+    } catch (error) {
+        console.error('[API] Create blog post error:', error);
+        throw error;
+    }
 };
 
 export const updateBlogPost = async (id: string, data: any, token: string) => {
-    const response = await fetch(`${API_URL}/blog/${id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
-    });
-    if (!response.ok) throw new Error('Failed to update blog post');
-    return response.json();
+    try {
+        console.log('[API] Updating blog post:', id, data);
+
+        const response = await fetch(`${API_URL}/blog/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            console.error('[API] Update blog post failed:', responseData);
+            throw new Error(responseData.message || 'Failed to update blog post');
+        }
+
+        console.log('[API] Blog post updated:', responseData);
+        return responseData;
+    } catch (error) {
+        console.error('[API] Update blog post error:', error);
+        throw error;
+    }
 };
 
 export const deleteBlogPost = async (id: string, token: string) => {
-    const response = await fetch(`${API_URL}/blog/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (!response.ok) throw new Error('Failed to delete blog post');
-    return response.json();
+    try {
+        console.log('[API] Deleting blog post:', id);
+
+        const response = await fetch(`${API_URL}/blog/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            const responseData = await response.json();
+            throw new Error(responseData.message || 'Failed to delete blog post');
+        }
+
+        console.log('[API] Blog post deleted:', id);
+        return response.json();
+    } catch (error) {
+        console.error('[API] Delete blog post error:', error);
+        throw error;
+    }
 };
 
 // ========================================
@@ -828,29 +881,47 @@ export const fetchPressReleases = async () => {
 };
 
 export const createPressRelease = async (data: any, token: string) => {
-    const response = await fetch(`${API_URL}/press`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
-    });
-    if (!response.ok) throw new Error('Failed to create press release');
-    return response.json();
+    try {
+        const response = await fetch(`${API_URL}/press`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to create press release');
+        }
+        return response.json();
+    } catch (error) {
+        console.error('[API] Create press release error:', error);
+        throw error;
+    }
 };
 
 export const updatePressRelease = async (id: string, data: any, token: string) => {
-    const response = await fetch(`${API_URL}/press/${id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
-    });
-    if (!response.ok) throw new Error('Failed to update press release');
-    return response.json();
+    try {
+        const response = await fetch(`${API_URL}/press/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to update press release');
+        }
+        return response.json();
+    } catch (error) {
+        console.error('[API] Update press release error:', error);
+        throw error;
+    }
 };
 
 export const deletePressRelease = async (id: string, token: string) => {
@@ -897,11 +968,86 @@ export const updateCareer = async (id: string, data: any, token: string) => {
     return response.json();
 };
 
+
+// Reviews
+export const fetchProductReviews = async (productId: string) => {
+    const response = await fetch(`${API_URL}/api/reviews/product/${productId}`);
+    if (!response.ok) throw new Error('Failed to fetch reviews');
+    return response.json();
+};
+
+export const checkReviewEligibility = async (productId: string, token: string) => {
+    const response = await fetch(`${API_URL}/api/reviews/check/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Failed to check eligibility');
+    return response.json();
+};
+
+export const createReview = async (reviewData: any, token: string) => {
+    const response = await fetch(`${API_URL}/api/reviews`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(reviewData)
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to submit review');
+    }
+    return response.json();
+};
+
+export const fetchAllReviews = async (token: string) => {
+    const response = await fetch(`${API_URL}/api/reviews/admin`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Failed to fetch reviews');
+    return response.json();
+};
+
+export const updateReviewStatus = async (id: string, isApproved: boolean, adminResponse: string | null, token: string) => {
+    const response = await fetch(`${API_URL}/api/reviews/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ isApproved, adminResponse })
+    });
+    if (!response.ok) throw new Error('Failed to update review');
+    return response.json();
+};
+
+export const deleteReview = async (id: string, token: string) => {
+    const response = await fetch(`${API_URL}/api/reviews/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Failed to delete review');
+    return response.json();
+};
+
 export const deleteCareer = async (id: string, token: string) => {
     const response = await fetch(`${API_URL}/careers/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!response.ok) throw new Error('Failed to delete career');
+    return response.json();
+};
+
+export const sendContactForm = async (data: { name: string; email: string; subject: string; message: string }) => {
+    const response = await fetch(`${API_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send message');
+    }
     return response.json();
 };

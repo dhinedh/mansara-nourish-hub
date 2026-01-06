@@ -23,8 +23,13 @@ const Contact: React.FC = () => {
 
     try {
       // Dynamic import to avoid circular dependency issues if any, or just direct import if safe
-      const { submitContact } = await import('@/lib/api');
-      await submitContact(formData);
+      const { sendContactForm } = await import('@/lib/api');
+      await sendContactForm({
+        name: formData.name,
+        email: formData.email,
+        subject: `Start a Conversation: ${formData.name}`,
+        message: `${formData.message}\n\nPhone: ${formData.phone}`
+      });
 
       toast({
         title: "Message Sent!",

@@ -17,15 +17,21 @@ import {
     DialogHeader,
     DialogTitle,
     DialogFooter,
+    DialogDescription, // Added
 } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, Newspaper } from "lucide-react";
 import { fetchPressReleases, createPressRelease, updatePressRelease, deletePressRelease } from "@/lib/api";
+
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface PressRelease {
     _id: string;
     title: string;
     summary: string;
     externalLink: string;
+    image: string;
+    images: string[];
+    video: string;
     date: string;
     isPublished: boolean;
 }
@@ -40,6 +46,9 @@ const AdminPress = () => {
         title: "",
         summary: "",
         externalLink: "",
+        image: "",
+        images: [] as string[],
+        video: "",
         date: new Date().toISOString().split('T')[0],
         isPublished: true
     });
@@ -66,7 +75,10 @@ const AdminPress = () => {
             setFormData({
                 title: item.title,
                 summary: item.summary,
-                externalLink: item.externalLink,
+                externalLink: item.externalLink || "",
+                image: item.image || "",
+                images: item.images || [],
+                video: item.video || "",
                 date: new Date(item.date).toISOString().split('T')[0],
                 isPublished: item.isPublished
             });
@@ -76,6 +88,9 @@ const AdminPress = () => {
                 title: "",
                 summary: "",
                 externalLink: "",
+                image: "",
+                images: [],
+                video: "",
                 date: new Date().toISOString().split('T')[0],
                 isPublished: true
             });
@@ -88,6 +103,8 @@ const AdminPress = () => {
             const token = localStorage.getItem("mansara-token");
             if (!token) return;
 
+            console.log('[Press] Submitting data:', formData); // Debug
+
             if (editingItem) {
                 await updatePressRelease(editingItem._id, formData, token);
                 toast.success("Press release updated successfully");
@@ -97,8 +114,10 @@ const AdminPress = () => {
             }
             setIsModalOpen(false);
             loadItems();
-        } catch (error) {
-            toast.error("Failed to save press release");
+        } catch (error: any) {
+            console.error('[Press] Submit error:', error); // Debug
+            console.error('[Press] Error response:', error.response?.data); // Debug
+            toast.error(error.message || "Failed to save press release");
         }
     };
 
@@ -184,11 +203,65 @@ const AdminPress = () => {
             </div>
 
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{editingItem ? "Edit Release" : "New Press Release"}</DialogTitle>
+                        <DialogDescription>
+                            {editingItem ? "Edit the details of the press release." : "Fill in the form to create a new press release."}
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Cover Image</label>
+                            <ImageUpload
+                                onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+                                value={formData.image}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Gallery Images (Optional)</label>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {formData.images.map((img, index) => (
+                                    <div key={index} className="relative group border rounded-lg overflow-hidden">
+                                        <img src={img} alt={`Gallery ${index}`} className="w-full h-24 object-cover" />
+                                        <button
+                                            onClick={() => setFormData(prev => ({
+                                                ...prev,
+                                                images: prev.images.filter((_, i) => i !== index)
+                                            }))}
+                                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <Trash2 size={12} />
+                                        </button>
+                                    </div>
+                                ))}
+                                <div className="border border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center">
+                                    <p className="text-xs text-slate-500 mb-2">Add Image</p>
+                                    <ImageUpload
+                                        onChange={(url) => {
+                                            if (url) {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    images: [...prev.images, url]
+                                                }));
+                                            }
+                                        }}
+                                        value=""
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Video URL</label>
+                            <Input
+                                value={formData.video}
+                                onChange={(e) => setFormData(prev => ({ ...prev, video: e.target.value }))}
+                                placeholder="https://www.youtube.com/..."
+                            />
+                        </div>
+
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Title</label>
                             <Input

@@ -90,7 +90,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             await syncCartToServer(mergedCart, token);
           }
 
-          console.log('[Cart] ✓ Loaded from server');
+          // console.log('[Cart] ✓ Loaded from server');
         } catch (error) {
           console.error('[Cart] ✗ Failed to load from server:', error);
           // Fallback to local storage
@@ -99,7 +99,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         // Not logged in - use local storage
         setItems(getStoredCart());
-        console.log('[Cart] ✓ Loaded from local storage');
+        // console.log('[Cart] ✓ Loaded from local storage');
       }
 
       setIsLoading(false);
@@ -132,7 +132,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         await syncCartToServer(items, token);
         setLastSyncTime(now);
-        console.log('[Cart] ✓ Synced to server');
+        // console.log('[Cart] ✓ Synced to server');
       } catch (error) {
         console.error('[Cart] ✗ Sync failed:', error);
       } finally {

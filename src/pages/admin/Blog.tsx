@@ -17,6 +17,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogFooter,
+    DialogDescription,
 } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, FileText } from "lucide-react";
 import { fetchBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost } from "@/lib/api";
@@ -28,6 +29,8 @@ interface BlogPost {
     content: string;
     excerpt: string;
     image: string;
+    images: string[];
+    video: string;
     isPublished: boolean;
     createdAt: string;
 }
@@ -43,6 +46,8 @@ const AdminBlog = () => {
         excerpt: "",
         content: "",
         image: "",
+        images: [] as string[],
+        video: "",
         isPublished: true
     });
 
@@ -70,6 +75,8 @@ const AdminBlog = () => {
                 excerpt: post.excerpt,
                 content: post.content,
                 image: post.image,
+                images: post.images || [],
+                video: post.video || "",
                 isPublished: post.isPublished
             });
         } else {
@@ -79,6 +86,8 @@ const AdminBlog = () => {
                 excerpt: "",
                 content: "",
                 image: "",
+                images: [],
+                video: "",
                 isPublished: true
             });
         }
@@ -90,6 +99,8 @@ const AdminBlog = () => {
             const token = localStorage.getItem("mansara-token");
             if (!token) return;
 
+            console.log('[Blog] Submitting data:', formData); // Add this
+
             if (editingPost) {
                 await updateBlogPost(editingPost._id, formData, token);
                 toast.success("Blog post updated successfully");
@@ -99,8 +110,10 @@ const AdminBlog = () => {
             }
             setIsModalOpen(false);
             loadPosts();
-        } catch (error) {
-            toast.error("Failed to save blog post");
+        } catch (error: any) {
+            console.error('[Blog] Submit error:', error); // Add this
+            console.error('[Blog] Error response:', error.response?.data); // Add this
+            toast.error(error.response?.data?.message || "Failed to save blog post");
         }
     };
 
@@ -191,15 +204,64 @@ const AdminBlog = () => {
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{editingPost ? "Edit Post" : "Create New Post"}</DialogTitle>
+                        <DialogDescription>
+                            {editingPost ? "Edit the details of your blog post below." : "Fill in the details to create a new blog post."}
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Cover Image</label>
-                            <ImageUpload
-                                onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
-                                value={formData.image}
-                            />
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Cover Image</label>
+                                <ImageUpload
+                                    onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+                                    value={formData.image}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Gallery Images (Optional)</label>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {formData.images.map((img, index) => (
+                                        <div key={index} className="relative group border rounded-lg overflow-hidden">
+                                            <img src={img} alt={`Gallery ${index}`} className="w-full h-24 object-cover" />
+                                            <button
+                                                onClick={() => setFormData(prev => ({
+                                                    ...prev,
+                                                    images: prev.images.filter((_, i) => i !== index)
+                                                }))}
+                                                className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <Trash2 size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <div className="border border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center">
+                                        <p className="text-xs text-slate-500 mb-2">Add Image</p>
+                                        <ImageUpload
+                                            onChange={(url) => {
+                                                if (url) {
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        images: [...prev.images, url]
+                                                    }));
+                                                }
+                                            }}
+                                            value=""
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Video URL (YouTube/Vimeo)</label>
+                                <Input
+                                    value={formData.video}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, video: e.target.value }))}
+                                    placeholder="https://www.youtube.com/watch?v=..."
+                                />
+                            </div>
                         </div>
+
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Title</label>
                             <Input

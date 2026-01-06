@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ShoppingCart, Minus, Plus, Check } from 'lucide-react';
+import { ShoppingCart, Minus, Plus, Check, Star, Image as ImageIcon } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useCart } from '@/context/CartContext';
 import { useStore } from '@/context/StoreContext';
+import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { fetchProductReviews, checkReviewEligibility, createReview } from '@/lib/api';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -14,8 +26,20 @@ const ProductDetail: React.FC = () => {
   const [adding, setAdding] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [canReview, setCanReview] = useState(false);
+  const [isReviewLoading, setIsReviewLoading] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    rating: 5,
+    comment: "",
+    images: [] as string[],
+    video: ""
+  });
 
   const product = slug ? getProduct(slug) : undefined;
 
@@ -23,8 +47,53 @@ const ProductDetail: React.FC = () => {
   React.useEffect(() => {
     if (product) {
       setSelectedImage(product.image);
+      loadReviews();
+      if (user) {
+        checkEligibility();
+      }
     }
-  }, [product]);
+  }, [product, user]);
+
+  const loadReviews = async () => {
+    if (!product) return;
+    try {
+      const data = await fetchProductReviews(product._id);
+      setReviews(data);
+    } catch (error) {
+      console.error('Failed to load reviews');
+    }
+  };
+
+  const checkEligibility = async () => {
+    if (!product) return;
+    const token = localStorage.getItem("mansara-token");
+    if (!token) return;
+    try {
+      const data = await checkReviewEligibility(product._id, token);
+      setCanReview(data.canReview);
+    } catch (error) {
+      console.error('Failed to check eligibility');
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!product) return;
+    const token = localStorage.getItem("mansara-token");
+    if (!token) return;
+
+    try {
+      setIsReviewLoading(true);
+      await createReview({ ...reviewForm, productId: product._id }, token);
+      toast({ title: "Review submitted!", description: "Your review is pending approval." });
+      setIsReviewModalOpen(false);
+      setCanReview(false); // Disable until next purchase? Or just hide button
+      loadReviews();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setIsReviewLoading(false);
+    }
+  };
 
   if (!product) {
     return (
@@ -109,9 +178,18 @@ const ProductDetail: React.FC = () => {
               <div className="flex flex-col gap-8">
                 {/* 1. Name & Description */}
                 <div>
-                  <h1 className="text-3xl font-bold mb-4" style={{ color: '#1F2A7C' }}>
+                  <h1 className="text-3xl font-bold mb-2" style={{ color: '#1F2A7C' }}>
                     {product.name}
                   </h1>
+
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex text-yellow-500">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} size={16} fill={i < (product.rating || 0) ? "currentColor" : "none"} className={i < (product.rating || 0) ? "" : "text-gray-300"} />
+                      ))}
+                    </div>
+                    <span className="text-sm text-gray-500">({product.numReviews || 0} reviews)</span>
+                  </div>
 
                   {product.description && (
                     <p className="text-gray-600 mb-4 leading-relaxed">
@@ -276,11 +354,152 @@ const ProductDetail: React.FC = () => {
                     transparency, and a commitment to your wellness.
                   </p>
                 </div>
+
+                {/* Reviews Section */}
+                <section className="mt-12 border-t pt-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold" style={{ color: '#1F2A7C' }}>Customer Reviews</h2>
+                    {canReview && (
+                      <Button onClick={() => setIsReviewModalOpen(true)}>Write a Review</Button>
+                    )}
+                  </div>
+
+                  <div className="space-y-6">
+                    {reviews.length === 0 ? (
+                      <p className="text-gray-500 italic">No reviews yet.</p>
+                    ) : (
+                      reviews.map((review) => (
+                        <div key={review._id} className="border-b pb-6">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">{review.user?.name || 'Customer'}</span>
+                              {review.isVerifiedPurchase && (
+                                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                  <Check size={10} /> Verified Purchase
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-sm text-gray-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center text-yellow-500 mb-2">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} size={16} fill={i < review.rating ? "currentColor" : "none"} className={i < review.rating ? "" : "text-gray-300"} />
+                            ))}
+                          </div>
+                          <p className="text-gray-700 mb-3">{review.comment}</p>
+
+                          {(review.images.length > 0 || review.video) && (
+                            <div className="flex gap-2 overflow-x-auto">
+                              {review.images.map((img: string, idx: number) => (
+                                <img key={idx} src={img} alt="Review" className="w-20 h-20 object-cover rounded-lg border" />
+                              ))}
+                              {review.video && (
+                                <a href={review.video} target="_blank" rel="noopener noreferrer" className="w-20 h-20 bg-gray-100 rounded-lg border flex items-center justify-center text-blue-600 hover:bg-gray-200">
+                                  Video
+                                </a>
+                              )}
+                            </div>
+                          )}
+
+                          {review.adminResponse && (
+                            <div className="mt-3 bg-gray-50 p-3 rounded-lg text-sm border-l-4 border-blue-500">
+                              <p className="font-semibold text-blue-900 mb-1">Response from Mansara:</p>
+                              <p className="text-gray-700">{review.adminResponse}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </section>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Write a Review</DialogTitle>
+            <DialogDescription>
+              Share your experience with this product.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="flex flex-col items-center gap-2 mb-4">
+              <label className="text-sm font-medium">Rating</label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
+                    className={`transition-colors ${reviewForm.rating >= star ? 'text-yellow-500' : 'text-gray-300'}`}
+                  >
+                    <Star size={32} fill={reviewForm.rating >= star ? "currentColor" : "none"} />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Your Review</label>
+              <textarea
+                className="w-full p-2 border rounded-md min-h-[100px]"
+                value={reviewForm.comment}
+                onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
+                placeholder="What did you like or dislike?"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Add Images (Optional)</label>
+              <div className="flex gap-2 flex-wrap">
+                {reviewForm.images.map((img, idx) => (
+                  <div key={idx} className="relative w-16 h-16">
+                    <img src={img} className="w-full h-full object-cover rounded" />
+                    <button
+                      onClick={() => setReviewForm(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 w-4 h-4 flex items-center justify-center text-[10px]"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                <div className="w-16 h-16 border border-dashed rounded flex items-center justify-center">
+                  <ImageUpload
+                    onChange={(url) => {
+                      if (url) setReviewForm(prev => ({ ...prev, images: [...prev.images, url] }));
+                    }}
+                    value=""
+                    hidePreview
+                  >
+                    <ImageIcon size={20} className="text-gray-400" />
+                  </ImageUpload>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Video URL (Optional)</label>
+              <Input
+                value={reviewForm.video}
+                onChange={(e) => setReviewForm(prev => ({ ...prev, video: e.target.value }))}
+                placeholder="https://youtube.com/..."
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsReviewModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSubmitReview} disabled={isReviewLoading} className="bg-[#1F2A7C] text-white">
+              {isReviewLoading ? "Submitting..." : "Submit Review"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };

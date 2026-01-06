@@ -6,6 +6,7 @@ import { fetchProducts, fetchCombos, getCategories } from '@/lib/api';
 // ========================================
 export interface Product {
     id: string;
+    _id?: string; // Raw MongoDB ID
     slug: string;
     name: string;
     category: string;
@@ -29,6 +30,8 @@ export interface Product {
     compliance?: string;
     sub_category?: string;
     short_description?: string;
+    rating?: number;
+    numReviews?: number;
 }
 
 export interface Combo {

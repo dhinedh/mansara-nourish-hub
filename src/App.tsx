@@ -49,6 +49,7 @@ import AdminStock from "./pages/admin/Stock";
 import AdminBlog from "./pages/admin/Blog";
 import AdminPress from "./pages/admin/Press";
 import AdminCareers from "./pages/admin/Careers";
+import AdminReviews from "./pages/admin/Reviews";
 
 import TermsAndConditions from "./pages/policies/TermsAndConditions";
 import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
@@ -149,6 +150,7 @@ const App = () => {
                       <Route path="/admin/blog" element={<AdminBlog />} />
                       <Route path="/admin/press" element={<AdminPress />} />
                       <Route path="/admin/careers" element={<AdminCareers />} />
+                      <Route path="/admin/reviews" element={<AdminReviews />} />
                       <Route path="/admin/banners" element={<AdminBanners />} />
                       <Route path="/admin/hero" element={<AdminHeroManagement />} />
                       <Route path="/admin/stock" element={<AdminStock />} />
