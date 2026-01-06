@@ -32,9 +32,9 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li><Link to="/contact" className="text-brand-cream/80 hover:text-brand-yellow transition-colors">Contact Us</Link></li>
               <li><Link to="/about" className="text-brand-cream/80 hover:text-brand-yellow transition-colors">About Us</Link></li>
-              <li><span className="text-brand-cream/50 cursor-not-allowed">Career</span></li>
-              <li><span className="text-brand-cream/50 cursor-not-allowed">Press Releases</span></li>
-              <li><span className="text-brand-cream/50 cursor-not-allowed">Blog</span></li>
+              <li><Link to="/careers" className="text-brand-cream/80 hover:text-brand-yellow transition-colors">Career</Link></li>
+              <li><Link to="/press" className="text-brand-cream/80 hover:text-brand-yellow transition-colors">Press Releases</Link></li>
+              <li><Link to="/blog" className="text-brand-cream/80 hover:text-brand-yellow transition-colors">Blog</Link></li>
             </ul>
           </div>
 

@@ -10,6 +10,9 @@ import Index from "./pages/Index";
 import Products from "./pages/Products";
 import Offers from "./pages/Offers";
 import Combos from "./pages/Combos";
+import Blog from "./pages/Blog";
+import PressReleases from "./pages/PressReleases";
+import Careers from "./pages/Careers";
 import NewArrivals from "./pages/NewArrivals";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
@@ -42,6 +45,10 @@ import AdminSettings from "./pages/admin/Settings";
 import AdminCategories from "./pages/admin/Categories";
 import AdminHeroManagement from "./pages/admin/HeroManagement";
 import AdminCustomerHistory from "./pages/admin/CustomerHistory";
+import AdminStock from "./pages/admin/Stock";
+import AdminBlog from "./pages/admin/Blog";
+import AdminPress from "./pages/admin/Press";
+import AdminCareers from "./pages/admin/Careers";
 
 import TermsAndConditions from "./pages/policies/TermsAndConditions";
 import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
@@ -97,17 +104,23 @@ const App = () => {
                   <BrowserRouter>
                     <ScrollToTop />
                     <Routes>
-                      {/* Public Routes */}
+                      {/* Public Pages */}
                       <Route path="/" element={<Index />} />
-                      <Route path="/products" element={<Products />} />
-                      <Route path="/offers" element={<Offers />} />
-                      <Route path="/combos" element={<Combos />} />
-                      <Route path="/new-arrivals" element={<NewArrivals />} />
-                      <Route path="/product/:slug" element={<ProductDetail />} />
-                      <Route path="/cart" element={<Cart />} />
-                      <Route path="/checkout" element={<Checkout />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/contact" element={<Contact />} />
+                      <Route path="/products" element={<Products />} />
+                      <Route path="/product/:slug" element={<ProductDetail />} />
+                      <Route path="/combos" element={<Combos />} />
+                      <Route path="/offers" element={<Offers />} />
+                      <Route path="/new-arrivals" element={<NewArrivals />} />
+                      <Route path="/cart" element={<Cart />} />
+
+                      {/* Content Pages */}
+                      <Route path="/blog" element={<AdminBlog />} />
+                      <Route path="/press" element={<AdminPress />} />
+                      <Route path="/careers" element={<AdminCareers />} />
+
+                      {/* User */}        <Route path="/checkout" element={<Checkout />} />
 
                       {/* Auth Routes */}
                       <Route path="/login" element={<Login />} />
@@ -133,8 +146,12 @@ const App = () => {
                       <Route path="/admin/offers" element={<AdminOffers />} />
                       <Route path="/admin/combos" element={<AdminCombos />} />
                       <Route path="/admin/content" element={<AdminContent />} />
+                      <Route path="/admin/blog" element={<AdminBlog />} />
+                      <Route path="/admin/press" element={<AdminPress />} />
+                      <Route path="/admin/careers" element={<AdminCareers />} />
                       <Route path="/admin/banners" element={<AdminBanners />} />
                       <Route path="/admin/hero" element={<AdminHeroManagement />} />
+                      <Route path="/admin/stock" element={<AdminStock />} />
                       <Route path="/admin/settings" element={<AdminSettings />} />
 
                       {/* Policy Pages */}

@@ -15,6 +15,8 @@ import {
   LogOut,
   Menu,
   X,
+  Newspaper,
+  Briefcase
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -66,12 +68,16 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
     { icon: Package, label: "Products", path: "/admin/products" },
+    { icon: Box, label: "Stocks", path: "/admin/stock" },
     { icon: Box, label: "Categories", path: "/admin/categories" },
     { icon: Percent, label: "Offers", path: "/admin/offers" },
     { icon: Box, label: "Combos", path: "/admin/combos" },
     { icon: ShoppingCart, label: "Orders", path: "/admin/orders" },
     { icon: Users, label: "Customers", path: "/admin/customers" },
     { icon: FileText, label: "Content", path: "/admin/content" },
+    { icon: FileText, label: "Blog", path: "/admin/blog" },
+    { icon: Newspaper, label: "Press", path: "/admin/press" },
+    { icon: Briefcase, label: "Careers", path: "/admin/careers" },
     { icon: Image, label: "Banners", path: "/admin/banners" },
     { icon: Settings, label: "Settings", path: "/admin/settings" },
   ];

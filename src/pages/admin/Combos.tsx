@@ -17,12 +17,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+// Extended Combo interface for form
+interface ComboFormData extends Omit<Combo, 'id'> {
+  stock?: number;
+}
+
 const AdminCombos = () => {
   const { combos, addCombo, updateCombo, deleteCombo } = useStore();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<Omit<Combo, 'id'>>({
+  const [formData, setFormData] = useState<ComboFormData>({
     name: '',
     slug: '',
     originalPrice: 0,
@@ -30,7 +35,8 @@ const AdminCombos = () => {
     image: '',
     images: [],
     description: '',
-    isActive: true
+    isActive: true,
+    stock: 0
   });
 
   // Auto-generate slug from name
@@ -44,8 +50,8 @@ const AdminCombos = () => {
     }
   }, [formData.name, editingId]);
 
-  const handleEdit = (combo: Combo) => {
-    setEditingId(combo.id);
+  const handleEdit = (combo: any) => {
+    setEditingId(combo.id || combo._id);
     setFormData({
       name: combo.name,
       slug: combo.slug,
@@ -54,7 +60,8 @@ const AdminCombos = () => {
       image: combo.image,
       images: combo.images || (combo.image ? [combo.image] : []),
       description: combo.description,
-      isActive: combo.isActive !== undefined ? combo.isActive : true
+      isActive: combo.isActive !== undefined ? combo.isActive : true,
+      stock: combo.stock || 0
     });
     setIsDialogOpen(true);
   };
@@ -69,7 +76,8 @@ const AdminCombos = () => {
       image: '',
       images: [],
       description: '',
-      isActive: true
+      isActive: true,
+      stock: 0
     });
     setIsDialogOpen(true);
   };
@@ -135,8 +143,8 @@ const AdminCombos = () => {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {combos.map((combo) => (
-              <Card key={combo.id} className="overflow-hidden group">
+            {combos.map((combo: any) => (
+              <Card key={combo.id || combo._id} className="overflow-hidden group">
                 <div className="relative h-48 bg-slate-100">
                   <img
                     src={combo.image}
@@ -149,7 +157,7 @@ const AdminCombos = () => {
                       variant="destructive"
                       size="icon"
                       className="h-8 w-8"
-                      onClick={() => handleDelete(combo.id)}
+                      onClick={() => handleDelete(combo.id || combo._id)}
                     >
                       <Trash2 size={14} />
                     </Button>
@@ -159,6 +167,15 @@ const AdminCombos = () => {
                       <span className="bg-slate-800 text-white text-xs px-2 py-1 rounded font-bold uppercase">Deactivated</span>
                     </div>
                   )}
+                  {/* Stock Badge */}
+                  <div className="absolute bottom-2 left-2">
+                    <span className={`text-xs px-2 py-1 rounded font-bold ${(combo.stock || 0) > 5 ? 'bg-green-100 text-green-800' :
+                        (combo.stock || 0) > 0 ? 'bg-orange-100 text-orange-800' :
+                          'bg-red-100 text-red-800'
+                      }`}>
+                      Stock: {combo.stock || 0}
+                    </span>
+                  </div>
                 </div>
                 <CardContent className="p-4">
                   <h3 className="font-bold text-lg mb-1 truncate">{combo.name}</h3>
@@ -175,7 +192,7 @@ const AdminCombos = () => {
 
                   <div className="grid grid-cols-2 gap-2">
                     <Button
-                      onClick={() => toggleStatus(combo.id, combo.isActive)}
+                      onClick={() => toggleStatus(combo.id || combo._id, combo.isActive)}
                       variant="outline"
                       size="sm"
                     >
@@ -197,7 +214,7 @@ const AdminCombos = () => {
 
         {/* Edit/Create Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingId ? 'Edit Combo' : 'New Combo'}</DialogTitle>
               <DialogDescription>
@@ -222,6 +239,17 @@ const AdminCombos = () => {
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                   className="col-span-3"
                   placeholder="url-friendly-name"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="stock" className="text-right">Stock</Label>
+                <Input
+                  id="stock"
+                  type="number"
+                  value={formData.stock}
+                  onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
+                  className="col-span-3"
+                  min="0"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -293,6 +321,7 @@ const AdminCombos = () => {
                             });
                           }
                         }}
+                        value=""
                       />
                     </div>
                   </div>
