@@ -42,11 +42,20 @@ const getStoredCart = (): CartItem[] => {
     if (!Array.isArray(parsed)) return [];
 
     // Sanitize stored data
-    return parsed.map((item: any) => ({
-      ...item,
-      quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
-      price: Number(item.price) || 0
-    }));
+    return parsed.map((item: any) => {
+      const quantity = Number(item.quantity) || 1;
+      const price = Number(item.price) || 0;
+
+      // Fix corrupted data
+      const sanitizedQuantity = (quantity > 1000 || quantity < 1) ? 1 : Math.floor(quantity);
+      const sanitizedPrice = (price > 1000000 || price < 0) ? 0 : price;
+
+      return {
+        ...item,
+        quantity: sanitizedQuantity,
+        price: sanitizedPrice
+      };
+    });
   } catch (error) {
     console.error('[Cart] Failed to parse stored cart:', error);
     return [];
@@ -79,16 +88,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
           const serverCart = await getCart(token);
 
-          // Merge with local cart if user just logged in
-          const localCart = getStoredCart();
-          const mergedCart = mergeCarts(serverCart, localCart);
+          // Sanitize server cart too just in case
+          const sanitizedServerCart = serverCart.map((item: any) => ({
+            ...item,
+            quantity: (item.quantity > 1000 || item.quantity < 1) ? 1 : item.quantity
+          }));
 
-          setItems(mergedCart);
-
-          // Save merged cart back to server if changed
-          if (mergedCart.length !== serverCart.length) {
-            await syncCartToServer(mergedCart, token);
-          }
+          // Use server cart as source of truth
+          // We intentionally avoid merging local storage here to prevent 
+          // the "double counting" bug on page refreshes.
+          setItems(sanitizedServerCart);
 
           // console.log('[Cart] ✓ Loaded from server');
         } catch (error) {
@@ -144,28 +153,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => clearTimeout(timer);
   }, [items, user, isLoading, lastSyncTime]);
 
-  // ========================================
-  // HELPER FUNCTIONS
-  // ========================================
-
-  // Merge local and server carts (prevent duplicates)
-  const mergeCarts = (serverCart: CartItem[], localCart: CartItem[]): CartItem[] => {
-    const merged = [...serverCart];
-
-    localCart.forEach(localItem => {
-      const existingIndex = merged.findIndex(item => item.id === localItem.id);
-      if (existingIndex >= 0) {
-        // Merge quantities
-        merged[existingIndex].quantity = (Number(merged[existingIndex].quantity) || 0) + (Number(localItem.quantity) || 0);
-      } else {
-        // Add new item
-        merged.push(localItem);
-      }
-    });
-
-    return merged;
-  };
-
   // Sync cart to server
   const syncCartToServer = async (cart: CartItem[], token: string) => {
     try {
@@ -187,7 +174,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Update quantity
         return prev.map(i =>
           i.id === item.id
-            ? { ...i, quantity: (parseInt(i.quantity as any) || 0) + 1 }
+            ? { ...i, quantity: Math.min(999, (parseInt(i.quantity as any) || 0) + 1) } // Cap at 999
             : i
         );
       }
@@ -215,7 +202,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateQuantity = useCallback((id: string, quantity: number) => {
     // Ensure quantity is a valid number
-    const newQuantity = Math.max(0, Math.floor(Number(quantity)));
+    let newQuantity = Math.floor(Number(quantity));
+
+    // Bounds check
+    if (isNaN(newQuantity) || newQuantity < 0) newQuantity = 0;
+    if (newQuantity > 999) newQuantity = 999; // Hard cap
 
     if (newQuantity < 1) {
       removeFromCart(id);
