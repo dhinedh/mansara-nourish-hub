@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 import { mockAddresses } from '@/data/mockData';
 
 const Account: React.FC = () => {
-    const { user: contextUser, logout } = useAuth();
+    const { user: contextUser, logout, isLoading: authLoading } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'addresses' | 'settings'>('overview');
     const [orders, setOrders] = useState<any[]>([]);
@@ -68,10 +68,24 @@ const Account: React.FC = () => {
     // Use userProfile if available, else fallback to contextUser
     const displayUser = userProfile || contextUser;
 
-    if (!displayUser) {
-        navigate('/login');
-        return null;
+    // Auth verification now handled by ProtectedRoute
+    // useEffect(() => {
+    //     if (!authLoading && !displayUser) {
+    //         navigate('/login');
+    //     }
+    // }, [authLoading, displayUser, navigate]);
+
+    if (authLoading) {
+        return (
+            <Layout>
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+            </Layout>
+        );
     }
+
+    if (!displayUser) return null;
 
     const handleLogout = () => {
         logout();

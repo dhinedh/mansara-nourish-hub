@@ -6,58 +6,65 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import ScrollToTop from "./components/ScrollToTop";
-import Index from "./pages/Index";
-import Products from "./pages/Products";
-import Offers from "./pages/Offers";
-import Combos from "./pages/Combos";
-import Blog from "./pages/Blog";
-import BlogDetail from "./pages/BlogDetail";
-import Press from "./pages/Press";
-import PressDetail from "./pages/PressDetail";
-import Careers from "./pages/Careers";
-import CareerDetail from "./pages/CareerDetail";
-import NewArrivals from "./pages/NewArrivals";
-import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import VerifyEmail from "./pages/VerifyEmail";
-import ForgotPassword from "./pages/ForgotPassword";
-import Account from "./pages/Account";
-import Orders from "./pages/Orders";
-import OrderTracking from "./pages/OrderTracking";
 import { AuthProvider } from "./context/AuthContext";
 import { ContentProvider } from "./context/ContentContext";
 import { StoreProvider } from "./context/StoreContext";
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import Loading from "@/components/ui/Loading";
+import { lazy, Suspense } from 'react';
 
-import AdminLogin from "./pages/admin/Login";
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminProducts from "./pages/admin/Products";
-import AdminProductEdit from "./pages/admin/ProductEdit";
-import AdminOrders from "./pages/admin/Orders";
-import AdminCustomers from "./pages/admin/Customers";
-import AdminOffers from "./pages/admin/Offers";
-import AdminCombos from "./pages/admin/Combos";
-import AdminContent from "./pages/admin/Content";
-import AdminBanners from "./pages/admin/Banners";
-import AdminSettings from "./pages/admin/Settings";
-import AdminCategories from "./pages/admin/Categories";
-import AdminHeroManagement from "./pages/admin/HeroManagement";
-import AdminCustomerHistory from "./pages/admin/CustomerHistory";
-import AdminStock from "./pages/admin/Stock";
-import AdminBlog from "./pages/admin/Blog";
-import AdminPress from "./pages/admin/Press";
-import AdminCareers from "./pages/admin/Careers";
-import AdminReviews from "./pages/admin/Reviews";
+// Lazy load pages
+const Index = lazy(() => import("./pages/Index"));
+const Products = lazy(() => import("./pages/Products"));
+const Offers = lazy(() => import("./pages/Offers"));
+const Combos = lazy(() => import("./pages/Combos"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogDetail = lazy(() => import("./pages/BlogDetail"));
+const Press = lazy(() => import("./pages/Press"));
+const PressDetail = lazy(() => import("./pages/PressDetail"));
+const Careers = lazy(() => import("./pages/Careers"));
+const CareerDetail = lazy(() => import("./pages/CareerDetail"));
+const NewArrivals = lazy(() => import("./pages/NewArrivals"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const Account = lazy(() => import("./pages/Account"));
+const Orders = lazy(() => import("./pages/Orders"));
+const OrderTracking = lazy(() => import("./pages/OrderTracking"));
 
-import TermsAndConditions from "./pages/policies/TermsAndConditions";
-import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
-import DeliveryShippingPolicy from "./pages/policies/DeliveryShippingPolicy";
-import RefundReturnPolicy from "./pages/policies/RefundReturnPolicy";
+// Admin pages
+const AdminLogin = lazy(() => import("./pages/admin/Login"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminProducts = lazy(() => import("./pages/admin/Products"));
+const AdminProductEdit = lazy(() => import("./pages/admin/ProductEdit"));
+const AdminOrders = lazy(() => import("./pages/admin/Orders"));
+const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
+const AdminOffers = lazy(() => import("./pages/admin/Offers"));
+const AdminCombos = lazy(() => import("./pages/admin/Combos"));
+const AdminContent = lazy(() => import("./pages/admin/Content"));
+const AdminBanners = lazy(() => import("./pages/admin/Banners"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
+const AdminCategories = lazy(() => import("./pages/admin/Categories"));
+const AdminHeroManagement = lazy(() => import("./pages/admin/HeroManagement"));
+const AdminCustomerHistory = lazy(() => import("./pages/admin/CustomerHistory"));
+const AdminStock = lazy(() => import("./pages/admin/Stock"));
+const AdminBlog = lazy(() => import("./pages/admin/Blog"));
+const AdminPress = lazy(() => import("./pages/admin/Press"));
+const AdminCareers = lazy(() => import("./pages/admin/Careers"));
+const AdminReviews = lazy(() => import("./pages/admin/Reviews"));
+
+// Policies
+const TermsAndConditions = lazy(() => import("./pages/policies/TermsAndConditions"));
+const PrivacyPolicy = lazy(() => import("./pages/policies/PrivacyPolicy"));
+const DeliveryShippingPolicy = lazy(() => import("./pages/policies/DeliveryShippingPolicy"));
+const RefundReturnPolicy = lazy(() => import("./pages/policies/RefundReturnPolicy"));
 
 // ========================================
 // OPTIMIZED APP CONFIGURATION
@@ -104,74 +111,168 @@ const App = () => {
               <CartProvider>
                 <TooltipProvider>
                   <Toaster />
-                  <Sonner />
+                  <Sonner position="top-right" />
                   <BrowserRouter>
                     <ScrollToTop />
-                    <Routes>
-                      {/* Public Pages */}
-                      <Route path="/" element={<Index />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/products" element={<Products />} />
-                      <Route path="/product/:slug" element={<ProductDetail />} />
-                      <Route path="/combos" element={<Combos />} />
-                      <Route path="/offers" element={<Offers />} />
-                      <Route path="/new-arrivals" element={<NewArrivals />} />
-                      <Route path="/cart" element={<Cart />} />
+                    <Suspense fallback={<Loading />}>
+                      <Routes>
+                        {/* Public Pages */}
+                        <Route path="/" element={<Index />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/products" element={<Products />} />
+                        <Route path="/product/:slug" element={<ProductDetail />} />
+                        <Route path="/combos" element={<Combos />} />
+                        <Route path="/offers" element={<Offers />} />
+                        <Route path="/new-arrivals" element={<NewArrivals />} />
+                        <Route path="/cart" element={<Cart />} />
 
-                      {/* Content Pages */}
-                      {/* Content Pages */}
-                      <Route path="/blog" element={<Blog />} />
-                      <Route path="/blog/:slug" element={<BlogDetail />} />
-                      <Route path="/press" element={<Press />} />
-                      <Route path="/press/:slug" element={<PressDetail />} />
-                      <Route path="/careers" element={<Careers />} />
-                      <Route path="/careers/:id" element={<CareerDetail />} />
+                        {/* Content Pages */}
+                        <Route path="/blog" element={<Blog />} />
+                        <Route path="/blog/:slug" element={<BlogDetail />} />
+                        <Route path="/press" element={<Press />} />
+                        <Route path="/press/:slug" element={<PressDetail />} />
+                        <Route path="/careers" element={<Careers />} />
+                        <Route path="/careers/:id" element={<CareerDetail />} />
 
-                      {/* User */}        <Route path="/checkout" element={<Checkout />} />
+                        {/* User */}
+                        <Route path="/checkout" element={
+                          <ProtectedRoute>
+                            <Checkout />
+                          </ProtectedRoute>
+                        } />
 
-                      {/* Auth Routes */}
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/register" element={<Register />} />
-                      <Route path="/verify-email" element={<VerifyEmail />} />
-                      <Route path="/forgot-password" element={<ForgotPassword />} />
+                        {/* Auth Routes */}
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/verify-email" element={<VerifyEmail />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-                      {/* User Account Routes */}
-                      <Route path="/account" element={<Account />} />
-                      <Route path="/orders" element={<Orders />} />
-                      <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
+                        {/* User Account Routes */}
+                        <Route path="/account" element={
+                          <ProtectedRoute>
+                            <Account />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/orders" element={
+                          <ProtectedRoute>
+                            <Orders />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/order-tracking/:orderId" element={
+                          <ProtectedRoute>
+                            <OrderTracking />
+                          </ProtectedRoute>
+                        } />
 
-                      {/* Admin Routes */}
-                      <Route path="/admin/login" element={<AdminLogin />} />
-                      <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                      <Route path="/admin/categories" element={<AdminCategories />} />
-                      <Route path="/admin/products" element={<AdminProducts />} />
-                      <Route path="/admin/products/:id/edit" element={<AdminProductEdit />} />
-                      <Route path="/admin/products/new" element={<AdminProductEdit />} />
-                      <Route path="/admin/orders" element={<AdminOrders />} />
-                      <Route path="/admin/customers" element={<AdminCustomers />} />
-                      <Route path="/admin/customers/:id" element={<AdminCustomerHistory />} />
-                      <Route path="/admin/offers" element={<AdminOffers />} />
-                      <Route path="/admin/combos" element={<AdminCombos />} />
-                      <Route path="/admin/content" element={<AdminContent />} />
-                      <Route path="/admin/blog" element={<AdminBlog />} />
-                      <Route path="/admin/press" element={<AdminPress />} />
-                      <Route path="/admin/careers" element={<AdminCareers />} />
-                      <Route path="/admin/reviews" element={<AdminReviews />} />
-                      <Route path="/admin/banners" element={<AdminBanners />} />
-                      <Route path="/admin/hero" element={<AdminHeroManagement />} />
-                      <Route path="/admin/stock" element={<AdminStock />} />
-                      <Route path="/admin/settings" element={<AdminSettings />} />
+                        {/* Admin Routes */}
+                        <Route path="/admin/login" element={<AdminLogin />} />
+                        <Route path="/admin/dashboard" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminDashboard />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/categories" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminCategories />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/products" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminProducts />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/products/:id/edit" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminProductEdit />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/products/new" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminProductEdit />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/orders" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminOrders />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/customers" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminCustomers />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/customers/:id" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminCustomerHistory />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/offers" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminOffers />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/combos" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminCombos />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/content" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminContent />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/blog" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminBlog />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/press" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminPress />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/careers" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminCareers />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/reviews" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminReviews />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/banners" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminBanners />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/hero" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminHeroManagement />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/stock" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminStock />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/admin/settings" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminSettings />
+                          </ProtectedRoute>
+                        } />
 
-                      {/* Policy Pages */}
-                      <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                      <Route path="/delivery-shipping-policy" element={<DeliveryShippingPolicy />} />
-                      <Route path="/refund-return-policy" element={<RefundReturnPolicy />} />
+                        {/* Policy Pages */}
+                        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                        <Route path="/delivery-shipping-policy" element={<DeliveryShippingPolicy />} />
+                        <Route path="/refund-return-policy" element={<RefundReturnPolicy />} />
 
-                      {/* 404 Not Found */}
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
+                        {/* 404 Not Found */}
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </Suspense>
                   </BrowserRouter>
                 </TooltipProvider>
               </CartProvider>
