@@ -880,6 +880,15 @@ export const fetchPressReleases = async () => {
     return response.json();
 };
 
+export const fetchPressReleaseById = async (id: string) => {
+    const response = await fetch(`${API_URL}/press/${id}`);
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.message || 'Failed to fetch press release');
+    }
+    return response.json();
+};
+
 export const createPressRelease = async (data: any, token: string) => {
     try {
         const response = await fetch(`${API_URL}/press`, {
