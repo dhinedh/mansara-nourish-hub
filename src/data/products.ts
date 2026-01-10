@@ -18,6 +18,7 @@ export interface Product {
   highlights?: string[];
   nutrition?: string; // HTML or text content
   compliance?: string;
+  short_description?: string;
 }
 
 export interface Combo {
