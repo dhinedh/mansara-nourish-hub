@@ -66,7 +66,7 @@ const Orders: React.FC = () => {
                                 <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
                                     <div>
                                         <div className="flex items-center gap-3 mb-1">
-                                            <span className="font-mono font-bold text-lg">#{order.orderId || (order._id ? order._id.slice(-6).toUpperCase()) : order.id}</span>
+                                            <span className="font-mono font-bold text-lg">#{order.orderId || (order._id ? order._id.slice(-6).toUpperCase() : order.id)}</span>
                                             <Badge variant={order.orderStatus === 'Delivered' ? 'default' : 'secondary'}>
                                                 {order.orderStatus}
                                             </Badge>
