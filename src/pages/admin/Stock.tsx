@@ -24,14 +24,15 @@ import {
     AlertTriangle,
     CheckCircle,
     Package,
-    ArrowUpDown
+    ArrowUpDown,
+    RefreshCw
 } from "lucide-react";
 import AdminLayout from '@/components/admin/AdminLayout';
 import { useStore } from '@/context/StoreContext';
 import { useToast } from "@/hooks/use-toast";
 
 const Stock = () => {
-    const { products, updateProduct, isLoading } = useStore();
+    const { products, updateProduct, isLoading, refetch } = useStore();
     const { toast } = useToast();
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
@@ -153,6 +154,10 @@ const Stock = () => {
                             Monitor inventory levels and update product stock.
                         </p>
                     </div>
+                    <Button variant="outline" onClick={() => refetch()} disabled={isLoading} className="gap-2">
+                        <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                        Refresh Inventory
+                    </Button>
                 </div>
 
                 {/* Filters */}
