@@ -327,7 +327,7 @@ const ProductDetail: React.FC = () => {
                 )}
 
                 {/* 3. Ingredients */}
-                {product.ingredients && (
+                {product.ingredients && typeof product.ingredients === 'string' && (
                   <section>
                     <h2 className="text-xl font-bold mb-3 border-b pb-2" style={{ color: '#1F2A7C', borderColor: 'rgba(31, 42, 124, 0.1)' }}>
                       Ingredients
