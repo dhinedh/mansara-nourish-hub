@@ -200,10 +200,27 @@ const retryFetch = async <T,>(
 // ========================================
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [combos, setCombos] = useState<Combo[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // 1. INSTANT LOAD: Initialize with data from localStorage
+    const [products, setProducts] = useState<Product[]>(() => {
+        try {
+            const saved = localStorage.getItem('mansara-products');
+            return saved ? JSON.parse(saved) : [];
+        } catch { return []; }
+    });
+    const [combos, setCombos] = useState<Combo[]>(() => {
+        try {
+            const saved = localStorage.getItem('mansara-combos');
+            return saved ? JSON.parse(saved) : [];
+        } catch { return []; }
+    });
+    const [categories, setCategories] = useState<Category[]>(() => {
+        try {
+            const saved = localStorage.getItem('mansara-categories');
+            return saved ? JSON.parse(saved) : [];
+        } catch { return []; }
+    });
+
+    const [isLoading, setIsLoading] = useState(products.length === 0);
     const [error, setError] = useState<string | null>(null);
 
     // ========================================
@@ -211,76 +228,70 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // ========================================
 
     const fetchData = useCallback(async (forceRefresh = false) => {
-        if (!forceRefresh) {
-            const cachedProducts = getCachedData('products');
-            const cachedCombos = getCachedData('combos');
-            const cachedCategories = getCachedData('categories');
-
-            if (cachedProducts && cachedCombos && cachedCategories) {
-                setProducts(cachedProducts);
-                setCombos(cachedCombos);
-                setCategories(cachedCategories);
-                setIsLoading(false);
-                console.log('[Store] Using cached data');
-                return;
-            }
-        }
-
-        setIsLoading(true);
+        // Don't show loading spinner if we already have data (Background Refresh)
+        if (products.length === 0) setIsLoading(true);
         setError(null);
 
         try {
             console.log('[Store] Fetching data...');
 
-            // Fetch all data with retry logic
-            const [productsData, combosData, categoriesData] = await Promise.all([
-                retryFetch(() => fetchProducts()),
-                retryFetch(() => fetchCombos()),
-                retryFetch(() => getCategories())
-            ]);
+            // OPTIMIZATION: Start all fetches in parallel, but handle products FIRST
+            const productsPromise = retryFetch(() => fetchProducts());
+            const combosPromise = retryFetch(() => fetchCombos());
+            const categoriesPromise = retryFetch(() => getCategories());
 
-            // Extract arrays
+            // 1. Wait for Products (Critical) and update UI immediately
+            const productsData = await productsPromise;
             const productsArray = extractArray(productsData, 'products').map(normalizeId);
-            const combosArray = extractArray(combosData, 'combos').map(normalizeId);
+
+            // Need categories for normalization, wait for them too
+            const categoriesData = await categoriesPromise;
             const categoriesArray = extractArray(categoriesData, 'categories').map(normalizeCategory);
 
-            // Create category lookup map
+            // Update Categories UI
+            setCategories(categoriesArray);
+            localStorage.setItem('mansara-categories', JSON.stringify(categoriesArray));
+
+            // Create lookup for Normalization
             const categoryMap = new Map(
                 categoriesArray.map(cat => [cat.slug || cat.value, cat.id])
             );
 
-            // Enhance products with categoryId
+            // Normalize and Update Products UI
             const enhancedProducts = productsArray.map(product => {
-                // If category is a slug, find the ID
                 const categoryId = categoryMap.get(product.category) || product.category;
-
                 return {
                     ...product,
-                    categoryId: categoryId, // Store the ObjectId
-                    // Keep category as slug for display
-                    category: typeof product.category === 'object'
-                        ? (product.category as any).slug
-                        : product.category
+                    categoryId: categoryId,
+                    category: product.category || 'uncategorized'
                 };
             });
 
             setProducts(enhancedProducts);
-            setCombos(combosArray);
-            setCategories(categoriesArray);
+            localStorage.setItem('mansara-products', JSON.stringify(enhancedProducts));
 
-            // Cache the data
-            setCachedData('products', enhancedProducts);
-            setCachedData('combos', combosArray);
-            setCachedData('categories', categoriesArray);
+            // Products are loaded, stop spinner!
+            setIsLoading(false);
 
-            console.log('[Store] ✓ Data fetched successfully');
+            // 2. Handle Combos (Non-critical, can update later)
+            try {
+                const combosData = await combosPromise;
+                const combosArray = extractArray(combosData, 'combos').map(normalizeId);
+                setCombos(combosArray);
+                localStorage.setItem('mansara-combos', JSON.stringify(combosArray));
+            } catch (e) {
+                console.warn('[Store] Failed to load combos (non-critical)');
+            }
+
+            console.log(`[Store] ✓ Loaded ${enhancedProducts.length} products`);
+
         } catch (err: any) {
-            console.error('[Store] ✗ Failed to fetch data:', err);
-            setError(err.message || 'Failed to load store data');
-        } finally {
+            console.error('[Store] Fatal fetch error:', err);
+            setError(err.message);
             setIsLoading(false);
         }
     }, []);
+
 
     // Initial fetch
     useEffect(() => {
