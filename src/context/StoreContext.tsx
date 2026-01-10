@@ -112,6 +112,8 @@ const extractArray = (data: any, key: string): any[] => {
         return [];
     }
 
+    console.log(`[Store] Debug extract ${key}:`, { isArray: Array.isArray(data), keys: Object.keys(data) });
+
     // Handle different response formats
     if (Array.isArray(data)) {
         console.log(`[Store] ✓ Extracted ${data.length} ${key} (array format)`);
@@ -241,11 +243,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const categoriesPromise = retryFetch(() => getCategories());
 
             // 1. Wait for Products (Critical) and update UI immediately
+            console.log('[Store] Awaiting products...');
             const productsData = await productsPromise;
+            console.log('[Store] Products received. Awaiting categories...');
+
             const productsArray = extractArray(productsData, 'products').map(normalizeId);
 
             // Need categories for normalization, wait for them too
             const categoriesData = await categoriesPromise;
+            console.log('[Store] Categories received.');
             const categoriesArray = extractArray(categoriesData, 'categories').map(normalizeCategory);
 
             // Update Categories UI
@@ -437,8 +443,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
     }, [products]);
 
-    const getProduct = useCallback((id: string) => {
-        return products.find(p => p.id === id || p._id === id);
+    const getProduct = useCallback((identifier: string) => {
+        return products.find(p => p.id === identifier || p._id === identifier || p.slug === identifier);
     }, [products]);
 
     // ========================================
