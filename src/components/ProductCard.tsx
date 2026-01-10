@@ -135,8 +135,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
         <h3 className="font-heading font-semibold text-lg mb-2 truncate text-foreground group-hover:text-primary transition-colors" title={product.name}>
           {product.name}
         </h3>
-        {product.description && (
-          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{product.description}</p>
+        {(product.short_description || product.description) && (
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+            {product.short_description || product.description}
+          </p>
         )}
         <div className="flex items-center justify-between">
           <div>

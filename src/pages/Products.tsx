@@ -13,6 +13,7 @@ const Products: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search');
+  const categoryParam = searchParams.get('category');
 
   const items = getBannersByPage('products');
 
@@ -22,12 +23,34 @@ const Products: React.FC = () => {
     ...storeCategories.map(c => ({ id: c.id, name: c.name, value: c.value }))
   ];
 
+  // Initialize selectedCategory from URL if present
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [categoryParam]);
+
   useEffect(() => {
     let result = products;
 
     // Filter by Category
     if (selectedCategory !== 'all') {
-      result = result.filter((p) => p.category === selectedCategory);
+      // Find the category object to get its ID
+      const categoryObj = storeCategories.find(c => c.value === selectedCategory || c.slug === selectedCategory);
+
+      if (categoryObj) {
+        result = result.filter((p) => {
+          // Handle both unpopulated (ID string) and populated (Object) category field
+          const pCatId = p.category && typeof p.category === 'object' ? p.category?._id || p.category?.id : p.category;
+          return pCatId === categoryObj.id || pCatId === categoryObj._id;
+        });
+      } else {
+        // Fallback: If no category found (maybe data mismatch), try matching by string if p.category is slug (unlikely)
+        // or just return empty/all? Better to return empty if category explicitly selected but not found.
+        // But for now, let's assume if categoryObj is missing, maybe it's an ID passed as value?
+        // Let's also check if selectedCategory matches p.category directly
+        result = result.filter(p => p.category === selectedCategory);
+      }
     }
 
     // Filter by Search Query
@@ -36,12 +59,12 @@ const Products: React.FC = () => {
       result = result.filter(p =>
         p.name.toLowerCase().includes(lowerQuery) ||
         p.description.toLowerCase().includes(lowerQuery) ||
-        p.category.toLowerCase().includes(lowerQuery)
+        (typeof p.category === 'string' && p.category.toLowerCase().includes(lowerQuery))
       );
     }
 
     setFilteredProducts(result);
-  }, [selectedCategory, products, searchQuery]);
+  }, [selectedCategory, products, searchQuery, storeCategories]);
 
   return (
     <Layout>

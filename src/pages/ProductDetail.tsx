@@ -220,6 +220,12 @@ const ProductDetail: React.FC = () => {
                     <span className="text-sm text-gray-500">({product.numReviews || 0} reviews)</span>
                   </div>
 
+                  {product.short_description && (
+                    <p className="text-gray-700 italic mb-4">
+                      {product.short_description}
+                    </p>
+                  )}
+
                   {product.description && (
                     <p className="text-gray-600 mb-4 leading-relaxed">
                       {product.description}
