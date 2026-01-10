@@ -202,19 +202,9 @@ const retryFetch = async <T,>(
 // ========================================
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // 1. INSTANT LOAD: Initialize with data from localStorage
-    const [products, setProducts] = useState<Product[]>(() => {
-        try {
-            const saved = localStorage.getItem('mansara-products');
-            return saved ? JSON.parse(saved) : [];
-        } catch { return []; }
-    });
-    const [combos, setCombos] = useState<Combo[]>(() => {
-        try {
-            const saved = localStorage.getItem('mansara-combos');
-            return saved ? JSON.parse(saved) : [];
-        } catch { return []; }
-    });
+    // 1. INSTANT LOAD: Initialize with empty arrays (localStorage removed to prevent quota errors)
+    const [products, setProducts] = useState<Product[]>([]);
+    const [combos, setCombos] = useState<Combo[]>([]);
     const [categories, setCategories] = useState<Category[]>(() => {
         try {
             const saved = localStorage.getItem('mansara-categories');
@@ -222,7 +212,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         } catch { return []; }
     });
 
-    const [isLoading, setIsLoading] = useState(products.length === 0);
+    const [isLoading, setIsLoading] = useState(true); // Always loading initially
     const [error, setError] = useState<string | null>(null);
 
     // ========================================
@@ -274,7 +264,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             });
 
             setProducts(enhancedProducts);
-            localStorage.setItem('mansara-products', JSON.stringify(enhancedProducts));
+            // STORAGE QUOTA FIX: Removed localStorage.setItem('mansara-products', ...)
 
             // Products are loaded, stop spinner!
             setIsLoading(false);
@@ -284,7 +274,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 const combosData = await combosPromise;
                 const combosArray = extractArray(combosData, 'combos').map(normalizeId);
                 setCombos(combosArray);
-                localStorage.setItem('mansara-combos', JSON.stringify(combosArray));
+                // STORAGE QUOTA FIX: Removed localStorage.setItem('mansara-combos', ...)
             } catch (e) {
                 console.warn('[Store] Failed to load combos (non-critical)');
             }

@@ -59,8 +59,17 @@ const AdminProductEdit = () => {
       const product = getProduct(id);
       if (product) {
         // Map any legacy fields if necessary, or just use spread
+        // Fix Category Selection: Find matching category by ID or Value
+        const matchingCategory = categories.find(c =>
+          c.value === product.category ||
+          c.id === product.category ||
+          c.name === product.category ||
+          c.id === product.categoryId
+        );
+
         setFormData({
           ...product,
+          category: matchingCategory ? matchingCategory.value : product.category,
           // Ensure compat with form fields if backend used different names
           howToUse: product.howToUse || (product as any).how_to_use || "",
           storage: product.storage || (product as any).storage_instructions || "",

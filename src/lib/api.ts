@@ -204,7 +204,8 @@ export const cancelAllRequests = () => {
 
 export const fetchProducts = async () => {
     return dedupedFetch('products', async () => {
-        const response = await fetch(`${API_URL}/products`);
+        // Fetch all products (up to 1000) to ensure client-side search/filtering works
+        const response = await fetch(`${API_URL}/products?limit=1000`);
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
         return data.products || data;
