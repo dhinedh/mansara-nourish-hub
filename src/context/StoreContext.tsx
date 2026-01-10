@@ -334,24 +334,29 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const newProduct = await createProduct(dataToSend, token);
 
             const normalized = normalizeId(newProduct);
-            setProducts(prev => [...prev, normalized]);
-            clearCache();
 
-            console.log('[Store] ✓ Product added');
+            // OPTIMIZATION: Update state AND cache directly
+            const newProducts = [...products, normalized];
+            setProducts(newProducts);
+            setCachedData('products', newProducts);
+
+            console.log('[Store] ✓ Product added & cache updated');
         } catch (err: any) {
             console.error('[Store] ✗ Add product failed:', err.message);
             throw err;
         }
-    }, [getCategoryIdBySlug]);
+    }, [products, getCategoryIdBySlug]);
 
     const updateProduct = useCallback(async (id: string, updates: Partial<Product>) => {
         const originalProducts = [...products];
 
         try {
             // Optimistic update
-            setProducts(prev => prev.map(p =>
+            const optimisticProducts = products.map(p =>
                 p.id === id ? { ...p, ...updates } : p
-            ));
+            );
+            setProducts(optimisticProducts);
+            setCachedData('products', optimisticProducts); // Update cache immediately
 
             const token = getToken();
             if (!token) throw new Error('Authentication required');
@@ -379,16 +384,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const { updateProduct: apiUpdate } = await import('@/lib/api');
             const updated = await apiUpdate(id, updatesToSend, token);
 
-            setProducts(prev => prev.map(p =>
+            // Confirm update with server data
+            const finalProducts = products.map(p =>
                 p.id === id ? normalizeId(updated) : p
-            ));
-            clearCache();
+            );
+            setProducts(finalProducts);
+            setCachedData('products', finalProducts); // Update cache with final data
 
-            console.log('[Store] ✓ Product updated');
+            console.log('[Store] ✓ Product updated & cache synced');
         } catch (err: any) {
             console.error('[Store] ✗ Update product failed:', err.message);
             // Rollback
             setProducts(originalProducts);
+            setCachedData('products', originalProducts); // Rollback cache
             throw err;
         }
     }, [products, getCategoryIdBySlug]);
@@ -398,7 +406,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         try {
             // Optimistic delete
-            setProducts(prev => prev.filter(p => p.id !== id));
+            const remainingProducts = products.filter(p => p.id !== id);
+            setProducts(remainingProducts);
+            setCachedData('products', remainingProducts); // Update cache immediately
 
             const token = getToken();
             if (!token) throw new Error('Authentication required');
@@ -406,12 +416,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const { deleteProduct: apiDelete } = await import('@/lib/api');
             await apiDelete(id, token);
 
-            clearCache();
-            console.log('[Store] ✓ Product deleted');
+            console.log('[Store] ✓ Product deleted & cache updated');
         } catch (err: any) {
             console.error('[Store] ✗ Delete product failed:', err.message);
             // Rollback
             setProducts(originalProducts);
+            setCachedData('products', originalProducts); // Rollback cache
             throw err;
         }
     }, [products]);
