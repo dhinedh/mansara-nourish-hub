@@ -266,9 +266,21 @@ export const deleteProduct = async (id: string, token: string) => {
     return response.json();
 };
 
-// ========================================
-// COMBOS API
-// ========================================
+export const notifyMe = async (productId: string, whatsapp: string, userId?: string) => {
+    const response = await fetch(`${API_URL}/notifications/subscribe`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId, whatsapp, userId }),
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to subscribe');
+    }
+    return response.json();
+};
+
 
 export const fetchCombos = async () => {
     return dedupedFetch('combos', async () => {

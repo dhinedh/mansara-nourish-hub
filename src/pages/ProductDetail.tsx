@@ -8,7 +8,7 @@ import { useCart } from '@/context/CartContext';
 import { useStore } from '@/context/StoreContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { fetchProductReviews, checkReviewEligibility, createReview } from '@/lib/api';
+import { fetchProductReviews, checkReviewEligibility, createReview, notifyMe } from '@/lib/api';
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import ImageUpload from "@/components/admin/ImageUpload";
+import { MessageCircle } from 'lucide-react';
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -42,6 +43,34 @@ const ProductDetail: React.FC = () => {
     video: ""
   });
 
+  // Notify Me State
+  const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [isNotifying, setIsNotifying] = useState(false);
+
+  const handleNotifyMe = async () => {
+    if (!product) return;
+    if (!whatsappNumber) {
+      toast({ title: "Required", description: "Please enter your WhatsApp number", variant: "destructive" });
+      return;
+    }
+
+    try {
+      setIsNotifying(true);
+      await notifyMe(product._id, whatsappNumber, user?.id);
+      toast({
+        title: "Subscribed!",
+        description: "We will notify you via WhatsApp when this product is back in stock.",
+        style: { backgroundColor: '#4CAF50', color: 'white' }
+      });
+      setIsNotifyModalOpen(false);
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setIsNotifying(false);
+    }
+  };
+
   const product = slug ? getProduct(slug) : undefined;
 
   // Update selected image when product loads
@@ -51,6 +80,8 @@ const ProductDetail: React.FC = () => {
       loadReviews();
       if (user) {
         checkEligibility();
+        if (user.whatsapp) setWhatsappNumber(user.whatsapp);
+        else if (user.phone) setWhatsappNumber(user.phone);
       }
     }
   }, [product, user]);
