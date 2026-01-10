@@ -315,34 +315,47 @@ const ProductDetail: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col flex-1 gap-3">
-                      <button
-                        onClick={handleAddToCart}
-                        disabled={adding || product.stock === 0}
-                        className="w-full py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-md disabled:opacity-50"
-                        style={{ backgroundColor: addSuccess ? '#4CAF50' : '#FDB913', color: '#1F2A7C' }}
-                      >
-                        {addSuccess ? (
-                          <>
-                            <Check className="w-5 h-5" />
-                            Added to Cart!
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingCart className="w-5 h-5" />
-                            {product.stock === 0 ? 'Out of Stock' : adding ? 'Adding...' : 'Add to Cart'}
-                          </>
-                        )}
-                      </button>
+                      {product.stock > 0 ? (
+                        <>
+                          <button
+                            onClick={handleAddToCart}
+                            disabled={adding}
+                            className="w-full py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-md disabled:opacity-50"
+                            style={{ backgroundColor: addSuccess ? '#4CAF50' : '#FDB913', color: '#1F2A7C' }}
+                          >
+                            {addSuccess ? (
+                              <>
+                                <Check className="w-5 h-5" />
+                                Added to Cart!
+                              </>
+                            ) : (
+                              <>
+                                <ShoppingCart className="w-5 h-5" />
+                                {adding ? 'Adding...' : 'Add to Cart'}
+                              </>
+                            )}
+                          </button>
 
-                      <button
-                        onClick={handleBuyNow}
-                        disabled={adding || product.stock === 0}
-                        className="w-full py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-md disabled:opacity-50 text-white hover:bg-slate-800"
-                        style={{ backgroundColor: '#000000' }}
-                      >
-                        <Zap className="w-5 h-5 fill-current" />
-                        Buy Now
-                      </button>
+                          <button
+                            onClick={handleBuyNow}
+                            disabled={adding}
+                            className="w-full py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-md disabled:opacity-50 text-white hover:bg-slate-800"
+                            style={{ backgroundColor: '#000000' }}
+                          >
+                            <Zap className="w-5 h-5 fill-current" />
+                            Buy Now
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setIsNotifyModalOpen(true)}
+                          className="w-full py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-md text-white hover:bg-green-700 animate-pulse"
+                          style={{ backgroundColor: '#25D366' }} // WhatsApp Green
+                        >
+                          <MessageCircle className="w-5 h-5" />
+                          Notify Me When Available
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -498,6 +511,7 @@ const ProductDetail: React.FC = () => {
 
       <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
         <DialogContent className="max-w-md">
+          {/* ... existing review dialog content ... */}
           <DialogHeader>
             <DialogTitle>Write a Review</DialogTitle>
             <DialogDescription>
@@ -505,7 +519,15 @@ const ProductDetail: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
 
+          {/* ... keeping existing logic but truncated for brevity in replace ... */}
+          {/* Since replace_file_content requires exact match, I will append the NEW dialog after the existing one using a larger context match or simpler append if possible, but safely I will replace the end of the file or insert before the last closing tag. */}
+          {/* WAIT: I can just insert it before the closing layout tag if I match correctly. */}
+          {/* Let's try to target the end of the file actually, effectively appending the new dialog before the closing Layout */}
+
           <div className="space-y-4 py-4">
+            {/* Review form content... */}
+            {/* I need to actually MATCH the content I'm replacing. Doing a Multi-Chunk replace might be safer if I was editing existing code, but here I am adding a new block. */}
+            {/* Let's use the END of the Review Dialog to insert the Notify Dialog */}
             <div className="flex flex-col items-center gap-2 mb-4">
               <label className="text-sm font-medium">Rating</label>
               <div className="flex gap-1">
@@ -574,6 +596,51 @@ const ProductDetail: React.FC = () => {
             <Button variant="outline" onClick={() => setIsReviewModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSubmitReview} disabled={isReviewLoading} className="bg-[#1F2A7C] text-white">
               {isReviewLoading ? "Submitting..." : "Submit Review"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Notify Me Dialog */}
+      <Dialog open={isNotifyModalOpen} onOpenChange={setIsNotifyModalOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-green-600" />
+              Get Notified
+            </DialogTitle>
+            <DialogDescription>
+              Enter your WhatsApp number. We'll send you a message as soon as this product is back in stock.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <label className="text-sm font-medium mb-1 block">WhatsApp Number</label>
+            <div className="flex gap-2">
+              <span className="flex items-center justify-center bg-gray-100 border rounded-l-md px-3 text-gray-500 text-sm">
+                +91
+              </span>
+              <Input
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="9876543210"
+                className="rounded-l-none"
+                maxLength={10}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              We'll only use this to send you a one-time stock alert.
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsNotifyModalOpen(false)}>Cancel</Button>
+            <Button
+              onClick={handleNotifyMe}
+              disabled={isNotifying || whatsappNumber.length < 10}
+              className="bg-[#25D366] hover:bg-green-700 text-white"
+            >
+              {isNotifying ? "Subscribing..." : "Notify Me"}
             </Button>
           </DialogFooter>
         </DialogContent>
