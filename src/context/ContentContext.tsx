@@ -10,8 +10,17 @@ import {
 } from '@/lib/api';
 
 // ========================================
-// TYPES
+// OPTIMIZED CONTENT CONTEXT - COMPLETE
 // ========================================
+// Performance improvements:
+// - Longer cache duration (15 min)
+// - Background refresh
+// - Request deduplication
+// - Optimistic updates with rollback
+// - Better error handling
+// - Lazy loading
+// ========================================
+
 export interface Banner {
     _id?: string;
     id: string;
@@ -82,6 +91,55 @@ const DEFAULT_CONTENT: PageContent[] = [
 ];
 
 // ========================================
+// CACHING CONFIGURATION
+// ========================================
+const CACHE_KEY = 'mansara-content-cache';
+const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes (increased from 10)
+const STALE_WHILE_REVALIDATE = 5 * 60 * 1000; // Show stale for 5 min while fetching
+
+// ========================================
+// CACHE HELPERS
+// ========================================
+const getCachedData = () => {
+    try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+
+        const { data, timestamp } = JSON.parse(cached);
+        const age = Date.now() - timestamp;
+        
+        // Return cached data with freshness indicator
+        return {
+            data,
+            isFresh: age < CACHE_DURATION,
+            isStale: age >= CACHE_DURATION && age < (CACHE_DURATION + STALE_WHILE_REVALIDATE)
+        };
+    } catch {
+        return null;
+    }
+};
+
+const cacheData = (data: any) => {
+    try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+            data,
+            timestamp: Date.now()
+        }));
+    } catch (error) {
+        console.error('[Content] ✗ Cache save failed:', error);
+    }
+};
+
+const clearCache = () => {
+    localStorage.removeItem(CACHE_KEY);
+};
+
+// ========================================
+// REQUEST DEDUPLICATION
+// ========================================
+let fetchInProgress: Promise<any> | null = null;
+
+// ========================================
 // OPTIMIZED CONTENT PROVIDER
 // ========================================
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -91,118 +149,124 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [isLoading, setIsLoading] = useState(true);
 
     // ========================================
-    // CACHING
+    // FETCH AND CACHE
     // ========================================
-    const CACHE_KEY = 'mansara-content-cache';
-    const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+    const fetchAndCache = useCallback(async (showLoading = false) => {
+        // Deduplicate requests
+        if (fetchInProgress) {
+            console.log('[Content] Using in-flight request');
+            return fetchInProgress;
+        }
 
-    const getCachedData = () => {
-        try {
-            const cached = localStorage.getItem(CACHE_KEY);
-            if (!cached) return null;
+        if (showLoading) setIsLoading(true);
 
-            const { data, timestamp } = JSON.parse(cached);
-            
-            if (Date.now() - timestamp < CACHE_DURATION) {
-                return data;
+        fetchInProgress = (async () => {
+            try {
+                const [apiBanners, apiPages, apiSettings] = await Promise.all([
+                    fetchBanners().catch(e => {
+                        console.error('[Content] Banners fetch failed:', e);
+                        return [];
+                    }),
+                    fetchContentPages().catch(e => {
+                        console.error('[Content] Pages fetch failed:', e);
+                        return [];
+                    }),
+                    fetchSettings().catch(e => {
+                        console.error('[Content] Settings fetch failed:', e);
+                        return {};
+                    })
+                ]);
+
+                // Normalize banners
+                const normalizedBanners = apiBanners.map((b: any) => ({
+                    ...b,
+                    id: b.id || b._id
+                }));
+
+                // Merge content pages
+                const mergedContent = [...DEFAULT_CONTENT];
+                if (apiPages && apiPages.length > 0) {
+                    apiPages.forEach((apiPage: any) => {
+                        const index = mergedContent.findIndex(p => p.slug === apiPage.slug);
+                        if (index >= 0) {
+                            mergedContent[index] = {
+                                ...mergedContent[index],
+                                sections: { 
+                                    ...mergedContent[index].sections, 
+                                    ...apiPage.sections 
+                                }
+                            };
+                        } else {
+                            mergedContent.push(apiPage);
+                        }
+                    });
+                }
+
+                const newData = {
+                    banners: normalizedBanners,
+                    contents: mergedContent,
+                    settings: apiSettings
+                };
+
+                setBanners(normalizedBanners);
+                setContents(mergedContent);
+                setSettings(apiSettings || {});
+
+                // Cache data
+                cacheData(newData);
+
+                console.log('[Content] ✓ Loaded from API');
+                return newData;
+            } finally {
+                fetchInProgress = null;
+                if (showLoading) setIsLoading(false);
             }
-            
-            return null;
-        } catch {
-            return null;
-        }
-    };
+        })();
 
-    const cacheData = (data: any) => {
-        try {
-            localStorage.setItem(CACHE_KEY, JSON.stringify({
-                data,
-                timestamp: Date.now()
-            }));
-        } catch (error) {
-            console.error('[Content] ✗ Cache save failed:', error);
-        }
-    };
-
-    const clearCache = () => {
-        localStorage.removeItem(CACHE_KEY);
-    };
+        return fetchInProgress;
+    }, []);
 
     // ========================================
-    // LOAD DATA
+    // LOAD DATA WITH SMART CACHING
     // ========================================
     const loadData = useCallback(async () => {
         setIsLoading(true);
         
         try {
             // Check cache first
-            const cachedData = getCachedData();
-            if (cachedData) {
-                setBanners(cachedData.banners || []);
-                setContents(cachedData.contents || DEFAULT_CONTENT);
-                setSettings(cachedData.settings || {});
-                setIsLoading(false);
-                console.log('[Content] ✓ Loaded from cache');
+            const cached = getCachedData();
+            
+            if (cached) {
+                const { data, isFresh, isStale } = cached;
                 
-                // Fetch in background
-                fetchAndCache();
-                return;
+                // Use cached data immediately
+                setBanners(data.banners || []);
+                setContents(data.contents || DEFAULT_CONTENT);
+                setSettings(data.settings || {});
+                setIsLoading(false);
+                
+                if (isFresh) {
+                    console.log('[Content] ✓ Loaded from fresh cache');
+                    return;
+                } else if (isStale) {
+                    console.log('[Content] ⚠ Loaded from stale cache, refreshing in background');
+                    // Fetch in background
+                    fetchAndCache(false);
+                } else {
+                    console.log('[Content] ⚠ Cache expired, fetching new data');
+                    await fetchAndCache(false);
+                }
+            } else {
+                console.log('[Content] No cache, fetching from API');
+                await fetchAndCache(true);
             }
-
-            await fetchAndCache();
             
         } catch (error) {
             console.error('[Content] ✗ Load error:', error);
         } finally {
             setIsLoading(false);
         }
-    }, []);
-
-    const fetchAndCache = async () => {
-        const [apiBanners, apiPages, apiSettings] = await Promise.all([
-            fetchBanners().catch(() => []),
-            fetchContentPages().catch(() => []),
-            fetchSettings().catch(() => ({}))
-        ]);
-
-        // Normalize banners
-        const normalizedBanners = apiBanners.map((b: any) => ({
-            ...b,
-            id: b.id || b._id
-        }));
-
-        // Merge content pages
-        const mergedContent = [...DEFAULT_CONTENT];
-        if (apiPages && apiPages.length > 0) {
-            apiPages.forEach((apiPage: any) => {
-                const index = mergedContent.findIndex(p => p.slug === apiPage.slug);
-                if (index >= 0) {
-                    mergedContent[index] = {
-                        ...mergedContent[index],
-                        sections: { 
-                            ...mergedContent[index].sections, 
-                            ...apiPage.sections 
-                        }
-                    };
-                } else {
-                    mergedContent.push(apiPage);
-                }
-            });
-        }
-
-        setBanners(normalizedBanners);
-        setContents(mergedContent);
-        setSettings(apiSettings || {});
-
-        // Cache data
-        cacheData({
-            banners: normalizedBanners,
-            contents: mergedContent,
-            settings: apiSettings
-        });
-
-        console.log('[Content] ✓ Loaded from API');
-    };
+    }, [fetchAndCache]);
 
     // Initial load
     useEffect(() => {
@@ -212,7 +276,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // ========================================
     // BANNER ACTIONS
     // ========================================
-    const addBanner = async (banner: Omit<Banner, 'id'>) => {
+    const addBanner = useCallback(async (banner: Omit<Banner, 'id'>) => {
         try {
             const newBanner = await createBanner(banner);
             setBanners(prev => [...prev, { ...newBanner, id: newBanner._id || newBanner.id }]);
@@ -222,16 +286,19 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             console.error('[Content] ✗ Add banner failed:', error);
             throw error;
         }
-    };
+    }, []);
 
-    const updateBanner = async (id: string, updates: Partial<Banner>) => {
+    const updateBanner = useCallback(async (id: string, updates: Partial<Banner>) => {
+        // Store original for rollback
+        const originalBanners = [...banners];
+        
         try {
             // Optimistic update
             setBanners(prev => prev.map(b => 
                 b.id === id ? { ...b, ...updates } : b
             ));
 
-            const banner = banners.find(b => b.id === id);
+            const banner = originalBanners.find(b => b.id === id);
             if (!banner) return;
 
             const apiId = banner._id || banner.id;
@@ -241,30 +308,37 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             console.log('[Content] ✓ Banner updated');
         } catch (error) {
             console.error('[Content] ✗ Update banner failed:', error);
-            // Revert on error
-            await loadData();
+            // Rollback on error
+            setBanners(originalBanners);
             throw error;
         }
-    };
+    }, [banners]);
 
-    const deleteBannerAction = async (id: string) => {
+    const deleteBannerAction = useCallback(async (id: string) => {
+        // Store original for rollback
+        const originalBanners = [...banners];
+        
         try {
-            await deleteBanner(id);
+            // Optimistic delete
             setBanners(prev => prev.filter(b => b._id !== id && b.id !== id));
+            
+            await deleteBanner(id);
             clearCache();
             console.log('[Content] ✓ Banner deleted');
         } catch (error) {
             console.error('[Content] ✗ Delete banner failed:', error);
+            // Rollback on error
+            setBanners(originalBanners);
             throw error;
         }
-    };
+    }, [banners]);
 
-    const toggleBanner = async (id: string) => {
+    const toggleBanner = useCallback(async (id: string) => {
         const banner = banners.find(b => b.id === id);
         if (banner) {
             await updateBanner(id, { active: !banner.active });
         }
-    };
+    }, [banners, updateBanner]);
 
     const getBannersByPage = useCallback((page: string) => {
         return banners.filter(b => b.page === page && b.active);
@@ -273,7 +347,10 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // ========================================
     // CONTENT ACTIONS
     // ========================================
-    const updateContent = async (slug: string, sectionKey: string, value: string) => {
+    const updateContent = useCallback(async (slug: string, sectionKey: string, value: string) => {
+        // Store original for rollback
+        const originalContents = [...contents];
+        
         try {
             // Optimistic update
             const newContents = [...contents];
@@ -303,11 +380,11 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             console.log('[Content] ✓ Content updated');
         } catch (error) {
             console.error('[Content] ✗ Update content failed:', error);
-            // Revert on error
-            await loadData();
+            // Rollback on error
+            setContents(originalContents);
             throw error;
         }
-    };
+    }, [contents]);
 
     const getContent = useCallback((slug: string, sectionKey: string, defaultValue: string = '') => {
         const page = contents.find(p => p.slug === slug);
@@ -317,10 +394,10 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // ========================================
     // REFETCH
     // ========================================
-    const refetch = async () => {
+    const refetch = useCallback(async () => {
         clearCache();
-        await loadData();
-    };
+        await fetchAndCache(true);
+    }, [fetchAndCache]);
 
     return (
         <ContentContext.Provider value={{

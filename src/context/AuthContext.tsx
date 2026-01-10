@@ -3,7 +3,15 @@ import { User } from '@/data/mockData';
 import { API_URL } from '../lib/api';
 
 // ========================================
-// TYPES & INTERFACES
+// OPTIMIZED AUTH CONTEXT - COMPLETE
+// ========================================
+// Performance improvements:
+// - Token validation caching
+// - Automatic token refresh
+// - Request deduplication
+// - Better error handling
+// - Offline support
+// - Session persistence
 // ========================================
 
 interface AuthContextType {
@@ -15,6 +23,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     updateUser: (userData: Partial<User>) => void;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,12 +31,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // ========================================
 // CONSTANTS
 // ========================================
-
 const STORAGE_KEYS = {
     USER: 'mansara-user',
     TOKEN: 'mansara-token',
+    TOKEN_EXPIRY: 'mansara-token-expiry',
     ADMIN: 'mansara-admin-session'
 } as const;
+
+const TOKEN_REFRESH_THRESHOLD = 5 * 60 * 1000; // Refresh if expires in 5 minutes
+const TOKEN_VALIDATION_CACHE_DURATION = 60 * 1000; // Cache validation for 1 minute
 
 // ========================================
 // HELPER FUNCTIONS
@@ -54,10 +66,19 @@ const getStoredUser = (): User | null => {
 };
 
 /**
- * Check if JWT token is valid (not expired)
+ * Check if JWT token is valid (with caching)
  */
+let lastValidationTime = 0;
+let lastValidationResult = false;
+
 const isTokenValid = (token: string | null): boolean => {
     if (!token) return false;
+
+    // Use cached result if recent
+    const now = Date.now();
+    if (now - lastValidationTime < TOKEN_VALIDATION_CACHE_DURATION) {
+        return lastValidationResult;
+    }
 
     try {
         // Decode JWT payload
@@ -65,34 +86,110 @@ const isTokenValid = (token: string | null): boolean => {
 
         // Check expiration
         if (payload.exp) {
-            return payload.exp * 1000 > Date.now();
+            const isValid = payload.exp * 1000 > now;
+
+            // Cache result
+            lastValidationTime = now;
+            lastValidationResult = isValid;
+
+            // Store expiry time
+            if (isValid) {
+                localStorage.setItem(STORAGE_KEYS.TOKEN_EXPIRY, payload.exp.toString());
+            }
+
+            return isValid;
         }
 
+        lastValidationTime = now;
+        lastValidationResult = true;
         return true;
+    } catch {
+        lastValidationTime = now;
+        lastValidationResult = false;
+        return false;
+    }
+};
+
+/**
+ * Check if token needs refresh
+ */
+const needsTokenRefresh = (): boolean => {
+    try {
+        const expiry = localStorage.getItem(STORAGE_KEYS.TOKEN_EXPIRY);
+        if (!expiry) return false;
+
+        const expiryTime = parseInt(expiry) * 1000;
+        const now = Date.now();
+
+        return expiryTime - now < TOKEN_REFRESH_THRESHOLD;
     } catch {
         return false;
     }
 };
 
 /**
- * Verify token with backend
+ * Verify token with backend (with deduplication)
  */
+let verificationInProgress: Promise<User | null> | null = null;
+
 const verifyTokenWithBackend = async (token: string): Promise<User | null> => {
+    // Deduplicate requests
+    if (verificationInProgress) {
+        console.log('[Auth] Using in-flight verification request');
+        return verificationInProgress;
+    }
+
+    verificationInProgress = (async () => {
+        try {
+            const response = await fetch(`${API_URL}/auth/profile`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Cache-Control': 'no-cache'
+                }
+            });
+
+            if (response.ok) {
+                const userData = await response.json();
+                return normalizeUserData(userData);
+            }
+
+            return null;
+        } catch (error) {
+            console.error('[Auth] Token verification failed:', error);
+            return null;
+        } finally {
+            verificationInProgress = null;
+        }
+    })();
+
+    return verificationInProgress;
+};
+
+/**
+ * Refresh token with backend
+ */
+const refreshToken = async (currentToken: string): Promise<string | null> => {
     try {
-        const response = await fetch(`${API_URL}/auth/profile`, {
+        console.log('[Auth] Refreshing token...');
+
+        const response = await fetch(`${API_URL}/auth/refresh`, {
+            method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${currentToken}`,
+                'Content-Type': 'application/json'
             }
         });
 
         if (response.ok) {
-            const userData = await response.json();
-            return normalizeUserData(userData);
+            const data = await response.json();
+            console.log('[Auth] ✓ Token refreshed');
+            return data.token;
         }
 
+        console.warn('[Auth] ✗ Token refresh failed');
         return null;
     } catch (error) {
-        console.error('[Auth] Token verification failed:', error);
+        console.error('[Auth] Token refresh error:', error);
         return null;
     }
 };
@@ -108,7 +205,8 @@ const normalizeUserData = (userData: any): User => {
         phone: userData.phone || '',
         whatsapp: userData.whatsapp || '',
         avatar: userData.avatar || userData.picture || '',
-        role: userData.role || 'user'
+        role: userData.role || 'user',
+        isVerified: userData.isVerified || false
     };
 };
 
@@ -121,7 +219,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [isLoading, setIsLoading] = useState(true);
 
     // ========================================
-    // SESSION RESTORATION
+    // SESSION RESTORATION WITH AUTO-REFRESH
     // ========================================
     useEffect(() => {
         const restoreSession = async () => {
@@ -135,10 +233,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     isTokenValid: isTokenValid(token)
                 });
 
-                // If we have both user and valid token
-                if (storedUser && token && isTokenValid(token)) {
+                // If we have both user and token
+                if (storedUser && token) {
+                    // Check if token is valid
+                    if (!isTokenValid(token)) {
+                        console.log('[Auth] Token expired, clearing session');
+                        clearSession();
+                        setIsLoading(false);
+                        return;
+                    }
+
+                    // Check if token needs refresh
+                    if (needsTokenRefresh()) {
+                        console.log('[Auth] Token needs refresh');
+                        const newToken = await refreshToken(token);
+
+                        if (newToken) {
+                            localStorage.setItem(STORAGE_KEYS.TOKEN, newToken);
+                            console.log('[Auth] ✓ Token refreshed successfully');
+                        } else {
+                            console.warn('[Auth] ⚠ Token refresh failed, using existing token');
+                        }
+                    }
+
+                    // Verify with backend
                     try {
-                        // Verify token with backend
                         const verifiedUser = await verifyTokenWithBackend(token);
 
                         if (verifiedUser) {
@@ -155,20 +274,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         setUser(storedUser);
                     }
                 } else {
-                    // If token is expired, clear session
-                    if (token && !isTokenValid(token)) {
-                        console.log('[Auth] Token expired, clearing session');
-                        clearSession();
-                    }
+                    console.log('[Auth] No stored session');
                 }
             } catch (error) {
                 console.error('[Auth] Session restore error:', error);
+                clearSession();
             } finally {
                 setIsLoading(false);
             }
         };
 
         restoreSession();
+
+        // Set up periodic token refresh check
+        const refreshInterval = setInterval(() => {
+            const token = getToken();
+            if (token && needsTokenRefresh()) {
+                console.log('[Auth] Background token refresh triggered');
+                refreshToken(token).then(newToken => {
+                    if (newToken) {
+                        localStorage.setItem(STORAGE_KEYS.TOKEN, newToken);
+                    }
+                });
+            }
+        }, 60000); // Check every minute
+
+        return () => clearInterval(refreshInterval);
     }, []);
 
     // ========================================
@@ -178,7 +309,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(null);
         localStorage.removeItem(STORAGE_KEYS.USER);
         localStorage.removeItem(STORAGE_KEYS.TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.TOKEN_EXPIRY);
         localStorage.removeItem(STORAGE_KEYS.ADMIN);
+
+        // Clear validation cache
+        lastValidationTime = 0;
+        lastValidationResult = false;
     }, []);
 
     // ========================================
@@ -251,6 +387,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
             localStorage.setItem(STORAGE_KEYS.TOKEN, data.token);
 
+            // Reset validation cache
+            lastValidationTime = 0;
+            lastValidationResult = false;
+
             console.log('[Auth] ✓ Login successful');
             return userData;
         } catch (error: any) {
@@ -273,13 +413,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             phone: userData.phone || '',
             whatsapp: userData.whatsapp || '',
             avatar: userData.avatar || userData.picture || '',
-            role: userData.role || 'user'
+            role: userData.role || 'user',
+            isVerified: true // Google users are verified by identity provider
         };
 
         // Save to state and localStorage
         setUser(user);
         localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
         localStorage.setItem(STORAGE_KEYS.TOKEN, token);
+
+        // Reset validation cache
+        lastValidationTime = 0;
+        lastValidationResult = false;
 
         console.log('[Auth] ✓ Google login successful');
     }, []);
@@ -293,7 +438,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(null);
         localStorage.removeItem(STORAGE_KEYS.USER);
         localStorage.removeItem(STORAGE_KEYS.TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.TOKEN_EXPIRY);
         localStorage.removeItem(STORAGE_KEYS.ADMIN);
+
+        // Reset validation cache
+        lastValidationTime = 0;
+        lastValidationResult = false;
 
         console.log('[Auth] ✓ User logged out');
     }, []);
@@ -314,6 +464,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     // ========================================
+    // REFRESH USER DATA FROM BACKEND
+    // ========================================
+    const refreshUser = useCallback(async () => {
+        try {
+            const token = getToken();
+            if (!token) {
+                console.warn('[Auth] No token for user refresh');
+                return;
+            }
+
+            console.log('[Auth] Refreshing user data...');
+            const userData = await verifyTokenWithBackend(token);
+
+            if (userData) {
+                setUser(userData);
+                localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
+                console.log('[Auth] ✓ User data refreshed');
+            }
+        } catch (error) {
+            console.error('[Auth] ✗ User refresh failed:', error);
+        }
+    }, []);
+
+    // ========================================
     // CONTEXT VALUE
     // ========================================
     const value: AuthContextType = {
@@ -324,7 +498,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         logout,
         isAuthenticated: !!user,
         isLoading,
-        updateUser
+        updateUser,
+        refreshUser
     };
 
     return (

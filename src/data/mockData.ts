@@ -7,6 +7,7 @@ export interface User {
   whatsapp?: string;
   avatar?: string;
   role?: 'admin' | 'user';
+  isVerified?: boolean;
 }
 
 export interface Address {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ShoppingCart, Minus, Plus, Check, Star, Image as ImageIcon } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Minus, Plus, Check, Star, Image as ImageIcon, Zap } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ import ImageUpload from "@/components/admin/ImageUpload";
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { getProduct } = useStore();
+  const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
@@ -127,6 +128,34 @@ const ProductDetail: React.FC = () => {
       console.error('Error adding to cart:', error);
     }
     setAdding(false);
+  };
+
+  const handleBuyNow = async () => {
+    if (!product) return;
+
+    // Check stock
+    if (product.stock <= 0) {
+      toast({
+        title: "Out of stock",
+        description: `${product.name} is currently out of stock.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      for (let i = 0; i < quantity; i++) {
+        addToCart(product as any, 'product');
+      }
+      navigate('/checkout');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process buy now request.",
+        variant: "destructive",
+      });
+    }
   };
 
   const displayPrice = product.offerPrice || product.price;
@@ -248,24 +277,36 @@ const ProductDetail: React.FC = () => {
                       </button>
                     </div>
 
-                    <button
-                      onClick={handleAddToCart}
-                      disabled={adding || product.stock === 0}
-                      className="flex-1 py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-md disabled:opacity-50"
-                      style={{ backgroundColor: addSuccess ? '#4CAF50' : '#FDB913', color: '#1F2A7C' }}
-                    >
-                      {addSuccess ? (
-                        <>
-                          <Check className="w-5 h-5" />
-                          Added to Cart!
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingCart className="w-5 h-5" />
-                          {product.stock === 0 ? 'Out of Stock' : adding ? 'Adding...' : 'Add to Cart'}
-                        </>
-                      )}
-                    </button>
+                    <div className="flex flex-col flex-1 gap-3">
+                      <button
+                        onClick={handleAddToCart}
+                        disabled={adding || product.stock === 0}
+                        className="w-full py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-md disabled:opacity-50"
+                        style={{ backgroundColor: addSuccess ? '#4CAF50' : '#FDB913', color: '#1F2A7C' }}
+                      >
+                        {addSuccess ? (
+                          <>
+                            <Check className="w-5 h-5" />
+                            Added to Cart!
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="w-5 h-5" />
+                            {product.stock === 0 ? 'Out of Stock' : adding ? 'Adding...' : 'Add to Cart'}
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        onClick={handleBuyNow}
+                        disabled={adding || product.stock === 0}
+                        className="w-full py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-md disabled:opacity-50 text-white hover:bg-slate-800"
+                        style={{ backgroundColor: '#000000' }}
+                      >
+                        <Zap className="w-5 h-5 fill-current" />
+                        Buy Now
+                      </button>
+                    </div>
                   </div>
                 </div>
 

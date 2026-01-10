@@ -1,6 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchHeroConfig, updateHeroConfig } from '@/lib/api';
 
+// ========================================
+// FULLY OPTIMIZED HERO CONTENT HOOK
+// ========================================
+// All improvements applied:
+// - Enhanced caching (15 min)
+// - Background refresh
+// - Request deduplication
+// - Optimistic updates
+// - Better error handling
+// ========================================
+
 export interface HeroSlide {
     id: string;
     image: string;
@@ -113,24 +124,25 @@ const DEFAULT_CONFIG: HeroConfig = {
 };
 
 // ========================================
-// OPTIMIZED HERO HOOK WITH CACHING
+// CACHING
 // ========================================
 const CACHE_KEY = 'mansara-hero-cache';
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
+const STALE_DURATION = 5 * 60 * 1000; // 5 minutes stale
 
-// Cache helpers
-const getCachedHero = (): HeroConfig | null => {
+const getCachedHero = () => {
     try {
         const cached = localStorage.getItem(CACHE_KEY);
         if (!cached) return null;
 
         const { data, timestamp } = JSON.parse(cached);
+        const age = Date.now() - timestamp;
 
-        if (Date.now() - timestamp < CACHE_DURATION) {
-            return data;
-        }
-
-        return null;
+        return {
+            data,
+            isFresh: age < CACHE_DURATION,
+            isStale: age >= CACHE_DURATION && age < (CACHE_DURATION + STALE_DURATION)
+        };
     } catch {
         return null;
     }
@@ -151,35 +163,31 @@ const clearHeroCache = () => {
     localStorage.removeItem(CACHE_KEY);
 };
 
+// ========================================
+// REQUEST DEDUPLICATION
+// ========================================
+let fetchInProgress: Promise<any> | null = null;
+
+// ========================================
+// HOOK
+// ========================================
 export const useHeroContent = () => {
     const [heroConfig, setHeroConfig] = useState<HeroConfig>(DEFAULT_CONFIG);
     const [isLoading, setIsLoading] = useState(true);
 
     // ========================================
-    // LOAD CONFIG WITH CACHING
+    // FETCH AND CACHE
     // ========================================
-    useEffect(() => {
-        const loadConfig = async () => {
-            setIsLoading(true);
+    const fetchAndCache = useCallback(async (showLoading = false) => {
+        // Deduplicate requests
+        if (fetchInProgress) {
+            console.log('[Hero] Using in-flight request');
+            return fetchInProgress;
+        }
 
-            // Check cache first
-            const cached = getCachedHero();
-            if (cached) {
-                setHeroConfig(cached);
-                setIsLoading(false);
-                console.log('[Hero] ✓ Loaded from cache');
+        if (showLoading) setIsLoading(true);
 
-                // Fetch in background to update cache
-                fetchAndCache();
-                return;
-            }
-
-            // Load from API
-            await fetchAndCache();
-            setIsLoading(false);
-        };
-
-        const fetchAndCache = async () => {
+        fetchInProgress = (async () => {
             try {
                 const apiConfig = await fetchHeroConfig();
 
@@ -197,14 +205,51 @@ export const useHeroContent = () => {
                     setHeroConfig(merged);
                     cacheHero(merged);
                     console.log('[Hero] ✓ Loaded from API');
+                    return merged;
                 }
             } catch (error) {
                 console.error('[Hero] ✗ Load error:', error);
+            } finally {
+                fetchInProgress = null;
+                if (showLoading) setIsLoading(false);
             }
+        })();
+
+        return fetchInProgress;
+    }, []);
+
+    // ========================================
+    // LOAD CONFIG WITH SMART CACHING
+    // ========================================
+    useEffect(() => {
+        const loadConfig = async () => {
+            setIsLoading(true);
+
+            // Check cache first
+            const cached = getCachedHero();
+            if (cached) {
+                const { data, isFresh, isStale } = cached;
+                
+                setHeroConfig(data);
+                setIsLoading(false);
+
+                if (isFresh) {
+                    console.log('[Hero] ✓ Using fresh cache');
+                    return;
+                } else if (isStale) {
+                    console.log('[Hero] ⚠ Using stale cache, refreshing in background');
+                    fetchAndCache(false);
+                    return;
+                }
+            }
+
+            // Load from API
+            await fetchAndCache(true);
+            setIsLoading(false);
         };
 
         loadConfig();
-    }, []);
+    }, [fetchAndCache]);
 
     // ========================================
     // UPDATE FUNCTIONS
@@ -299,6 +344,11 @@ export const useHeroContent = () => {
         }
     }, [heroConfig, saveConfig]);
 
+    const refetch = useCallback(async () => {
+        clearHeroCache();
+        await fetchAndCache(true);
+    }, [fetchAndCache]);
+
     return {
         heroConfig,
         isLoading,
@@ -308,9 +358,6 @@ export const useHeroContent = () => {
         deleteHomeSlide,
         updateHomeSettings,
         updatePageHero,
-        refetch: () => {
-            clearHeroCache();
-            window.location.reload();
-        }
+        refetch
     };
 };

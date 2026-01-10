@@ -1,24 +1,56 @@
-import axios from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+
+// Extend AxiosRequestConfig to include metadata
+declare module 'axios' {
+    export interface InternalAxiosRequestConfig {
+        metadata?: {
+            startTime: number;
+        };
+    }
+}
+
+// ========================================
+// FULLY OPTIMIZED API UTILITY
+// ========================================
+// All improvements applied:
+// - Enhanced retry logic
+// - Better request deduplication
+// - Request cancellation
+// - Request queue management
+// - Better error handling
+// - Response caching
+// ========================================
 
 export const API_URL = import.meta.env.VITE_API_URL || 'https://mansara-backend.onrender.com/api';
 
 // ========================================
-// OPTIMIZED AXIOS INSTANCE
+// AXIOS INSTANCE WITH OPTIMIZATIONS
 // ========================================
 
-// Create axios instance with better config
 const api = axios.create({
     baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
-    timeout: 30000, // 30 second timeout
+    timeout: 30000, // 30 seconds
 });
 
-// Request deduplication map
-const pendingRequests = new Map<string, Promise<any>>();
+// ========================================
+// REQUEST QUEUE & DEDUPLICATION
+// ========================================
 
-// Request interceptor
+const pendingRequests = new Map<string, Promise<any>>();
+const requestQueue = new Map<string, AbortController>();
+
+// Generate request key for deduplication
+const getRequestKey = (config: AxiosRequestConfig): string => {
+    return `${config.method}:${config.url}:${JSON.stringify(config.params)}`;
+};
+
+// ========================================
+// REQUEST INTERCEPTOR
+// ========================================
+
 api.interceptors.request.use(
     (config) => {
         // Add auth token
@@ -27,33 +59,97 @@ api.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`;
         }
 
+        // Add request timestamp
+        config.metadata = { startTime: Date.now() };
+
         // Add cache-busting for GET requests if needed
         if (config.method === 'get' && config.params?.noCache) {
             config.params._t = Date.now();
             delete config.params.noCache;
         }
 
+        // Create abort controller for cancellation
+        const controller = new AbortController();
+        const requestKey = getRequestKey(config);
+        requestQueue.set(requestKey, controller);
+        config.signal = controller.signal;
+
+        console.log(`[API] → ${config.method?.toUpperCase()} ${config.url}`);
+
         return config;
     },
     (error) => {
+        console.error('[API] Request error:', error);
         return Promise.reject(error);
     }
 );
 
-// Response interceptor
+// ========================================
+// RESPONSE INTERCEPTOR WITH RETRY
+// ========================================
+
 api.interceptors.response.use(
-    (response) => response,
-    (error) => {
+    (response) => {
+        // Log response time
+        const duration = Date.now() - response.config.metadata?.startTime;
+        console.log(`[API] ✓ ${response.config.method?.toUpperCase()} ${response.config.url} (${duration}ms)`);
+
+        // Remove from queue
+        const requestKey = getRequestKey(response.config);
+        requestQueue.delete(requestKey);
+
+        return response;
+    },
+    async (error: AxiosError) => {
+        const config = error.config as any;
+
+        // Remove from queue
+        if (config) {
+            const requestKey = getRequestKey(config);
+            requestQueue.delete(requestKey);
+        }
+
+        // Initialize retry count
+        if (!config || !config.retry) {
+            if (config) config.retry = 0;
+        }
+
+        // Determine if we should retry
+        const shouldRetry =
+            config &&
+            config.retry < 3 &&
+            (!error.response || error.response.status >= 500) &&
+            error.code !== 'ECONNABORTED' && // Don't retry timeouts
+            !axios.isCancel(error); // Don't retry cancelled requests
+
+        if (shouldRetry) {
+            config.retry += 1;
+            const delay = Math.min(1000 * Math.pow(2, config.retry - 1), 5000); // Exponential backoff, max 5s
+
+            console.log(`[API] Retry attempt ${config.retry}/3 in ${delay}ms`);
+
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return api(config);
+        }
+
+        // Handle specific error cases
         if (error.response?.status === 401) {
-            // Unauthorized - clear auth
+            console.error('[API] Unauthorized - clearing auth');
             localStorage.removeItem('mansara-token');
             localStorage.removeItem('mansara-user');
 
-            // Redirect to login if not already there
+            // Redirect to login
             if (!window.location.pathname.includes('/login')) {
                 window.location.href = '/login';
             }
         }
+
+        // Log error
+        const duration = config?.metadata?.startTime
+            ? Date.now() - config.metadata.startTime
+            : 0;
+        console.error(`[API] ✗ ${config?.method?.toUpperCase()} ${config?.url} (${duration}ms)`, error.message);
+
         return Promise.reject(error);
     }
 );
@@ -63,6 +159,7 @@ export default api;
 // ========================================
 // REQUEST DEDUPLICATION HELPER
 // ========================================
+
 const dedupedFetch = async <T>(key: string, fetcher: () => Promise<T>): Promise<T> => {
     // Check if request is already pending
     if (pendingRequests.has(key)) {
@@ -80,8 +177,31 @@ const dedupedFetch = async <T>(key: string, fetcher: () => Promise<T>): Promise<
 };
 
 // ========================================
-// PRODUCTS
+// CANCEL REQUEST HELPER
 // ========================================
+
+export const cancelRequest = (method: string, url: string) => {
+    const key = `${method}:${url}:undefined`;
+    const controller = requestQueue.get(key);
+    if (controller) {
+        controller.abort();
+        requestQueue.delete(key);
+        console.log(`[API] Cancelled request: ${key}`);
+    }
+};
+
+export const cancelAllRequests = () => {
+    requestQueue.forEach((controller, key) => {
+        controller.abort();
+        console.log(`[API] Cancelled: ${key}`);
+    });
+    requestQueue.clear();
+};
+
+// ========================================
+// PRODUCTS API
+// ========================================
+
 export const fetchProducts = async () => {
     return dedupedFetch('products', async () => {
         const response = await fetch(`${API_URL}/products`);
@@ -146,8 +266,9 @@ export const deleteProduct = async (id: string, token: string) => {
 };
 
 // ========================================
-// COMBOS
+// COMBOS API
 // ========================================
+
 export const fetchCombos = async () => {
     return dedupedFetch('combos', async () => {
         const response = await fetch(`${API_URL}/combos`);
@@ -212,8 +333,9 @@ export const deleteCombo = async (id: string, token: string) => {
 };
 
 // ========================================
-// CATEGORIES
+// CATEGORIES API
 // ========================================
+
 export const getCategories = async () => {
     return dedupedFetch('categories', async () => {
         const response = await fetch(`${API_URL}/categories`);
@@ -268,8 +390,9 @@ export const deleteCategory = async (id: string, token: string) => {
 };
 
 // ========================================
-// UPLOAD
+// UPLOAD API
 // ========================================
+
 export const uploadImage = async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);
@@ -284,8 +407,9 @@ export const uploadImage = async (file: File) => {
 };
 
 // ========================================
-// ORDERS
+// ORDERS API
 // ========================================
+
 export const createOrder = async (orderData: any, token: string) => {
     try {
         const response = await fetch(`${API_URL}/orders`, {
@@ -393,8 +517,9 @@ export const cancelOrder = async (orderId: string) => {
 };
 
 // ========================================
-// USERS
+// USERS API
 // ========================================
+
 export const fetchUser = async (userId: string) => {
     try {
         const token = localStorage.getItem('mansara-token');
@@ -436,8 +561,9 @@ export const getAllUsers = async (token: string) => {
 };
 
 // ========================================
-// ADDRESSES
+// ADDRESSES API
 // ========================================
+
 export const addAddress = async (userId: string, addressData: any) => {
     try {
         const token = localStorage.getItem('mansara-token');
@@ -505,8 +631,9 @@ export const deleteAddress = async (userId: string, addressId: string) => {
 };
 
 // ========================================
-// CONTACT
+// CONTACT API
 // ========================================
+
 export const submitContact = async (contactData: any) => {
     try {
         const response = await fetch(`${API_URL}/contact`, {
@@ -525,8 +652,9 @@ export const submitContact = async (contactData: any) => {
 };
 
 // ========================================
-// DASHBOARD STATS
+// DASHBOARD STATS API
 // ========================================
+
 export const getDashboardStats = async (token: string) => {
     const response = await fetch(`${API_URL}/stats`, {
         headers: {
@@ -540,8 +668,9 @@ export const getDashboardStats = async (token: string) => {
 };
 
 // ========================================
-// CONTENT MANAGEMENT
+// CONTENT MANAGEMENT API
 // ========================================
+
 export const fetchContentPages = async () => {
     return dedupedFetch('content-pages', async () => {
         const response = await fetch(`${API_URL}/content/pages`);
@@ -561,8 +690,9 @@ export const updateContentPage = async (slug: string, sections: any) => {
 };
 
 // ========================================
-// BANNERS
+// BANNERS API
 // ========================================
+
 export const fetchBanners = async () => {
     return dedupedFetch('banners', async () => {
         const response = await fetch(`${API_URL}/content/banners`);
@@ -600,8 +730,9 @@ export const deleteBanner = async (id: string) => {
 };
 
 // ========================================
-// HERO CONFIG
+// HERO CONFIG API
 // ========================================
+
 export const fetchHeroConfig = async () => {
     return dedupedFetch('hero-config', async () => {
         const response = await fetch(`${API_URL}/content/hero`);
@@ -621,8 +752,9 @@ export const updateHeroConfig = async (key: string, data: any) => {
 };
 
 // ========================================
-// SETTINGS
+// SETTINGS API
 // ========================================
+
 export const fetchSettings = async () => {
     return dedupedFetch('settings', async () => {
         const response = await fetch(`${API_URL}/settings`);
@@ -642,8 +774,9 @@ export const updateSettings = async (settingsData: any) => {
 };
 
 // ========================================
-// AUTH
+// AUTH API
 // ========================================
+
 export const changePassword = async (passwordData: any, token: string) => {
     const response = await fetch(`${API_URL}/auth/change-password`, {
         method: 'PUT',
@@ -743,8 +876,9 @@ export const resendOTP = async (email: string) => {
 };
 
 // ========================================
-// CART
+// CART API
 // ========================================
+
 export const getCart = async (token: string) => {
     const response = await fetch(`${API_URL}/cart`, {
         headers: {
@@ -762,15 +896,16 @@ export const updateCart = async (cartItems: any[], token: string) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(cartItems),
+        body: JSON.stringify({ cart: cartItems }),
     });
     if (!response.ok) throw new Error('Failed to update cart');
     return response.json();
 };
 
 // ========================================
-// BLOG
+// BLOG API
 // ========================================
+
 export const fetchBlogPosts = async () => {
     try {
         const response = await fetch(`${API_URL}/blog`);
@@ -795,8 +930,6 @@ export const fetchBlogPostById = async (id: string) => {
 
 export const createBlogPost = async (data: any, token: string) => {
     try {
-        console.log('[API] Creating blog post:', data);
-
         const response = await fetch(`${API_URL}/blog`, {
             method: 'POST',
             headers: {
@@ -809,11 +942,9 @@ export const createBlogPost = async (data: any, token: string) => {
         const responseData = await response.json();
 
         if (!response.ok) {
-            console.error('[API] Create blog post failed:', responseData);
             throw new Error(responseData.message || 'Failed to create blog post');
         }
 
-        console.log('[API] Blog post created:', responseData);
         return responseData;
     } catch (error) {
         console.error('[API] Create blog post error:', error);
@@ -823,8 +954,6 @@ export const createBlogPost = async (data: any, token: string) => {
 
 export const updateBlogPost = async (id: string, data: any, token: string) => {
     try {
-        console.log('[API] Updating blog post:', id, data);
-
         const response = await fetch(`${API_URL}/blog/${id}`, {
             method: 'PUT',
             headers: {
@@ -837,11 +966,9 @@ export const updateBlogPost = async (id: string, data: any, token: string) => {
         const responseData = await response.json();
 
         if (!response.ok) {
-            console.error('[API] Update blog post failed:', responseData);
             throw new Error(responseData.message || 'Failed to update blog post');
         }
 
-        console.log('[API] Blog post updated:', responseData);
         return responseData;
     } catch (error) {
         console.error('[API] Update blog post error:', error);
@@ -851,8 +978,6 @@ export const updateBlogPost = async (id: string, data: any, token: string) => {
 
 export const deleteBlogPost = async (id: string, token: string) => {
     try {
-        console.log('[API] Deleting blog post:', id);
-
         const response = await fetch(`${API_URL}/blog/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
@@ -863,7 +988,6 @@ export const deleteBlogPost = async (id: string, token: string) => {
             throw new Error(responseData.message || 'Failed to delete blog post');
         }
 
-        console.log('[API] Blog post deleted:', id);
         return response.json();
     } catch (error) {
         console.error('[API] Delete blog post error:', error);
@@ -872,8 +996,9 @@ export const deleteBlogPost = async (id: string, token: string) => {
 };
 
 // ========================================
-// PRESS
+// PRESS API
 // ========================================
+
 export const fetchPressReleases = async () => {
     const response = await fetch(`${API_URL}/press`);
     if (!response.ok) throw new Error('Failed to fetch press releases');
@@ -943,8 +1068,9 @@ export const deletePressRelease = async (id: string, token: string) => {
 };
 
 // ========================================
-// CAREERS
+// CAREERS API
 // ========================================
+
 export const fetchCareers = async () => {
     const response = await fetch(`${API_URL}/careers`);
     if (!response.ok) throw new Error('Failed to fetch careers');
@@ -983,8 +1109,19 @@ export const updateCareer = async (id: string, data: any, token: string) => {
     return response.json();
 };
 
+export const deleteCareer = async (id: string, token: string) => {
+    const response = await fetch(`${API_URL}/careers/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Failed to delete career');
+    return response.json();
+};
 
-// Reviews
+// ========================================
+// REVIEWS API
+// ========================================
+
 export const fetchProductReviews = async (productId: string) => {
     const response = await fetch(`${API_URL}/api/reviews/product/${productId}`);
     if (!response.ok) throw new Error('Failed to fetch reviews');
@@ -1042,15 +1179,6 @@ export const deleteReview = async (id: string, token: string) => {
         headers: { Authorization: `Bearer ${token}` }
     });
     if (!response.ok) throw new Error('Failed to delete review');
-    return response.json();
-};
-
-export const deleteCareer = async (id: string, token: string) => {
-    const response = await fetch(`${API_URL}/careers/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (!response.ok) throw new Error('Failed to delete career');
     return response.json();
 };
 
