@@ -355,7 +355,12 @@ export const createCategory = async (categoryData: any, token: string) => {
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to create category');
+        const errorMessage = error.message || 'Failed to create category';
+        // Include stack trace if available in development
+        if (error.stack) {
+            console.error('[API] Server Error Stack:', error.stack);
+        }
+        throw new Error(errorMessage);
     }
     return response.json();
 };
