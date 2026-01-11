@@ -928,7 +928,8 @@ export const fetchBlogPosts = async () => {
     try {
         const response = await fetch(`${API_URL}/blog`);
         if (!response.ok) throw new Error('Failed to fetch blog posts');
-        return response.json();
+        const data = await response.json();
+        return data.items || data;
     } catch (error) {
         console.error('[API] Fetch blog posts error:', error);
         throw error;
@@ -1020,7 +1021,8 @@ export const deleteBlogPost = async (id: string, token: string) => {
 export const fetchPressReleases = async () => {
     const response = await fetch(`${API_URL}/press`);
     if (!response.ok) throw new Error('Failed to fetch press releases');
-    return response.json();
+    const data = await response.json();
+    return data.items || data;
 };
 
 export const fetchPressReleaseById = async (id: string) => {
@@ -1092,7 +1094,8 @@ export const deletePressRelease = async (id: string, token: string) => {
 export const fetchCareers = async () => {
     const response = await fetch(`${API_URL}/careers`);
     if (!response.ok) throw new Error('Failed to fetch careers');
-    return response.json();
+    const data = await response.json();
+    return data.items || data;
 };
 
 export const fetchCareerById = async (id: string) => {
