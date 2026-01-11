@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
             <span className="text-brand-yellow font-heading font-semibold">MANSARA FOODS</span> — Nourish from Within
           </p>
           <p className="text-brand-cream/40 text-xs mt-2">
-            © 2026 | Designed & Developed by Zech Soft , hence ensuring quality & reliability
+            © 2026 | Designed & Developed by Mansarafoods , hence ensuring quality & reliability
           </p>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { Product, Combo } from '@/data/products';
 import { useAuth } from './AuthContext';
+import { useStore } from './StoreContext'; // Import useStore
 import { getCart, updateCart } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -47,20 +48,20 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
  * Sanitize cart item
  */
 const sanitizeCartItem = (item: any): CartItem => ({
-    id: item.id,
-    type: item.type,
-    name: item.name || 'Unknown Item',
-    price: Number(item.price) || 0,
-    quantity: Math.max(1, Math.min(999, Number(item.quantity) || 1)),
-    image: item.image || ''
+  id: item.id,
+  type: item.type,
+  name: item.name || 'Unknown Item',
+  price: Number(item.price) || 0,
+  quantity: Math.max(1, Math.min(999, Number(item.quantity) || 1)),
+  image: item.image || ''
 });
 
 /**
  * Validate cart items
  */
 const validateCartItems = (items: any[]): CartItem[] => {
-    if (!Array.isArray(items)) return [];
-    return items.map(sanitizeCartItem).filter(item => item.id && item.price > 0);
+  if (!Array.isArray(items)) return [];
+  return items.map(sanitizeCartItem).filter(item => item.id && item.price > 0);
 };
 
 // ========================================
@@ -69,6 +70,7 @@ const validateCartItems = (items: any[]): CartItem[] => {
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
+  const { updateProduct, products, getProduct, refetch, updateLocalStock } = useStore(); // Get Store functions
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -103,7 +105,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         // Fetch cart from backend
         const serverCart = await getCart(token);
-        
+
         // Validate and sanitize
         const sanitizedCart = validateCartItems(serverCart);
 
@@ -160,7 +162,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.log('[Cart] ✓ Synced to server');
       } catch (error: any) {
         console.error('[Cart] ✗ Sync failed:', error);
-        
+
         // Don't show toast for every sync failure (UX improvement)
         // Only show if user is actively using the cart
         if (document.hasFocus()) {
@@ -229,9 +231,25 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // Sync to backend (debounced)
       syncToBackend(newItems);
+
+      // ========================================
+      // REAL-TIME STOCK UPDATE (Optimistic)
+      // ========================================
+      if (type === 'product') {
+        const currentProduct = getProduct(item.id);
+        if (currentProduct) {
+          const newStock = Math.max(0, currentProduct.stock - 1);
+          // Trigger local update immediately
+          updateLocalStock(item.id, newStock);
+        } else {
+          // Fallback: Refetch if product not in invalid state
+          refetch();
+        }
+      }
+
       return newItems;
     });
-  }, [isAuthenticated, syncToBackend]);
+  }, [isAuthenticated, syncToBackend, getProduct, updateProduct, refetch]);
 
   const removeFromCart = useCallback((id: string) => {
     if (!isAuthenticated) {
@@ -240,12 +258,27 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     setItems(prev => {
+      const itemToRemove = prev.find(i => i.id === id);
       const newItems = prev.filter(i => i.id !== id);
       syncToBackend(newItems);
       toast.success('Item removed from cart', { duration: 2000 });
+
+      // ========================================
+      // REAL-TIME STOCK RESTORATION
+      // ========================================
+      if (itemToRemove && itemToRemove.type === 'product') {
+        const currentProduct = getProduct(id);
+        if (currentProduct) {
+          const newStock = currentProduct.stock + itemToRemove.quantity;
+          updateLocalStock(id, newStock);
+        } else {
+          refetch();
+        }
+      }
+
       return newItems;
     });
-  }, [isAuthenticated, syncToBackend]);
+  }, [isAuthenticated, syncToBackend, getProduct, updateProduct, refetch]);
 
   const updateQuantity = useCallback((id: string, quantity: number) => {
     if (!isAuthenticated) {
@@ -266,13 +299,31 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     setItems(prev => {
+      const oldItem = prev.find(i => i.id === id);
       const newItems = prev.map(i =>
         i.id === id ? { ...i, quantity: newQuantity } : i
       );
       syncToBackend(newItems);
+
+      // ========================================
+      // REAL-TIME STOCK ADJUSTMENT
+      // ========================================
+      if (oldItem && oldItem.type === 'product') {
+        const diff = newQuantity - oldItem.quantity; // +ve means took more stock, -ve means returned stock
+        if (diff !== 0) {
+          const currentProduct = getProduct(id);
+          if (currentProduct) {
+            // If diff is positive (added 2), stock decreases by 2.
+            // If diff is negative (removed 2), stock increases by 2.
+            const newStock = Math.max(0, currentProduct.stock - diff);
+            updateLocalStock(id, newStock);
+          }
+        }
+      }
+
       return newItems;
     });
-  }, [isAuthenticated, removeFromCart, syncToBackend]);
+  }, [isAuthenticated, removeFromCart, syncToBackend, getProduct, updateProduct]);
 
   const clearCart = useCallback(() => {
     if (!isAuthenticated) {
@@ -280,10 +331,23 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
+    // ========================================
+    // RESTORE STOCK FOR ALL ITEMS
+    // ========================================
+    items.forEach(item => {
+      if (item.type === 'product') {
+        const currentProduct = getProduct(item.id);
+        if (currentProduct) {
+          const newStock = currentProduct.stock + item.quantity;
+          updateLocalStock(item.id, newStock);
+        }
+      }
+    });
+
     setItems([]);
     syncToBackend([]);
     toast.success('Cart cleared', { duration: 2000 });
-  }, [isAuthenticated, syncToBackend]);
+  }, [isAuthenticated, syncToBackend, items, getProduct, updateLocalStock]);
 
   const getCartTotal = useCallback(() => {
     return items.reduce((total, item) => total + (item.price * item.quantity), 0);

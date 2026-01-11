@@ -85,6 +85,7 @@ interface StoreContextType {
     addCategory: (name: string) => void;
     refetch: () => Promise<void>;
     getCategoryIdBySlug: (slug: string) => string | undefined;
+    updateLocalStock: (id: string, newStock: number) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -342,28 +343,33 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
             const normalized = normalizeId(newProduct);
 
-            // OPTIMIZATION: Update state AND cache directly
-            const newProducts = [...products, normalized];
-            setProducts(newProducts);
-            setCachedData('products', newProducts);
+            // OPTIMIZATION: Update state AND cache directly (Functional Update)
+            setProducts(prev => {
+                const newProducts = [...prev, normalized];
+                setCachedData('products', newProducts);
+                return newProducts;
+            });
 
             console.log('[Store] ✓ Product added & cache updated');
         } catch (err: any) {
             console.error('[Store] ✗ Add product failed:', err.message);
             throw err;
         }
-    }, [products, getCategoryIdBySlug]);
+    }, [getCategoryIdBySlug]);
 
     const updateProduct = useCallback(async (id: string, updates: Partial<Product>) => {
-        const originalProducts = [...products];
+        // Capture original item for rollback
+        const originalProduct = products.find(p => p.id === id);
 
         try {
-            // Optimistic update
-            const optimisticProducts = products.map(p =>
-                p.id === id ? { ...p, ...updates } : p
-            );
-            setProducts(optimisticProducts);
-            setCachedData('products', optimisticProducts); // Update cache immediately
+            // Optimistic update (Functional)
+            setProducts(prev => {
+                const optimisticProducts = prev.map(p =>
+                    p.id === id ? { ...p, ...updates } : p
+                );
+                setCachedData('products', optimisticProducts);
+                return optimisticProducts;
+            });
 
             const token = getToken();
             if (!token) throw new Error('Authentication required');
@@ -391,31 +397,43 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const { updateProduct: apiUpdate } = await import('@/lib/api');
             const updated = await apiUpdate(id, updatesToSend, token);
 
-            // Confirm update with server data
-            const finalProducts = products.map(p =>
-                p.id === id ? normalizeId(updated) : p
-            );
-            setProducts(finalProducts);
-            setCachedData('products', finalProducts); // Update cache with final data
+            // Confirm update with server data (Functional)
+            setProducts(prev => {
+                const finalProducts = prev.map(p =>
+                    p.id === id ? normalizeId(updated) : p
+                );
+                setCachedData('products', finalProducts);
+                return finalProducts;
+            });
 
             console.log('[Store] ✓ Product updated & cache synced');
         } catch (err: any) {
             console.error('[Store] ✗ Update product failed:', err.message);
-            // Rollback
-            setProducts(originalProducts);
-            setCachedData('products', originalProducts); // Rollback cache
+            // Rollback (Functional)
+            if (originalProduct) {
+                setProducts(prev => {
+                    const originalProducts = prev.map(p =>
+                        p.id === id ? originalProduct : p
+                    );
+                    setCachedData('products', originalProducts);
+                    return originalProducts;
+                });
+            }
             throw err;
         }
     }, [products, getCategoryIdBySlug]);
 
     const deleteProduct = useCallback(async (id: string) => {
-        const originalProducts = [...products];
+        // Capture original product for rollback (not entire list)
+        const originalProduct = products.find(p => p.id === id);
 
         try {
-            // Optimistic delete
-            const remainingProducts = products.filter(p => p.id !== id);
-            setProducts(remainingProducts);
-            setCachedData('products', remainingProducts); // Update cache immediately
+            // Optimistic delete (Functional)
+            setProducts(prev => {
+                const remainingProducts = prev.filter(p => p.id !== id);
+                setCachedData('products', remainingProducts);
+                return remainingProducts;
+            });
 
             const token = getToken();
             if (!token) throw new Error('Authentication required');
@@ -426,12 +444,32 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             console.log('[Store] ✓ Product deleted & cache updated');
         } catch (err: any) {
             console.error('[Store] ✗ Delete product failed:', err.message);
-            // Rollback
-            setProducts(originalProducts);
-            setCachedData('products', originalProducts); // Rollback cache
+            // Rollback (Functional)
+            if (originalProduct) {
+                setProducts(prev => {
+                    // Add it back
+                    const restored = [...prev, originalProduct];
+                    setCachedData('products', restored);
+                    return restored;
+                });
+            }
             throw err;
         }
     }, [products]);
+
+    // ========================================
+    // LOCAL STOCK UPDATE (NO API)
+    // ========================================
+    const updateLocalStock = useCallback((id: string, newStock: number) => {
+        setProducts(prev => {
+            const updated = prev.map(p =>
+                p.id === id ? { ...p, stock: newStock } : p
+            );
+            setCachedData('products', updated);
+            return updated;
+        });
+        console.log(`[Store] Local stock update for ${id}: ${newStock}`);
+    }, []);
 
     const getProduct = useCallback((identifier: string) => {
         return products.find(p => p.id === identifier || p._id === identifier || p.slug === identifier);
@@ -557,7 +595,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         deleteCombo,
         addCategory,
         refetch,
-        getCategoryIdBySlug
+
+        getCategoryIdBySlug,
+        updateLocalStock
     };
 
     return (
