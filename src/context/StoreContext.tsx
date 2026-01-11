@@ -209,7 +209,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [categories, setCategories] = useState<Category[]>(() => {
         try {
             const saved = localStorage.getItem('mansara-categories');
-            return saved ? JSON.parse(saved) : [];
+            const parsed = saved ? JSON.parse(saved) : [];
+            return Array.isArray(parsed) ? parsed : [];
         } catch { return []; }
     });
 
