@@ -21,7 +21,12 @@ declare module 'axios' {
 // - Response caching
 // ========================================
 
-export const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://mansara-backend.onrender.com/api');
+export const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV
+    ? "http://localhost:5000/api"
+    : "https://api.mansarafoods.com/api");
+
 
 // ========================================
 // AXIOS INSTANCE WITH OPTIMIZATIONS
