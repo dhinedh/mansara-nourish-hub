@@ -253,12 +253,14 @@ const AdminBlog = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Video URL (YouTube/Vimeo)</label>
-                                <Input
+                                <label className="text-sm font-medium">Video (Upload)</label>
+                                <ImageUpload
+                                    onChange={(url) => setFormData(prev => ({ ...prev, video: url }))}
                                     value={formData.video}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, video: e.target.value }))}
-                                    placeholder="https://www.youtube.com/watch?v=..."
+                                    uploadToServer
+                                    acceptVideo
                                 />
+                                <p className="text-xs text-slate-500 mt-1">Upload an MP4, WebM, or OGG video (max 50MB).</p>
                             </div>
                         </div>
 

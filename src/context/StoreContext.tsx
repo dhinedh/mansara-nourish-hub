@@ -43,6 +43,13 @@ export interface Product {
     short_description?: string;
     rating?: number;
     numReviews?: number;
+    variants?: {
+        weight: string;
+        price: number;
+        offerPrice?: number;
+        stock?: number;
+        sku?: string;
+    }[];
 }
 
 export interface Combo {

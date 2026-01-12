@@ -157,17 +157,24 @@ const BlogDetail = () => {
                     )}
 
                     {/* Video */}
-                    {post.video && (
+                    {(post.video || post.image) && (
                         <div className="mt-12">
                             <h3 className="text-2xl font-bold font-heading mb-6">Video</h3>
-                            <div className="aspect-video rounded-3xl overflow-hidden shadow-xl bg-black">
-                                <iframe
-                                    src={post.video.replace('watch?v=', 'embed/')}
-                                    className="w-full h-full"
-                                    allowFullScreen
-                                    title="Post Video"
-                                />
-                            </div>
+                            {post.image && (
+                                <div className="aspect-video w-full rounded-xl overflow-hidden mb-8 shadow-md">
+                                    <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+                                </div>
+                            )}
+
+                            {post.video && (
+                                <div className="aspect-video w-full rounded-xl overflow-hidden mb-8 shadow-md bg-black">
+                                    <video
+                                        src={post.video}
+                                        controls
+                                        className="w-full h-full"
+                                    />
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

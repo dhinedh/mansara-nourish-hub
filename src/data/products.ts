@@ -19,6 +19,13 @@ export interface Product {
   nutrition?: string; // HTML or text content
   compliance?: string;
   short_description?: string;
+  variants?: {
+    weight: string;
+    price: number;
+    offerPrice?: number;
+    stock?: number;
+    sku?: string;
+  }[];
 }
 
 export interface Combo {
@@ -38,7 +45,7 @@ export const products: Product[] = [
     slug: "urad-porridge-mix-classic",
     name: "Classic Urad Porridge Mix",
     category: "porridge-mixes",
-    price: 299,
+    price: 55,
     image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     description: "A simple and nourishing porridge mix made primarily from premium black gram. Light on the stomach and easy to prepare, ideal for everyday nourishment for all age groups.",
     highlights: [
@@ -52,98 +59,120 @@ export const products: Product[] = [
     nutrition: "Testing in progress",
     storage: "Store in a cool, dry place.\nKeep away from moisture.\nOnce opened, store in an airtight container.",
     compliance: "FSSAI License No: [Pending]",
-    weight: "500g",
+    weight: "100g",
     isOffer: false,
     isNewArrival: false,
     isFeatured: true,
-    stock: 50
+    stock: 50,
+    variants: [
+      { weight: "100g", price: 55, stock: 100 },
+      { weight: "200g", price: 105, stock: 100 }
+    ]
   },
   {
     id: "2",
     slug: "urad-porridge-mix-salt-pepper",
     name: "URAD Porridge Mix – Salt & Pepper",
     category: "porridge-mixes",
-    price: 329,
-    offerPrice: 279,
+    price: 55,
     image: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     description: "A savory twist on our classic URAD mix, enhanced with the warmth of freshly ground black pepper. Perfect for those who prefer a more robust flavor profile.",
     ingredients: "Black Gram (Urad Dal), Rice, Black Pepper, Rock Salt, Cumin, Asafoetida",
     howToUse: "Mix 2 tablespoons with warm water. Cook for 5-7 minutes. Best enjoyed hot with a drizzle of sesame oil.",
     storage: "Store in a cool, dry place. Keep away from direct sunlight. Use within 6 months of opening.",
-    weight: "500g",
-    isOffer: true,
+    weight: "100g",
+    isOffer: false,
     isNewArrival: false,
     isFeatured: true,
-    stock: 35
+    stock: 35,
+    variants: [
+      { weight: "100g", price: 55, stock: 100 },
+      { weight: "200g", price: 105, stock: 100 }
+    ]
   },
   {
     id: "3",
     slug: "urad-porridge-mix-millet-magic",
     name: "URAD Porridge Mix – Millet Magic",
     category: "porridge-mixes",
-    price: 349,
+    price: 60,
     image: "https://images.unsplash.com/photo-1644433159048-436d4df13117?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     description: "The power of millets combined with URAD for a nutritionally superior porridge. Rich in fiber and essential minerals for holistic wellness.",
     ingredients: "Black Gram (Urad Dal), Finger Millet (Ragi), Foxtail Millet, Cumin, Black Pepper, Salt",
     howToUse: "Mix 2 tablespoons with warm water or milk. Cook for 7-8 minutes. Add jaggery or honey for natural sweetness.",
     storage: "Store in a cool, dry place. Keep away from direct sunlight. Use within 6 months of opening.",
-    weight: "500g",
+    weight: "100g",
     isOffer: false,
     isNewArrival: true,
     isFeatured: true,
-    stock: 40
+    stock: 40,
+    variants: [
+      { weight: "100g", price: 60, stock: 100 },
+      { weight: "200g", price: 115, stock: 100 }
+    ]
   },
   {
     id: "4",
     slug: "urad-porridge-mix-premium",
     name: "URAD Porridge Mix – Premium",
     category: "porridge-mixes",
-    price: 449,
-    offerPrice: 399,
+    price: 65,
     image: "https://images.unsplash.com/photo-1505253149613-112d21d9f6a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     description: "Our finest selection of URAD porridge mix, featuring premium quality ingredients and enhanced nutritional profile for the discerning health enthusiast.",
     ingredients: "Premium Black Gram (Urad Dal), Basmati Rice, Organic Cumin, Himalayan Pink Salt, Black Pepper",
     howToUse: "Mix 2 tablespoons with warm milk. Cook for 5-6 minutes. Garnish with nuts and dried fruits.",
     storage: "Store in a cool, dry place away from direct sunlight. Best consumed within 4 months of opening.",
-    weight: "500g",
-    isOffer: true,
+    weight: "100g",
+    isOffer: false,
     isNewArrival: false,
     isFeatured: false,
-    stock: 25
+    stock: 25,
+    variants: [
+      { weight: "100g", price: 65, stock: 100 },
+      { weight: "200g", price: 125, stock: 100 }
+    ]
   },
   {
     id: "5",
     slug: "porridge-mix-black-rice-delight",
     name: "Porridge Mix – Black Rice Delight",
     category: "porridge-mixes",
-    price: 399,
+    price: 70,
     image: "https://images.unsplash.com/photo-1595348020949-87cdfbb44174?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     description: "Experience the antioxidant-rich goodness of black rice in this unique porridge blend. A modern superfood with traditional preparation methods.",
     ingredients: "Black Rice (Kavuni), Black Gram, Cardamom, Cinnamon, Natural Vanilla",
     howToUse: "Soak 2 tablespoons in water for 10 minutes. Cook with milk for 10-12 minutes. Sweeten with jaggery.",
     storage: "Store in an airtight container in a cool, dry place. Use within 5 months of opening.",
-    weight: "400g",
+    weight: "100g",
     isOffer: false,
     isNewArrival: true,
     isFeatured: true,
-    stock: 30
+    stock: 30,
+    variants: [
+      { weight: "100g", price: 70, stock: 100 },
+      { weight: "200g", price: 135, stock: 100 }
+    ]
   },
   {
     id: "6",
     slug: "idly-powder-mix-millet-fusion",
     name: "Idly Powder Mix – Millet Fusion",
     category: "porridge-mixes",
-    price: 279,
+    price: 75,
     image: "https://images.unsplash.com/photo-1610440042657-612c34d95e9f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     description: "A nutritious millet-based idly powder that adds taste and health to your everyday idlis. Enjoy the traditional South Indian favorite with added wellness benefits.",
     ingredients: "Mixed Millets, Urad Dal, Dried Red Chili, Curry Leaves, Asafoetida, Sesame Seeds",
     howToUse: "Sprinkle generously over hot idlis. Mix with ghee or sesame oil for best taste. Can also be used with dosa.",
     storage: "Store in a cool, dry place. Keep the container tightly closed. Use within 3 months of opening.",
-    weight: "200g",
+    weight: "100g",
     isOffer: false,
     isNewArrival: true,
     isFeatured: false,
-    stock: 60
+    stock: 60,
+    variants: [
+      { weight: "100g", price: 75, stock: 100 },
+      { weight: "200g", price: 145, stock: 100 }
+    ]
   },
   {
     id: "7",

@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, Loader2 } from 'lucide-react';
+import { Upload, X, Loader2, Video as VideoIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { uploadImage } from '@/lib/api';
@@ -13,6 +13,7 @@ interface ImageUploadProps {
     hidePreview?: boolean;
     children?: React.ReactNode;
     uploadToServer?: boolean; // If true, uploads to server immediately
+    acceptVideo?: boolean;
 }
 
 // ========================================
@@ -117,7 +118,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             if (uploadToServer) {
                 // Upload to server
                 setUploadProgress(30);
-                
+
                 // Compress if needed
                 let fileToUpload = file;
                 if (file.size > 500000) { // > 500KB
@@ -127,7 +128,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
                 setUploadProgress(70);
                 const response = await uploadImage(fileToUpload);
-                
+
                 setUploadProgress(100);
                 onChange(response.url);
                 setPreview(response.url);
@@ -139,7 +140,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                     reader.onloadend = () => resolve(reader.result as string);
                     reader.readAsDataURL(file);
                 });
-                
+
                 onChange(result);
                 setPreview(result);
                 console.log('[Upload] ✓ Base64 conversion complete');

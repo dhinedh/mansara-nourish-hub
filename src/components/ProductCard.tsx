@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Zap } from 'lucide-react';
+import { calculateUnitPrice } from '@/lib/utils';
 import { Product as DataProduct } from '@/data/products';
 import { Product as StoreProduct } from '@/context/StoreContext';
 import { useCart } from '@/context/CartContext';
@@ -22,10 +23,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
 
   // Normalize product data common fields
   const imageUrl = product.image || (product as any).image_url || '';
-  const offerPrice = product.offerPrice;
+
+  // Use first variant price if available, otherwise fallback to root price
+  const firstVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
+
+  const offerPrice = firstVariant ? firstVariant.offerPrice : product.offerPrice;
+  const price = firstVariant ? firstVariant.price : product.price;
+  const stock = firstVariant && firstVariant.stock !== undefined ? firstVariant.stock : product.stock;
+
   const isNewArrival = product.isNewArrival;
-  const stock = product.stock;
-  const price = product.price;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -86,6 +92,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const discountPercent = hasDiscount
     ? Math.round(((price - offerPrice) / price) * 100)
     : 0;
+
+  // Use first variant weight if available
+  const displayWeight = firstVariant ? firstVariant.weight : product.weight;
+  const unitPrice = calculateUnitPrice(displayPrice, displayWeight);
 
   return (
     <Link
@@ -149,6 +159,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
               <span className="ml-2 text-sm text-muted-foreground line-through decoration-red-400/50">
                 ₹{price.toFixed(2)}
               </span>
+            )}
+            {unitPrice && (
+              <p className="text-xs text-muted-foreground font-medium mt-1">
+                ({unitPrice})
+              </p>
             )}
           </div>
           <button

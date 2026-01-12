@@ -9,6 +9,7 @@ import { useStore } from '@/context/StoreContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { fetchProductReviews, checkReviewEligibility, createReview, notifyMe } from '@/lib/api';
+import { calculateUnitPrice } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -142,18 +143,41 @@ const ProductDetail: React.FC = () => {
     );
   }
 
+  /* State for selected variant */
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+
+  /* Effect to set initial variant */
+  React.useEffect(() => {
+    if (product?.variants?.length) {
+      // Default to the first variant if not set
+      if (!selectedVariant) {
+        setSelectedVariant(product.variants[0]);
+      }
+    }
+  }, [product]);
+
   const handleAddToCart = async () => {
     setAdding(true);
     try {
+      // Determine effective price and weight from variant or base product
+      const itemToAdd = {
+        ...product,
+        price: selectedVariant ? selectedVariant.price : product?.price,
+        offerPrice: selectedVariant ? selectedVariant.offerPrice : product?.offerPrice,
+        weight: selectedVariant ? selectedVariant.weight : product?.weight,
+        image: product?.image, // Keep main image for now
+        variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
+      };
+
       for (let i = 0; i < quantity; i++) {
-        addToCart(product as any, 'product');
+        addToCart(itemToAdd as any, 'product');
       }
       setQuantity(1);
       setAddSuccess(true);
       setTimeout(() => setAddSuccess(false), 3000);
       toast({
         title: "Added to cart!",
-        description: `${quantity}x ${product.name} has been added to your cart.`,
+        description: `${quantity}x ${product?.name} (${selectedVariant ? selectedVariant.weight : product?.weight}) added to cart.`,
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -164,8 +188,12 @@ const ProductDetail: React.FC = () => {
   const handleBuyNow = async () => {
     if (!product) return;
 
-    // Check stock
-    if (product.stock <= 0) {
+    // Determine stock from variant or base product
+    const currentStock = selectedVariant && selectedVariant.stock !== undefined
+      ? selectedVariant.stock
+      : product.stock;
+
+    if (currentStock <= 0) {
       toast({
         title: "Out of stock",
         description: `${product.name} is currently out of stock.`,
@@ -175,8 +203,17 @@ const ProductDetail: React.FC = () => {
     }
 
     try {
+      const itemToAdd = {
+        ...product,
+        price: selectedVariant ? selectedVariant.price : product?.price,
+        offerPrice: selectedVariant ? selectedVariant.offerPrice : product?.offerPrice,
+        weight: selectedVariant ? selectedVariant.weight : product?.weight,
+        image: product?.image,
+        variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
+      };
+
       for (let i = 0; i < quantity; i++) {
-        addToCart(product as any, 'product');
+        addToCart(itemToAdd as any, 'product');
       }
       navigate('/checkout');
     } catch (error) {
@@ -189,11 +226,25 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  const displayPrice = product.offerPrice || product.price;
-  const hasDiscount = product.offerPrice && product.offerPrice < product.price;
+  const displayPrice = selectedVariant
+    ? (selectedVariant.offerPrice || selectedVariant.price)
+    : (product.offerPrice || product.price);
+
+  const originalPrice = selectedVariant
+    ? selectedVariant.price
+    : product.price;
+
+  const hasDiscount = selectedVariant
+    ? (selectedVariant.offerPrice && selectedVariant.offerPrice < selectedVariant.price)
+    : (product.offerPrice && product.offerPrice < product.price);
+
   const discountPercent = hasDiscount
-    ? Math.round(((product.price - product.offerPrice!) / product.price) * 100)
+    ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100)
     : 0;
+
+  // Use variant weight if available, otherwise product weight
+  const displayWeight = selectedVariant ? selectedVariant.weight : product.weight;
+  const unitPrice = calculateUnitPrice(displayPrice, displayWeight);
 
   return (
     <Layout>
@@ -270,7 +321,7 @@ const ProductDetail: React.FC = () => {
                     {hasDiscount && (
                       <>
                         <span className="text-xl text-gray-500 line-through">
-                          ₹{product.price.toFixed(2)}
+                          ₹{originalPrice.toFixed(2)}
                         </span>
                         <span
                           className="px-2 py-1 text-sm font-bold rounded"
@@ -280,12 +331,38 @@ const ProductDetail: React.FC = () => {
                         </span>
                       </>
                     )}
+                    {unitPrice && (
+                      <span className="text-sm text-gray-500 font-medium ml-2">
+                        ({unitPrice})
+                      </span>
+                    )}
                   </div>
 
-                  {product.weight && (
-                    <p className="text-gray-600 mb-4">
-                      <span className="font-semibold" style={{ color: '#1F2A7C' }}>Weight:</span> {product.weight}
-                    </p>
+                  {/* Variant Selection */}
+                  {product.variants && product.variants.length > 0 ? (
+                    <div className="mb-6">
+                      <p className="text-sm font-semibold mb-3" style={{ color: '#1F2A7C' }}>Select Weight:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {product.variants.map((variant: any, idx: number) => (
+                          <button
+                            key={idx}
+                            onClick={() => setSelectedVariant(variant)}
+                            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${selectedVariant && selectedVariant.weight === variant.weight
+                              ? 'border-[#1F2A7C] bg-[#1F2A7C] text-white'
+                              : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                              }`}
+                          >
+                            {variant.weight}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    product.weight && (
+                      <p className="text-gray-600 mb-4">
+                        <span className="font-semibold" style={{ color: '#1F2A7C' }}>Weight:</span> {product.weight}
+                      </p>
+                    )
                   )}
 
                   {product.stock > 0 && (
