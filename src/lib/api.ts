@@ -22,10 +22,10 @@ declare module 'axios' {
 // ========================================
 
 export const API_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV
-    ? "http://localhost:5000/api"
-    : "https://api.mansarafoods.com/api");
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env.DEV
+        ? "http://localhost:5000/api"
+        : "https://api.mansarafoods.com/api");
 
 
 // ========================================
@@ -577,10 +577,7 @@ export const cancelOrder = async (orderId: string) => {
 export const fetchUser = async (userId: string) => {
     try {
         const token = localStorage.getItem('mansara-token');
-        const headers: HeadersInit = {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-        };
+        const headers: HeadersInit = {};
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }

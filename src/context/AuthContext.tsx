@@ -143,8 +143,7 @@ const verifyTokenWithBackend = async (token: string): Promise<User | null> => {
         try {
             const response = await fetch(`${API_URL}/auth/profile`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Cache-Control': 'no-cache'
+                    'Authorization': `Bearer ${token}`
                 }
             });
 
