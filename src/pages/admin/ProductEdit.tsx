@@ -49,7 +49,8 @@ const AdminProductEdit = () => {
     // Legacy fields handled by optional mapping/compat
     short_description: "",
     how_to_use: "",
-    storage_instructions: ""
+    storage_instructions: "",
+    variants: []
   } as any);
 
   const [highlightsText, setHighlightsText] = useState("");
@@ -269,6 +270,100 @@ const AdminProductEdit = () => {
               </CardContent>
             </Card>
 
+
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Variants</CardTitle>
+                <CardDescription>Add price/weight variants (e.g., 100g, 200g)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {formData.variants?.map((variant: any, index: number) => (
+                  <div key={index} className="flex flex-col gap-3 p-3 border rounded-md bg-slate-50 relative">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-1 right-1 h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                      onClick={() => {
+                        const newVariants = [...(formData.variants || [])];
+                        newVariants.splice(index, 1);
+                        setFormData(prev => ({ ...prev, variants: newVariants }));
+                      }}
+                    >
+                      ×
+                    </Button>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-medium">Weight</label>
+                        <Input
+                          placeholder="e.g. 100g"
+                          value={variant.weight}
+                          onChange={(e) => {
+                            const newVariants = [...(formData.variants || [])];
+                            newVariants[index] = { ...variant, weight: e.target.value };
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium">Stock</label>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          value={variant.stock}
+                          onChange={(e) => {
+                            const newVariants = [...(formData.variants || [])];
+                            newVariants[index] = { ...variant, stock: parseInt(e.target.value) || 0 };
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-medium">Price</label>
+                        <Input
+                          type="number"
+                          placeholder="Price"
+                          value={variant.price}
+                          onChange={(e) => {
+                            const newVariants = [...(formData.variants || [])];
+                            newVariants[index] = { ...variant, price: parseFloat(e.target.value) || 0 };
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium">Offer Price</label>
+                        <Input
+                          type="number"
+                          placeholder="Offer"
+                          value={variant.offerPrice}
+                          onChange={(e) => {
+                            const newVariants = [...(formData.variants || [])];
+                            newVariants[index] = { ...variant, offerPrice: parseFloat(e.target.value) || 0 };
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      variants: [...(prev.variants || []), { weight: "", price: 0, stock: 0, offerPrice: 0 }]
+                    }));
+                  }}
+                >
+                  + Add Variant
+                </Button>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Product Content</CardTitle>
@@ -471,8 +566,8 @@ const AdminProductEdit = () => {
             </Card>
           </div>
         </div>
-      </div>
-    </AdminLayout>
+      </div >
+    </AdminLayout >
   );
 };
 

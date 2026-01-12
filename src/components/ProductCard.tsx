@@ -24,12 +24,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   // Normalize product data common fields
   const imageUrl = product.image || (product as any).image_url || '';
 
-  // Use first variant price if available, otherwise fallback to root price
-  const firstVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
+  // Determine effective stock
+  const hasVariants = product.variants && product.variants.length > 0;
+  const stock = hasVariants
+    ? product.variants.reduce((acc, v) => acc + (v.stock || 0), 0)
+    : product.stock;
+
+  // Use first variant for price display, or fallback to product
+  const firstVariant = hasVariants ? product.variants[0] : null;
 
   const offerPrice = firstVariant ? firstVariant.offerPrice : product.offerPrice;
   const price = firstVariant ? firstVariant.price : product.price;
-  const stock = firstVariant && firstVariant.stock !== undefined ? firstVariant.stock : product.stock;
 
   const isNewArrival = product.isNewArrival;
 

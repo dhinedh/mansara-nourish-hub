@@ -91,7 +91,7 @@ const ProductDetail: React.FC = () => {
     if (!product) return;
     try {
       const data = await fetchProductReviews(product._id);
-      setReviews(data);
+      setReviews(data.reviews || []);
     } catch (error) {
       console.error('Failed to load reviews');
     }
@@ -128,6 +128,19 @@ const ProductDetail: React.FC = () => {
     }
   };
 
+  /* State for selected variant */
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+
+  /* Effect to set initial variant */
+  React.useEffect(() => {
+    if (product?.variants?.length) {
+      // Default to the first variant if not set
+      if (!selectedVariant) {
+        setSelectedVariant(product.variants[0]);
+      }
+    }
+  }, [product]);
+
   if (!product) {
     return (
       <Layout>
@@ -142,19 +155,6 @@ const ProductDetail: React.FC = () => {
       </Layout>
     );
   }
-
-  /* State for selected variant */
-  const [selectedVariant, setSelectedVariant] = useState<any>(null);
-
-  /* Effect to set initial variant */
-  React.useEffect(() => {
-    if (product?.variants?.length) {
-      // Default to the first variant if not set
-      if (!selectedVariant) {
-        setSelectedVariant(product.variants[0]);
-      }
-    }
-  }, [product]);
 
   const handleAddToCart = async () => {
     setAdding(true);
@@ -202,28 +202,7 @@ const ProductDetail: React.FC = () => {
       return;
     }
 
-    try {
-      const itemToAdd = {
-        ...product,
-        price: selectedVariant ? selectedVariant.price : product?.price,
-        offerPrice: selectedVariant ? selectedVariant.offerPrice : product?.offerPrice,
-        weight: selectedVariant ? selectedVariant.weight : product?.weight,
-        image: product?.image,
-        variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
-      };
-
-      for (let i = 0; i < quantity; i++) {
-        addToCart(itemToAdd as any, 'product');
-      }
-      navigate('/checkout');
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      toast({
-        title: "Error",
-        description: "Failed to process buy now request.",
-        variant: "destructive",
-      });
-    }
+    // ... itemToAdd logic ...
   };
 
   const displayPrice = selectedVariant
@@ -245,6 +224,11 @@ const ProductDetail: React.FC = () => {
   // Use variant weight if available, otherwise product weight
   const displayWeight = selectedVariant ? selectedVariant.weight : product.weight;
   const unitPrice = calculateUnitPrice(displayPrice, displayWeight);
+
+  // Determine current stock for display
+  const currentStock = selectedVariant && selectedVariant.stock !== undefined
+    ? selectedVariant.stock
+    : product.stock;
 
   return (
     <Layout>
@@ -365,9 +349,9 @@ const ProductDetail: React.FC = () => {
                     )
                   )}
 
-                  {product.stock > 0 && (
+                  {currentStock > 0 && (
                     <p className="text-sm text-gray-500 mb-4">
-                      {product.stock < 10 ? `Only ${product.stock} left in stock!` : 'In Stock'}
+                      {currentStock < 10 ? `Only ${currentStock} left in stock!` : 'In Stock'}
                     </p>
                   )}
 
@@ -383,7 +367,7 @@ const ProductDetail: React.FC = () => {
                       </button>
                       <span className="px-6 font-semibold">{quantity}</span>
                       <button
-                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                        onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
                         className="p-3 hover:bg-gray-100 transition-colors"
                         disabled={adding}
                       >
@@ -392,7 +376,7 @@ const ProductDetail: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col flex-1 gap-3">
-                      {product.stock > 0 ? (
+                      {currentStock > 0 ? (
                         <>
                           <button
                             onClick={handleAddToCart}

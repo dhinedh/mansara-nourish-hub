@@ -1144,13 +1144,13 @@ export const deleteCareer = async (id: string, token: string) => {
 // ========================================
 
 export const fetchProductReviews = async (productId: string) => {
-    const response = await fetch(`${API_URL}/api/reviews/product/${productId}`);
+    const response = await fetch(`${API_URL}/reviews/product/${productId}`);
     if (!response.ok) throw new Error('Failed to fetch reviews');
     return response.json();
 };
 
 export const checkReviewEligibility = async (productId: string, token: string) => {
-    const response = await fetch(`${API_URL}/api/reviews/check/${productId}`, {
+    const response = await fetch(`${API_URL}/reviews/check/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
     });
     if (!response.ok) throw new Error('Failed to check eligibility');
@@ -1158,7 +1158,7 @@ export const checkReviewEligibility = async (productId: string, token: string) =
 };
 
 export const createReview = async (reviewData: any, token: string) => {
-    const response = await fetch(`${API_URL}/api/reviews`, {
+    const response = await fetch(`${API_URL}/reviews`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1174,7 +1174,7 @@ export const createReview = async (reviewData: any, token: string) => {
 };
 
 export const fetchAllReviews = async (token: string) => {
-    const response = await fetch(`${API_URL}/api/reviews/admin`, {
+    const response = await fetch(`${API_URL}/reviews/admin`, {
         headers: { Authorization: `Bearer ${token}` }
     });
     if (!response.ok) throw new Error('Failed to fetch reviews');
@@ -1182,7 +1182,7 @@ export const fetchAllReviews = async (token: string) => {
 };
 
 export const updateReviewStatus = async (id: string, isApproved: boolean, adminResponse: string | null, token: string) => {
-    const response = await fetch(`${API_URL}/api/reviews/${id}`, {
+    const response = await fetch(`${API_URL}/reviews/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -1195,7 +1195,7 @@ export const updateReviewStatus = async (id: string, isApproved: boolean, adminR
 };
 
 export const deleteReview = async (id: string, token: string) => {
-    const response = await fetch(`${API_URL}/api/reviews/${id}`, {
+    const response = await fetch(`${API_URL}/reviews/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
     });
@@ -1204,7 +1204,7 @@ export const deleteReview = async (id: string, token: string) => {
 };
 
 export const sendContactForm = async (data: { name: string; email: string; subject: string; message: string }) => {
-    const response = await fetch(`${API_URL}/api/contact`, {
+    const response = await fetch(`${API_URL}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
