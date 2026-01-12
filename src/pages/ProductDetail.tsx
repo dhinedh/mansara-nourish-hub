@@ -202,7 +202,23 @@ const ProductDetail: React.FC = () => {
       return;
     }
 
-    // ... itemToAdd logic ...
+    // Prepare item to add
+    const itemToAdd = {
+      ...product,
+      price: selectedVariant ? selectedVariant.price : product?.price,
+      offerPrice: selectedVariant ? selectedVariant.offerPrice : product?.offerPrice,
+      weight: selectedVariant ? selectedVariant.weight : product?.weight,
+      image: product?.image,
+      variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
+    };
+
+    // Add to cart
+    for (let i = 0; i < quantity; i++) {
+      addToCart(itemToAdd as any, 'product');
+    }
+
+    // Redirect to checkout
+    navigate('/checkout');
   };
 
   const displayPrice = selectedVariant

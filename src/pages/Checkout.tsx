@@ -8,15 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { createOrder, createPaymentOrder, verifyPayment } from '@/lib/api';
 import { toast } from 'sonner';
 
-interface DeliveryAddress {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  whatsapp: string;
-  addressLine: string;
-  city: string;
-  pincode: string;
-}
+
 
 const Checkout: React.FC = () => {
   const { items, getCartTotal, clearCart } = useCart();
@@ -34,17 +26,21 @@ const Checkout: React.FC = () => {
     lastName: string;
     phone: string;
     whatsapp: string;
-    addressLine: string;
+    line1: string; // House No., Building
+    line2: string; // Street, Area
+    landmark: string;
     city: string;
-    state: string; // Added state field
+    state: string;
     pincode: string;
-    email: string; // Add email if it's missing in type
+    email: string;
   }>({
     firstName: user?.name || '',
     lastName: '',
     phone: user?.phone || '',
     whatsapp: user?.whatsapp || '',
-    addressLine: '',
+    line1: '',
+    line2: '',
+    landmark: '',
     city: '',
     state: 'Tamil Nadu', // Default to Tamil Nadu
     pincode: '',
@@ -90,7 +86,9 @@ const Checkout: React.FC = () => {
               lastName: '',
               phone: userData.phone || '',
               whatsapp: userData.whatsapp || '',
-              addressLine: defaultAddress.street || '',
+              line1: defaultAddress.line1 || defaultAddress.street || '',
+              line2: defaultAddress.line2 || '',
+              landmark: defaultAddress.landmark || '',
               city: defaultAddress.city || '',
               state: defaultAddress.state || 'Tamil Nadu',
               pincode: defaultAddress.zip || '',
@@ -103,7 +101,10 @@ const Checkout: React.FC = () => {
           } else {
             setAddress(prev => ({
               ...prev,
-              ...baseContactInfo
+              ...baseContactInfo,
+              line1: '',
+              line2: '',
+              landmark: ''
             }));
             setIsEditing(true);
             setEditingAddressId(null);
@@ -135,7 +136,9 @@ const Checkout: React.FC = () => {
   const handleSelectAddress = (addr: any) => {
     setAddress(prev => ({
       ...prev,
-      addressLine: addr.street,
+      line1: addr.line1 || addr.street || '',
+      line2: addr.line2 || '',
+      landmark: addr.landmark || '',
       city: addr.city,
       state: addr.state || 'Tamil Nadu',
       pincode: addr.zip
@@ -146,7 +149,9 @@ const Checkout: React.FC = () => {
     setEditingAddressId(addr._id);
     setAddress(prev => ({
       ...prev,
-      addressLine: addr.street,
+      line1: addr.line1 || addr.street || '',
+      line2: addr.line2 || '',
+      landmark: addr.landmark || '',
       city: addr.city,
       state: addr.state || 'Tamil Nadu',
       pincode: addr.zip
@@ -156,8 +161,8 @@ const Checkout: React.FC = () => {
 
   const handleSaveAddress = async () => {
     // Basic validation
-    if (!address.firstName || !address.phone || !address.addressLine || !address.pincode) {
-      toast.error("Please fill in all required fields");
+    if (!address.firstName || !address.phone || !address.line1 || !address.pincode) {
+      toast.error("Please fill in all required fields (Line 1 is mandatory)");
       return;
     }
 
@@ -173,7 +178,10 @@ const Checkout: React.FC = () => {
 
       // Prepare address object for backend
       const addressData = {
-        street: address.addressLine,
+        line1: address.line1,
+        line2: address.line2,
+        landmark: address.landmark,
+        street: address.line1, // Fallback for backward compatibility
         city: address.city,
         state: address.state || 'Tamil Nadu',
         zip: address.pincode,
@@ -210,7 +218,9 @@ const Checkout: React.FC = () => {
   const handleAddNewAddress = () => {
     setAddress(prev => ({
       ...prev,
-      addressLine: '',
+      line1: '',
+      line2: '',
+      landmark: '',
       city: '',
       state: 'Tamil Nadu',
       pincode: ''
@@ -226,7 +236,7 @@ const Checkout: React.FC = () => {
       return;
     }
 
-    if (!address.addressLine || !address.pincode) {
+    if (!address.line1 || !address.pincode) {
       toast.error("Please complete your delivery address");
       return;
     }
@@ -257,7 +267,9 @@ const Checkout: React.FC = () => {
         console.warn("Could not sync profile data", err);
       }
 
-      const totalAmount = getCartTotal();
+      const cartTotal = getCartTotal();
+      const shippingCharge = cartTotal < 1000 ? 50 : 0;
+      const totalAmount = cartTotal + shippingCharge;
 
       // ==========================================
       // RAZORPAY PAYMENT FLOW
@@ -298,7 +310,7 @@ const Checkout: React.FC = () => {
                   status: 'Paid'
                 };
 
-                await finalizeOrderPlacement(token, paymentInfo);
+                await finalizeOrderPlacement(token, paymentInfo, totalAmount, shippingCharge); // Pass total and shipping
               } catch (err: any) {
                 toast.error("Payment verification failed. Please contact support if money was deducted.");
                 console.error(err);
@@ -311,7 +323,7 @@ const Checkout: React.FC = () => {
               contact: address.phone
             },
             notes: {
-              address: `${address.addressLine}, ${address.city}`
+              address: `${address.line1}, ${address.line2 || ''}, ${address.city}`
             },
             theme: {
               color: "#1F2A7C"
@@ -337,7 +349,7 @@ const Checkout: React.FC = () => {
       }
 
       // COD Flow
-      await finalizeOrderPlacement(token, null);
+      await finalizeOrderPlacement(token, null, totalAmount, shippingCharge);
 
     } catch (error: any) {
       console.error('[Checkout] Order placement failed:', error);
@@ -346,7 +358,7 @@ const Checkout: React.FC = () => {
     }
   };
 
-  const finalizeOrderPlacement = async (token: string, paymentInfo: any) => {
+  const finalizeOrderPlacement = async (token: string, paymentInfo: any, totalAmount: number, shippingCharge: number) => {
     try {
       const orderData = {
         items: items.map(item => ({
@@ -355,13 +367,18 @@ const Checkout: React.FC = () => {
           quantity: item.quantity,
           price: item.price
         })),
-        total: getCartTotal(),
+        total: totalAmount,
+        subtotal: getCartTotal(), // Helpful for backend reference
+        shipping: shippingCharge,
         paymentMethod: paymentMethod === 'Online' ? 'Online Payment (Razorpay)' : 'Cash on Delivery',
         paymentInfo: paymentInfo,
         deliveryAddress: {
           firstName: address.firstName,
           lastName: address.lastName || '',
-          street: address.addressLine,
+          line1: address.line1,
+          line2: address.line2,
+          landmark: address.landmark,
+          street: address.line1 + (address.line2 ? `, ${address.line2}` : ''), // Fallback for backward compatibility
           city: address.city,
           zip: address.pincode,
           state: address.state || 'Tamil Nadu',
@@ -490,7 +507,7 @@ const Checkout: React.FC = () => {
                     {savedAddresses.map((addr, index) => (
                       <div
                         key={index}
-                        className={`p-4 border rounded-lg relative ${address.addressLine === addr.street && address.pincode === addr.zip
+                        className={`p-4 border rounded-lg relative ${address.line1 === (addr.line1 || addr.street) && address.pincode === addr.zip
                           ? 'border-primary bg-primary/5'
                           : 'border-border'
                           }`}
@@ -501,7 +518,11 @@ const Checkout: React.FC = () => {
                           </div>
                         )}
                         <h3 className="font-bold text-lg mb-1">{user?.name}</h3>
-                        <p className="text-slate-600 text-sm">{addr.street}</p>
+                        <p className="text-slate-600 text-sm">
+                          {addr.line1}
+                          {addr.line2 && `, ${addr.line2}`}
+                        </p>
+                        {addr.landmark && <p className="text-slate-600 text-sm text-muted-foreground">Landmark: {addr.landmark}</p>}
                         <p className="text-slate-600 text-sm">{addr.city} - {addr.zip}</p>
                         {addr.state && <p className="text-slate-600 text-sm mt-1">{addr.state}</p>}
 
@@ -520,13 +541,13 @@ const Checkout: React.FC = () => {
                           <Button
                             className="flex-1"
                             variant={
-                              address.addressLine === addr.street && address.pincode === addr.zip
+                              address.line1 === (addr.line1 || addr.street) && address.pincode === addr.zip
                                 ? "default"
                                 : "outline"
                             }
                             onClick={() => handleSelectAddress(addr)}
                           >
-                            {address.addressLine === addr.street && address.pincode === addr.zip
+                            {address.line1 === (addr.line1 || addr.street) && address.pincode === addr.zip
                               ? "Selected"
                               : "Deliver Here"}
                           </Button>
@@ -616,15 +637,39 @@ const Checkout: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Address *</label>
-                    <textarea
-                      name="addressLine"
-                      value={address.addressLine}
+                    <label className="block text-sm font-medium mb-2">Flat, House no., Building, Company, Apartment *</label>
+                    <input
+                      type="text"
+                      name="line1"
+                      value={address.line1}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 rounded-lg border border-border bg-background"
-                      rows={3}
-                      placeholder="House no., Building name, Street"
+                      placeholder="e.g. Flat 101, Sunshine Apartments"
                       required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Area, Street, Sector, Village</label>
+                    <input
+                      type="text"
+                      name="line2"
+                      value={address.line2}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-background"
+                      placeholder="e.g. Main Street, Sector 5"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Landmark</label>
+                    <input
+                      type="text"
+                      name="landmark"
+                      value={address.landmark}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-background"
+                      placeholder="e.g. Near City Hospital"
                     />
                   </div>
 
@@ -720,7 +765,12 @@ const Checkout: React.FC = () => {
                     <p className="font-semibold text-foreground">
                       {address.firstName} {address.lastName}
                     </p>
-                    <p>{address.addressLine}, {address.city} - {address.pincode}</p>
+                    <p>
+                      {address.line1}
+                      {address.line2 && `, ${address.line2}`}
+                    </p>
+                    {address.landmark && <p className="text-sm text-muted-foreground">Landmark: {address.landmark}</p>}
+                    <p>{address.city} - {address.pincode}</p>
                     <p className="mt-1">Phone: {address.phone}</p>
                     {address.whatsapp && (
                       <p className="text-green-600 flex items-center gap-1 mt-1">
@@ -784,8 +834,20 @@ const Checkout: React.FC = () => {
                     );
                   })}
                   <div className="flex justify-between items-center pt-4 font-heading font-bold text-lg">
-                    <span>Total Amount</span>
+                    <span>Subtotal</span>
                     <span className="text-brand-blue">₹{getCartTotal().toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span>Shipping Charges</span>
+                    <span className={getCartTotal() < 1000 ? "text-red-500 font-medium" : "text-green-600 font-medium"}>
+                      {getCartTotal() < 1000 ? "₹50.00" : "Free"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 font-heading font-bold text-xl border-t mt-2">
+                    <span>Total Amount</span>
+                    <span className="text-brand-blue">
+                      ₹{(getCartTotal() + (getCartTotal() < 1000 ? 50 : 0)).toFixed(2)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex gap-4">

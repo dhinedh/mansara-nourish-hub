@@ -30,7 +30,9 @@ const Account: React.FC = () => {
     const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
     const [addressFormData, setAddressFormData] = useState({
         type: 'Home',
-        street: '',
+        line1: '',
+        line2: '',
+        landmark: '',
         city: '',
         state: '',
         zip: '',
@@ -263,7 +265,7 @@ const Account: React.FC = () => {
                                     <h2 className="text-2xl font-heading font-bold">Saved Addresses</h2>
                                     <Button onClick={() => {
                                         setEditingAddressId(null);
-                                        setAddressFormData({ type: 'Home', street: '', city: '', state: '', zip: '', isDefault: false });
+                                        setAddressFormData({ type: 'Home', line1: '', line2: '', landmark: '', city: '', state: '', zip: '', isDefault: false });
                                         setIsAddressFormOpen(true);
                                     }}>Add New Address</Button>
                                 </div>
@@ -287,12 +289,30 @@ const Account: React.FC = () => {
                                                     </select>
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium mb-1">Street Address</label>
-                                                    <textarea
-                                                        className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                                        placeholder="123 Main St..."
-                                                        value={addressFormData.street}
-                                                        onChange={(e) => setAddressFormData({ ...addressFormData, street: e.target.value })}
+                                                    <label className="block text-sm font-medium mb-1">Flat, House no., Building</label>
+                                                    <input
+                                                        className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                                        placeholder="e.g. Flat 101, Sunshine Apts"
+                                                        value={addressFormData.line1}
+                                                        onChange={(e) => setAddressFormData({ ...addressFormData, line1: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1">Area, Street, Sector</label>
+                                                    <input
+                                                        className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                                        placeholder="e.g. Main Street"
+                                                        value={addressFormData.line2}
+                                                        onChange={(e) => setAddressFormData({ ...addressFormData, line2: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1">Landmark</label>
+                                                    <input
+                                                        className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                                        placeholder="e.g. Near City Hospital"
+                                                        value={addressFormData.landmark}
+                                                        onChange={(e) => setAddressFormData({ ...addressFormData, landmark: e.target.value })}
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-4">
@@ -368,7 +388,10 @@ const Account: React.FC = () => {
                                                 <span className="font-bold">{addr.type}</span>
                                             </div>
                                             <p className="text-sm leading-relaxed mb-4">
-                                                {addr.street}<br />
+                                                {addr.line1}
+                                                {addr.line2 && <>, {addr.line2}</>}
+                                                {addr.landmark && <><br /><span className="text-muted-foreground text-xs">Landmark: {addr.landmark}</span></>}
+                                                <br />
                                                 {addr.city}, {addr.state}<br />
                                                 {addr.zip}
                                             </p>
@@ -377,7 +400,9 @@ const Account: React.FC = () => {
                                                     setEditingAddressId(addr._id);
                                                     setAddressFormData({
                                                         type: addr.type,
-                                                        street: addr.street,
+                                                        line1: addr.line1 || addr.street || '',
+                                                        line2: addr.line2 || '',
+                                                        landmark: addr.landmark || '',
                                                         city: addr.city,
                                                         state: addr.state,
                                                         zip: addr.zip,

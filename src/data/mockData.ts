@@ -13,7 +13,10 @@ export interface User {
 export interface Address {
   id: string;
   type: 'Home' | 'Work' | 'Other';
-  street: string;
+  line1?: string;
+  line2?: string;
+  landmark?: string;
+  street: string; // Keeping for backward compatibility
   city: string;
   state: string;
   zip: string;
