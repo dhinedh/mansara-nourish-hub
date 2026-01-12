@@ -25,10 +25,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const imageUrl = product.image || (product as any).image_url || '';
 
   // Determine effective stock
+  const stock = product.stock;
+
   const hasVariants = product.variants && product.variants.length > 0;
-  const stock = hasVariants
-    ? product.variants.reduce((acc, v) => acc + (v.stock || 0), 0)
-    : product.stock;
 
   // Use first variant for price display, or fallback to product
   const firstVariant = hasVariants ? product.variants[0] : null;

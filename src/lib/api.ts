@@ -270,14 +270,12 @@ export const notifyMe = async (productId: string, whatsapp: string, userId?: str
     const response = await fetch(`${API_URL}/notifications/subscribe`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...(localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {})
         },
         body: JSON.stringify({ productId, whatsapp, userId }),
     });
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to subscribe');
-    }
+    // Return json result regardless of status so frontend can handle messages like "Already subscribed"
     return response.json();
 };
 
@@ -1215,3 +1213,4 @@ export const sendContactForm = async (data: { name: string; email: string; subje
     }
     return response.json();
 };
+
