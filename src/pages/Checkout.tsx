@@ -51,130 +51,7 @@ const Checkout: React.FC = () => {
     email: user?.email || ''
   });
 
-  const handlePlaceOrder = async () => {
-    // Validation
-    if (!address.phone) {
-      toast.error("Phone number is required");
-      return;
-    }
 
-    if (!address.addressLine || !address.pincode) {
-      toast.error("Please complete your delivery address");
-      return;
-    }
-
-    // Strict check: Only Online allowed
-    if (paymentMethod !== 'Online') {
-      toast.error("Only Online Payment is currently supported");
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      const token = localStorage.getItem('mansara-token');
-      if (!token) {
-        toast.error("Please login to continue");
-        navigate('/login');
-        return;
-      }
-
-      // Sync Profile Data (Phone/WhatsApp) if changed
-      const { updateProfile } = await import('@/lib/api');
-      try {
-        await updateProfile({
-          name: address.firstName,
-          phone: address.phone,
-          whatsapp: address.whatsapp || address.phone
-        }, token);
-      } catch (err) {
-        console.warn("Could not sync profile data", err);
-      }
-
-      const totalAmount = getCartTotal();
-
-      // ==========================================
-      // RAZORPAY PAYMENT FLOW (MANDATORY)
-      // ==========================================
-      let paymentInfo = null;
-
-      const isLoaded = await loadRazorpay();
-      if (!isLoaded) {
-        toast.error("Razorpay SDK failed to load. Check your internet connection.");
-        setIsProcessing(false);
-        return;
-      }
-
-      try {
-        // 1. Create Razorpay Order
-        const orderData = await createPaymentOrder(totalAmount);
-
-        // 2. Open Razorpay Checktout
-        const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_placeholder", // Replace with env var in real app
-          amount: orderData.amount,
-          currency: orderData.currency,
-          name: "Mansara Foods",
-          description: "Healthy Living, Naturally",
-          image: "https://mansarafoods.com/logo.png", // Add logo url
-          order_id: orderData.id,
-          handler: async function (response: any) {
-            try {
-              // 3. Verify Payment
-              await verifyPayment(response);
-
-              // 4. Place Order (Success Callback)
-              paymentInfo = {
-                id: response.razorpay_payment_id,
-                orderId: response.razorpay_order_id,
-                signature: response.razorpay_signature,
-                status: 'Paid'
-              };
-
-              await finalizeOrderPlacement(token, paymentInfo);
-            } catch (err: any) {
-              toast.error("Payment verification failed. Please contact support if money was deducted.");
-              console.error(err);
-              setIsProcessing(false);
-            }
-          },
-          prefill: {
-            name: `${address.firstName} ${address.lastName}`,
-            email: user?.email,
-            contact: address.phone
-          },
-          notes: {
-            address: `${address.addressLine}, ${address.city}`
-          },
-          theme: {
-            color: "#1F2A7C"
-          },
-          modal: {
-            ondismiss: function () {
-              setIsProcessing(false);
-              toast.info("Payment cancelled");
-            }
-          }
-        };
-
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
-        return; // Wait for handler to complete
-
-      } catch (err: any) {
-        console.error("Payment initialization failed", err);
-        toast.error("Failed to initialize payment. Please try again.");
-        setIsProcessing(false);
-        return;
-      }
-
-    } catch (error: any) {
-      console.error('[Checkout] Order placement failed:', error);
-      toast.error(error.response?.data?.message || "Failed to place order. Please try again.");
-      setIsProcessing(false);
-    }
-  };
-
-  // ... (keep helper functions)
 
 
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
@@ -216,7 +93,8 @@ const Checkout: React.FC = () => {
               addressLine: defaultAddress.street || '',
               city: defaultAddress.city || '',
               state: defaultAddress.state || 'Tamil Nadu',
-              pincode: defaultAddress.zip || ''
+              pincode: defaultAddress.zip || '',
+              email: userData.email || user?.email || ''
             });
 
             setIsEditing(false);
