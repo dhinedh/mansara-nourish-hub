@@ -20,7 +20,7 @@ interface DeliveryAddress {
 
 const Checkout: React.FC = () => {
   const { items, getCartTotal, clearCart } = useCart();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = React.useState(1);
   const [orderPlaced, setOrderPlaced] = React.useState(false);
@@ -197,6 +197,7 @@ const Checkout: React.FC = () => {
       setEditingAddressId(null);
       setStep(2);
       toast.success(editingAddressId ? "Address updated and selected!" : "Address saved and selected!");
+      await refreshUser(); // Sync global user state
 
     } catch (error) {
       console.error("Failed to save address", error);
