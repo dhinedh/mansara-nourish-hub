@@ -279,6 +279,39 @@ export const notifyMe = async (productId: string, whatsapp: string, userId?: str
     return response.json();
 };
 
+// ========================================
+// PAYMENT API
+// ========================================
+
+export const createPaymentOrder = async (amount: number) => {
+    const response = await fetch(`${API_URL}/payment/create-order`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {})
+        },
+        body: JSON.stringify({ amount })
+    });
+    if (!response.ok) throw new Error('Failed to create payment order');
+    return response.json();
+};
+
+export const verifyPayment = async (data: any) => {
+    const response = await fetch(`${API_URL}/payment/verify`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {})
+        },
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Payment verification failed');
+    }
+    return response.json();
+};
+
 
 export const fetchCombos = async () => {
     return dedupedFetch('combos', async () => {
