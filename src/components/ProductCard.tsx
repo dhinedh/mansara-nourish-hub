@@ -39,7 +39,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const price = firstVariant ? firstVariant.price : product.price;
 
   if (firstVariant && !offerPrice && firstVariant.price === product.price) {
-    offerPrice = product.offerPrice;
+    // Only inherit offer price if it is valid (less than the original price)
+    // This handles cases where user mistakenly puts a higher price in the offer field
+    if (product.offerPrice && product.offerPrice < product.price) {
+      offerPrice = product.offerPrice;
+    }
   }
 
   const isNewArrival = product.isNewArrival;
