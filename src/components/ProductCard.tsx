@@ -162,7 +162,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           </p>
         )}
         <div className="flex items-center justify-between">
-          <div>
+          <div className="min-h-[2.5rem] flex flex-col justify-center">
             <span className="text-2xl font-bold text-foreground">
               ₹{displayPrice.toFixed(2)}
             </span>

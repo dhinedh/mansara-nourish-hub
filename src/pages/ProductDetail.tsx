@@ -315,7 +315,7 @@ const ProductDetail: React.FC = () => {
                     </p>
                   )}
 
-                  <div className="flex items-baseline gap-3 mb-6">
+                  <div className="flex items-baseline gap-3 mb-6 min-h-[3rem]">
                     <span className="text-4xl font-bold" style={{ color: '#1F2A7C' }}>
                       ₹{displayPrice.toFixed(2)}
                     </span>
