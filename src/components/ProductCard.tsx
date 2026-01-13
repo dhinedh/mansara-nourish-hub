@@ -38,7 +38,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   let offerPrice = firstVariant ? firstVariant.offerPrice : product.offerPrice;
   const price = firstVariant ? firstVariant.price : product.price;
 
-  if (firstVariant && !offerPrice && Number(firstVariant.price) === Number(product.price)) {
+  if (firstVariant && !offerPrice && firstVariant.price === product.price) {
     offerPrice = product.offerPrice;
   }
 

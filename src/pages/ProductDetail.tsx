@@ -226,7 +226,7 @@ const ProductDetail: React.FC = () => {
   let selectedOrProductOffer = selectedVariant ? selectedVariant.offerPrice : product.offerPrice;
 
   // If variant has no offer but matches base price, inherit product offer
-  if (selectedVariant && !selectedOrProductOffer && Number(selectedVariant.price) === Number(product.price)) {
+  if (selectedVariant && !selectedOrProductOffer && selectedVariant.price === product.price) {
     selectedOrProductOffer = product.offerPrice;
   }
 
