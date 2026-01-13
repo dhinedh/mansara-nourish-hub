@@ -131,15 +131,22 @@ const ProductDetail: React.FC = () => {
   /* State for selected variant */
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
 
+  /* Reset variant when product changes (e.g. navigation) */
+  React.useEffect(() => {
+    setSelectedVariant(null);
+  }, [slug]);
+
   /* Effect to set initial variant */
   React.useEffect(() => {
     if (product?.variants?.length) {
-      // Default to the first variant if not set
+      // Always default to first variant if effectively "loading" into new product
+      // OR if we just reset it to null above.
+      // We use a small timeout or just check if it's currently null
       if (!selectedVariant) {
         setSelectedVariant(product.variants[0]);
       }
     }
-  }, [product]);
+  }, [product, selectedVariant]);
 
   if (!product) {
     return (
