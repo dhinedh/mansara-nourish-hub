@@ -221,17 +221,20 @@ const ProductDetail: React.FC = () => {
     navigate('/checkout');
   };
 
-  const displayPrice = selectedVariant
-    ? (selectedVariant.offerPrice || selectedVariant.price)
-    : (product.offerPrice || product.price);
+  /* Safe Fallback Logic for Price Display */
+  const selectedOrProductPrice = selectedVariant ? selectedVariant.price : product.price;
+  let selectedOrProductOffer = selectedVariant ? selectedVariant.offerPrice : product.offerPrice;
 
-  const originalPrice = selectedVariant
-    ? selectedVariant.price
-    : product.price;
+  // If variant has no offer but matches base price, inherit product offer
+  if (selectedVariant && !selectedOrProductOffer && Number(selectedVariant.price) === Number(product.price)) {
+    selectedOrProductOffer = product.offerPrice;
+  }
 
-  const hasDiscount = selectedVariant
-    ? (selectedVariant.offerPrice && selectedVariant.offerPrice < selectedVariant.price)
-    : (product.offerPrice && product.offerPrice < product.price);
+  const displayPrice = selectedOrProductOffer || selectedOrProductPrice;
+
+  const originalPrice = selectedOrProductPrice;
+
+  const hasDiscount = !!(selectedOrProductOffer && selectedOrProductOffer < selectedOrProductPrice);
 
   const discountPercent = hasDiscount
     ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100)

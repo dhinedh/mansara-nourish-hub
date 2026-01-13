@@ -32,8 +32,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   // Use first variant for price display, or fallback to product
   const firstVariant = hasVariants ? product.variants[0] : null;
 
-  const offerPrice = firstVariant ? firstVariant.offerPrice : product.offerPrice;
+  // SAFE FALLBACK LOGIC:
+  // If variant has no offer price (0 or undefined), but its price matches the main product price,
+  // we assume it should inherit the main product's offer price.
+  let offerPrice = firstVariant ? firstVariant.offerPrice : product.offerPrice;
   const price = firstVariant ? firstVariant.price : product.price;
+
+  if (firstVariant && !offerPrice && Number(firstVariant.price) === Number(product.price)) {
+    offerPrice = product.offerPrice;
+  }
 
   const isNewArrival = product.isNewArrival;
 
