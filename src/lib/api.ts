@@ -293,7 +293,7 @@ export const createPaymentOrder = async (amount: number) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...(localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {})
+            ...(localStorage.getItem('mansara-token') ? { Authorization: `Bearer ${localStorage.getItem('mansara-token')}` } : {})
         },
         body: JSON.stringify({ amount })
     });
@@ -306,7 +306,7 @@ export const verifyPayment = async (data: any) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...(localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {})
+            ...(localStorage.getItem('mansara-token') ? { Authorization: `Bearer ${localStorage.getItem('mansara-token')}` } : {})
         },
         body: JSON.stringify(data)
     });
