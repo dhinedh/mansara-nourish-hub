@@ -5,12 +5,26 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Package, ChevronRight, ArrowLeft } from 'lucide-react';
+import ReviewModal from '@/components/reviews/ReviewModal';
 
 const Orders: React.FC = () => {
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuth();
     const [orders, setOrders] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
+
+    // Review Modal State
+    const [isReviewModalOpen, setIsReviewModalOpen] = React.useState(false);
+    const [reviewProduct, setReviewProduct] = React.useState<{ id: string, name: string, image: string } | null>(null);
+
+    const handleOpenReview = (product: any) => {
+        setReviewProduct({
+            id: product.product || product._id || product.id,
+            name: product.name,
+            image: product.image
+        });
+        setIsReviewModalOpen(true);
+    };
 
     React.useEffect(() => {
         if (!isAuthenticated) {
@@ -86,16 +100,30 @@ const Orders: React.FC = () => {
 
                                 <div className="border-t border-border pt-4">
                                     <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-                                        <div className="space-y-1">
+                                        <div className="space-y-2 flex-grow">
                                             {order.items.map((item: any, idx: number) => (
-                                                <p key={idx} className="text-sm">
-                                                    {item.quantity}x <span className="font-medium text-foreground">{item.name}</span>
-                                                </p>
+                                                <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded hover:bg-muted/30">
+                                                    <p className="text-sm">
+                                                        {item.quantity}x <span className="font-medium text-foreground">{item.name}</span>
+                                                    </p>
+                                                    {order.orderStatus === 'Delivered' && (
+                                                        <Button
+                                                            variant="link"
+                                                            size="sm"
+                                                            className="h-auto p-0 text-primary"
+                                                            onClick={() => handleOpenReview(item)}
+                                                        >
+                                                            Write Review
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             ))}
                                         </div>
-                                        <Button onClick={() => navigate(`/order-tracking/${order.orderId || order._id || order.id}`)}>
-                                            Track Order <ChevronRight className="ml-1 h-4 w-4" />
-                                        </Button>
+                                        <div className="flex gap-2 shrink-0">
+                                            <Button onClick={() => navigate(`/order-tracking/${order.orderId || order._id || order.id}`)}>
+                                                Track Order <ChevronRight className="ml-1 h-4 w-4" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -103,6 +131,16 @@ const Orders: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {reviewProduct && (
+                <ReviewModal
+                    isOpen={isReviewModalOpen}
+                    onClose={() => setIsReviewModalOpen(false)}
+                    productId={reviewProduct.id}
+                    productName={reviewProduct.name}
+                    productImage={reviewProduct.image}
+                />
+            )}
         </div>
     );
 };
