@@ -30,13 +30,13 @@ const Index: React.FC = () => {
   const { getContent } = useContent();
 
   // Memoize to prevent recalculation on every render
-  const featuredProducts = useMemo(() => 
+  const featuredProducts = useMemo(() =>
     products.filter(p => p.isFeatured && p.isActive).slice(0, 4),
     [products]
   );
 
-  const newArrivals = useMemo(() => 
-    products.filter(p => p.isNewArrival && p.isActive).reverse().slice(0, 4),
+  const newArrivals = useMemo(() =>
+    products.filter(p => p.isNewArrival && p.isActive).reverse(),
     [products]
   );
 
@@ -63,7 +63,7 @@ const Index: React.FC = () => {
 
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-              {[1,2,3,4].map(i => <ProductSkeleton key={i} />)}
+              {[1, 2, 3, 4].map(i => <ProductSkeleton key={i} />)}
             </div>
           ) : newArrivals.length > 0 ? (
             <>
@@ -107,7 +107,7 @@ const Index: React.FC = () => {
 
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-              {[1,2,3,4].map(i => <ProductSkeleton key={i} />)}
+              {[1, 2, 3, 4].map(i => <ProductSkeleton key={i} />)}
             </div>
           ) : featuredProducts.length > 0 ? (
             <>
