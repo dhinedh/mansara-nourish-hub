@@ -70,7 +70,7 @@ const Products: React.FC = () => {
     <Layout>
       <div className="min-h-screen bg-background">
         {/* Hero Banner */}
-        <PageHero pageKey="products" />
+        <PageHero pageKey="products" className="py-24 md:py-36" />
 
         {/* Promotional Banners */}
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto mt-8">
