@@ -4,16 +4,17 @@ import { useHeroContent, HeroConfig } from '@/hooks/useHeroContent';
 interface PageHeroProps {
     pageKey: keyof Omit<HeroConfig, 'home' | 'homeSettings'>;
     children?: React.ReactNode;
+    className?: string;
 }
 
-const PageHero: React.FC<PageHeroProps> = ({ pageKey, children }) => {
+const PageHero: React.FC<PageHeroProps> = ({ pageKey, children, className = "py-24" }) => {
     const { heroConfig } = useHeroContent();
     const content = heroConfig[pageKey];
 
     if (!content) return null;
 
     return (
-        <section className="relative py-24 overflow-hidden">
+        <section className={`relative overflow-hidden ${className}`}>
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <img

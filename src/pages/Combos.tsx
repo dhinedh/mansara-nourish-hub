@@ -27,11 +27,7 @@ const Combos: React.FC = () => {
   return (
     <Layout>
       {/* Hero Banner */}
-      <PageHero pageKey="combos">
-        <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-sm font-bold mb-6 shadow-sm border border-white/30">
-          Value Packs
-        </span>
-      </PageHero>
+      <PageHero pageKey="combos" className="py-24 md:py-48" />
 
       {/* Combos Grid */}
       <section className="py-12 bg-background">
