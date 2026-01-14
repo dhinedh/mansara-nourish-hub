@@ -68,11 +68,7 @@ const DEFAULT_CONFIG: HeroConfig = {
             ctaLink: '/offers'
         }
     ],
-    newArrivals: {
-        image: 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-        title: 'New Arrivals',
-        subtitle: 'Discover our latest additions to the MANSARA family. Fresh, innovative, and always pure.'
-    },
+
     offers: {
         image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
         title: 'Special Offers',
