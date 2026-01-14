@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingCart } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Zap } from 'lucide-react';
 import { Combo } from '@/context/StoreContext';
 import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
@@ -15,17 +15,21 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
   const { addToCart } = useCart();
   const { toast } = useToast();
   const { getProduct } = useStore();
+  const navigate = useNavigate();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Helper to adapt StoreContext Combo to CartContext expected type if needed, 
-    // assuming CartContext handles similar shape or we cast it. 
-    // Ideally CartContext should share types with StoreContext.
     addToCart(combo as any, 'combo');
     toast({
       title: "Combo added to cart!",
       description: `${combo.name} has been added to your cart.`,
     });
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart(combo as any, 'combo');
+    navigate('/checkout');
   };
 
   const savings = combo.originalPrice - combo.comboPrice;
@@ -78,16 +82,28 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
           <span className="text-muted-foreground line-through">₹{combo.originalPrice}</span>
         </div>
 
-        {/* Add to Cart */}
-        <Button
-          variant="default"
-          size="lg"
-          className="w-full"
-          onClick={handleAddToCart}
-        >
-          <ShoppingCart className="h-5 w-5" />
-          Add Combo to Cart
-        </Button>
+        {/* Actions */}
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full border-primary text-primary hover:bg-primary hover:text-white"
+            onClick={handleAddToCart}
+          >
+            <ShoppingCart className="h-5 w-5 mr-2" />
+            Add to Cart
+          </Button>
+
+          <Button
+            variant="default"
+            size="lg"
+            className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white"
+            onClick={handleBuyNow}
+          >
+            <Zap className="h-5 w-5 mr-2" />
+            Buy Now
+          </Button>
+        </div>
       </div>
     </div>
   );
