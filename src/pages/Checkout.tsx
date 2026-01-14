@@ -268,7 +268,7 @@ const Checkout: React.FC = () => {
       }
 
       const cartTotal = getCartTotal();
-      const shippingCharge = 0; // Shipping removed as per request
+      const shippingCharge = cartTotal < 1000 ? 50 : 0; // ₹50 shipping for orders below ₹1000
       const totalAmount = cartTotal + shippingCharge;
 
       // ==========================================
@@ -815,8 +815,12 @@ const Checkout: React.FC = () => {
                               <span className="font-medium text-slate-900">
                                 Delivery by {formattedDate}
                               </span>
-                              <span className="text-slate-300">|</span>
-                              <span className="text-green-600 font-medium">Free Delivery</span>
+                              {getCartTotal() >= 1000 && (
+                                <>
+                                  <span className="text-slate-300">|</span>
+                                  <span className="text-green-600 font-medium">Free Delivery</span>
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -839,14 +843,14 @@ const Checkout: React.FC = () => {
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span>Shipping Charges</span>
-                    <span className="text-green-600 font-medium">
-                      Free
+                    <span className={`font-medium ${getCartTotal() < 1000 ? "text-slate-900" : "text-green-600"}`}>
+                      {getCartTotal() < 1000 ? "₹50.00" : "Free"}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pt-2 font-heading font-bold text-xl border-t mt-2">
                     <span>Total Amount</span>
                     <span className="text-brand-blue">
-                      ₹{getCartTotal().toFixed(2)}
+                      ₹{(getCartTotal() + (getCartTotal() < 1000 ? 50 : 0)).toFixed(2)}
                     </span>
                   </div>
                 </div>

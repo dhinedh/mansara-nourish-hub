@@ -33,7 +33,7 @@ const Cart: React.FC = () => {
 
   // Local state for instant UI updates
   const [localItems, setLocalItems] = useState(items);
-  
+
   // Sync local items with cart items
   useEffect(() => {
     setLocalItems(items);
@@ -68,12 +68,12 @@ const Cart: React.FC = () => {
 
   const handleCheckout = () => {
     if (localItems.length === 0) return;
-    
+
     if (!isAuthenticated) {
       navigate('/login', { state: { from: '/checkout' } });
       return;
     }
-    
+
     navigate('/checkout');
   };
 
@@ -231,12 +231,14 @@ const Cart: React.FC = () => {
                     </div>
                     <div className="flex justify-between text-foreground">
                       <span>Shipping</span>
-                      <span className="text-accent">Free</span>
+                      <span className={localTotal < 1000 ? "text-slate-900" : "text-green-600 font-medium"}>
+                        {localTotal < 1000 ? "₹50" : "Free"}
+                      </span>
                     </div>
                     <div className="border-t border-border pt-3 flex justify-between font-heading font-bold text-lg">
                       <span>Total</span>
                       <span className="text-brand-blue">
-                        ₹{localTotal.toLocaleString('en-IN')}
+                        ₹{(localTotal + (localTotal < 1000 ? 50 : 0)).toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>

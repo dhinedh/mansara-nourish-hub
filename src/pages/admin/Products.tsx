@@ -200,6 +200,7 @@ const AdminProducts = () => {
                 <TableHead>Category</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Stock</TableHead>
+                <TableHead>Flags</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -269,6 +270,19 @@ const AdminProducts = () => {
                       >
                         {product.stock}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {product.isNewArrival && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700">NEW</span>
+                        )}
+                        {product.isFeatured && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700">FEAT</span>
+                        )}
+                        {product.isOffer && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700">SALE</span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <PermissionGate module="products" requiredLevel="limited" fallback={
