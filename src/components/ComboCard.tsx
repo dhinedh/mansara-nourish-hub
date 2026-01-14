@@ -97,7 +97,7 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
           <Button
             variant="default"
             size="lg"
-            className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white"
+            className="w-full bg-black hover:bg-slate-800 text-white"
             onClick={handleBuyNow}
           >
             <Zap className="h-5 w-5 mr-2" />
