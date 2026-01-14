@@ -104,7 +104,15 @@ const Orders: React.FC = () => {
                                             {order.items.map((item: any, idx: number) => (
                                                 <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded hover:bg-muted/30">
                                                     <p className="text-sm">
-                                                        {item.quantity}x <span className="font-medium text-foreground">{item.name}</span>
+                                                        {item.quantity}x <span className="font-medium text-foreground">
+                                                            {item.product && item.product.slug ? (
+                                                                <a href={`/product/${item.product.slug}`} className="hover:text-primary hover:underline">
+                                                                    {item.name}
+                                                                </a>
+                                                            ) : (
+                                                                item.name
+                                                            )}
+                                                        </span>
                                                     </p>
                                                     {order.orderStatus === 'Delivered' && (
                                                         <Button

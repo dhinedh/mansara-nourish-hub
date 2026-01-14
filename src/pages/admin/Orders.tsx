@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, MessageCircle, Loader2, Package, Truck, CheckCircle } from "lucide-react";
+import { Eye, MessageCircle, Loader2, Package, Truck, CheckCircle, XCircle } from "lucide-react";
 import api from '@/lib/api';
 
 interface Order {
@@ -63,6 +63,7 @@ interface Order {
   estimatedDeliveryDate?: string;
   createdAt: string;
   updatedAt: string;
+  feedbackStatus?: 'Pending' | 'Received' | 'Not Received';
 }
 
 const AdminOrders = () => {
@@ -172,6 +173,34 @@ const AdminOrders = () => {
       toast.error(error.response?.data?.message || 'Failed to update order status');
     } finally {
       setUpdatingStatusId(null);
+    }
+  };
+
+  const handleUpdateFeedback = async (orderId: string, status: 'Received' | 'Not Received') => {
+    try {
+      const token = localStorage.getItem('mansara-token');
+      await api.put(
+        `/orders/${orderId}/feedback`,
+        { status },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success(`Feedback marked as ${status}`);
+
+      // Refresh orders to reflect changes (e.g. auto-close)
+      await fetchOrders();
+
+      // Update selected order if open
+      if (selectedOrder?._id === orderId) {
+        // Fetch updated single order or just patch local
+        // Re-fetch list is safer for side effects like status change
+        const updatedList = await api.get('/orders', { headers: { Authorization: `Bearer ${token}` } });
+        const updatedOrder = (updatedList.data.orders || updatedList.data).find((o: Order) => o._id === orderId);
+        if (updatedOrder) setSelectedOrder(updatedOrder);
+      }
+    } catch (error: any) {
+      console.error('Failed to update feedback:', error);
+      toast.error(error.response?.data?.message || 'Failed to update feedback');
     }
   };
 
@@ -550,6 +579,50 @@ const AdminOrders = () => {
                   Customer will be automatically notified via WhatsApp when status changes
                 </p>
               </div>
+
+              {/* Feedback Management (Only for Delivered/Closed orders) */}
+              {(selectedOrder.orderStatus === 'Delivered' || selectedOrder.orderStatus === 'Closed') && (
+                <div className="bg-slate-50 p-4 rounded-lg border">
+                  <h3 className="font-semibold text-sm mb-3">Feedback Status</h3>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-slate-600">Current Status:</span>
+                      <Badge variant={
+                        selectedOrder.feedbackStatus === 'Received' ? 'default' :
+                          selectedOrder.feedbackStatus === 'Not Received' ? 'destructive' : 'secondary'
+                      }>
+                        {selectedOrder.feedbackStatus || 'Pending'}
+                      </Badge>
+                    </div>
+
+                    {selectedOrder.feedbackStatus !== 'Received' && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-green-600 text-green-600 hover:bg-green-50"
+                          onClick={() => handleUpdateFeedback(selectedOrder._id, 'Received')}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" /> Received
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-600 text-red-600 hover:bg-red-50"
+                          onClick={() => handleUpdateFeedback(selectedOrder._id, 'Not Received')}
+                        >
+                          <XCircle className="w-4 h-4 mr-1" /> Not Received
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  {selectedOrder.feedbackStatus === 'Received' && (
+                    <p className="text-xs text-green-600 mt-2 flex items-center">
+                      <CheckCircle className="w-3 h-3 mr-1" /> Order automatically closed
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="flex gap-3 pt-4 border-t">
