@@ -167,10 +167,16 @@ const ProductDetail: React.FC = () => {
     setAdding(true);
     try {
       // Determine effective price and weight from variant or base product
+      // Determine effective offer price (inherit from product if variant matches base price)
+      let finalOfferPrice = selectedVariant ? selectedVariant.offerPrice : product?.offerPrice;
+      if (selectedVariant && !finalOfferPrice && selectedVariant.price === product?.price) {
+        finalOfferPrice = product?.offerPrice;
+      }
+
       const itemToAdd = {
         ...product,
         price: selectedVariant ? selectedVariant.price : product?.price,
-        offerPrice: selectedVariant ? selectedVariant.offerPrice : product?.offerPrice,
+        offerPrice: finalOfferPrice,
         weight: selectedVariant ? selectedVariant.weight : product?.weight,
         image: product?.image, // Keep main image for now
         variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
@@ -209,11 +215,17 @@ const ProductDetail: React.FC = () => {
       return;
     }
 
+    // Determine effective offer price (inherit from product if variant matches base price)
+    let finalOfferPrice = selectedVariant ? selectedVariant.offerPrice : product?.offerPrice;
+    if (selectedVariant && !finalOfferPrice && selectedVariant.price === product?.price) {
+      finalOfferPrice = product?.offerPrice;
+    }
+
     // Prepare item to add
     const itemToAdd = {
       ...product,
       price: selectedVariant ? selectedVariant.price : product?.price,
-      offerPrice: selectedVariant ? selectedVariant.offerPrice : product?.offerPrice,
+      offerPrice: finalOfferPrice,
       weight: selectedVariant ? selectedVariant.weight : product?.weight,
       image: product?.image,
       variant: selectedVariant ? { weight: selectedVariant.weight } : undefined

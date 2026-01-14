@@ -839,14 +839,14 @@ const Checkout: React.FC = () => {
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span>Shipping Charges</span>
-                    <span className={getCartTotal() < 1000 ? "text-red-500 font-medium" : "text-green-600 font-medium"}>
-                      {getCartTotal() < 1000 ? "₹50.00" : "Free"}
+                    <span className="text-green-600 font-medium">
+                      Free
                     </span>
                   </div>
                   <div className="flex justify-between items-center pt-2 font-heading font-bold text-xl border-t mt-2">
                     <span>Total Amount</span>
                     <span className="text-brand-blue">
-                      ₹{(getCartTotal() + (getCartTotal() < 1000 ? 50 : 0)).toFixed(2)}
+                      ₹{getCartTotal().toFixed(2)}
                     </span>
                   </div>
                 </div>
