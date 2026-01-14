@@ -8,6 +8,7 @@ export interface User {
   avatar?: string;
   role?: 'admin' | 'user';
   isVerified?: boolean;
+  permissions?: Record<string, 'none' | 'view' | 'limited' | 'full'>;
 }
 
 export interface Address {

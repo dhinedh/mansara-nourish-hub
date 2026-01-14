@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { PermissionGate } from "@/components/PermissionGate";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -496,42 +497,52 @@ const AdminOrders = () => {
               {/* Status Update */}
               <div className="bg-slate-50 p-4 rounded-lg border">
                 <h3 className="font-semibold text-sm mb-3">Update Order Status</h3>
-                <Select
-                  value={selectedOrder.orderStatus}
-                  onValueChange={(newStatus) => handleUpdateStatus(selectedOrder._id, newStatus)}
-                  disabled={updatingStatusId === selectedOrder._id}
+                <PermissionGate
+                  module="orders"
+                  requiredLevel="limited"
+                  fallback={
+                    <div className="bg-slate-100 p-2 rounded border border-slate-200 text-slate-500 text-sm">
+                      Status updates are restricted
+                    </div>
+                  }
                 >
-                  <SelectTrigger className="bg-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((status) => {
-                      const statusOrder = ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
-                      const currentIndex = statusOrder.indexOf(selectedOrder.orderStatus);
-                      const optionIndex = statusOrder.indexOf(status.value);
+                  <Select
+                    value={selectedOrder.orderStatus}
+                    onValueChange={(newStatus) => handleUpdateStatus(selectedOrder._id, newStatus)}
+                    disabled={updatingStatusId === selectedOrder._id}
+                  >
+                    <SelectTrigger className="bg-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map((status) => {
+                        const statusOrder = ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
+                        const currentIndex = statusOrder.indexOf(selectedOrder.orderStatus);
+                        const optionIndex = statusOrder.indexOf(status.value);
 
-                      // Disable if moving backwards (unless it's Cancelled or current status is Cancelled/Delivered)
-                      // Cancelled is always allowed unless already Delivered
-                      // Delivered is final state
+                        // Disable if moving backwards (unless it's Cancelled or current status is Cancelled/Delivered)
+                        // Cancelled is always allowed unless already Delivered
+                        // Delivered is final state
 
-                      let isDisabled = false;
+                        let isDisabled = false;
 
-                      if (selectedOrder.orderStatus === 'Cancelled') isDisabled = true;
-                      else if (selectedOrder.orderStatus === 'Delivered') isDisabled = true;
-                      else if (status.value === 'Cancelled') isDisabled = false; // Can always cancel unless delivered
-                      else if (optionIndex < currentIndex) isDisabled = true; // Cannot move backwards
+                        if (selectedOrder.orderStatus === 'Cancelled') isDisabled = true;
+                        else if (selectedOrder.orderStatus === 'Delivered') isDisabled = true;
+                        else if (status.value === 'Cancelled') isDisabled = false; // Can always cancel unless delivered
+                        else if (optionIndex < currentIndex) isDisabled = true; // Cannot move backwards
 
-                      return (
-                        <SelectItem key={status.value} value={status.value} disabled={isDisabled}>
-                          <div className="flex items-center gap-2">
-                            <status.icon size={16} />
-                            {status.label}
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+                        return (
+                          <SelectItem key={status.value} value={status.value} disabled={isDisabled}>
+                            <div className="flex items-center gap-2">
+                              <status.icon size={16} />
+                              {status.label}
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </PermissionGate>
                 <p className="text-xs text-slate-500 mt-2">
                   Customer will be automatically notified via WhatsApp when status changes
                 </p>
@@ -539,25 +550,27 @@ const AdminOrders = () => {
 
               {/* Action Buttons */}
               <div className="flex gap-3 pt-4 border-t">
-                {selectedOrder.orderStatus === 'Ordered' && (
-                  <Button
-                    onClick={() => handleConfirmOrder(selectedOrder)}
-                    disabled={confirmingOrderId === selectedOrder._id}
-                    className="flex-1 bg-green-600 hover:bg-green-700"
-                  >
-                    {confirmingOrderId === selectedOrder._id ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Confirming...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Confirm Order & Notify
-                      </>
-                    )}
-                  </Button>
-                )}
+                <PermissionGate module="orders" requiredLevel="limited">
+                  {selectedOrder.orderStatus === 'Ordered' && (
+                    <Button
+                      onClick={() => handleConfirmOrder(selectedOrder)}
+                      disabled={confirmingOrderId === selectedOrder._id}
+                      className="flex-1 bg-green-600 hover:bg-green-700"
+                    >
+                      {confirmingOrderId === selectedOrder._id ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Confirming...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Confirm Order & Notify
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </PermissionGate>
 
                 <Button
                   onClick={() => handleManualWhatsApp(selectedOrder)}

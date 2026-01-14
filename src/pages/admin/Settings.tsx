@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { PermissionGate } from "@/components/PermissionGate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -206,9 +207,11 @@ const AdminSettings = () => {
                   />
                 </div>
                 <div className="pt-4">
-                  <Button onClick={handleSave} disabled={saving}>
-                    {saving ? "Saving..." : "Save General Settings"}
-                  </Button>
+                  <PermissionGate module="settings" requiredLevel="limited">
+                    <Button onClick={handleSave} disabled={saving}>
+                      {saving ? "Saving..." : "Save General Settings"}
+                    </Button>
+                  </PermissionGate>
                 </div>
               </CardContent>
             </Card>
@@ -249,9 +252,11 @@ const AdminSettings = () => {
                   />
                 </div>
                 <div className="pt-4">
-                  <Button onClick={handleSave} disabled={saving}>
-                    {saving ? "Saving..." : "Save Social Settings"}
-                  </Button>
+                  <PermissionGate module="settings" requiredLevel="limited">
+                    <Button onClick={handleSave} disabled={saving}>
+                      {saving ? "Saving..." : "Save Social Settings"}
+                    </Button>
+                  </PermissionGate>
                 </div>
               </CardContent>
             </Card>

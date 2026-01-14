@@ -205,7 +205,8 @@ const normalizeUserData = (userData: any): User => {
         whatsapp: userData.whatsapp || '',
         avatar: userData.avatar || userData.picture || '',
         role: userData.role || 'user',
-        isVerified: userData.isVerified || false
+        isVerified: userData.isVerified || false,
+        permissions: userData.permissions || {}
     };
 };
 

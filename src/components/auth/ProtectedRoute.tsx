@@ -18,12 +18,16 @@ interface ProtectedRouteProps {
     children: React.ReactNode;
     adminOnly?: boolean;
     requireVerified?: boolean;
+    module?: string;
+    level?: 'view' | 'limited' | 'full';
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-    children, 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+    children,
     adminOnly = false,
-    requireVerified = false 
+    requireVerified = false,
+    module,
+    level = 'view'
 }) => {
     const { user, isLoading, isAuthenticated } = useAuth();
     const location = useLocation();
@@ -54,15 +58,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     // Check authentication
     if (!isAuthenticated || !user) {
         console.log('[Protected] Not authenticated, redirecting to login');
-        
+
         // Redirect to appropriate login page
         const loginPath = adminOnly ? '/admin/login' : '/login';
-        
+
         return (
-            <Navigate 
-                to={loginPath} 
-                state={{ from: location.pathname }} 
-                replace 
+            <Navigate
+                to={loginPath}
+                state={{ from: location.pathname }}
+                replace
             />
         );
     }
@@ -77,12 +81,29 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     if (requireVerified && !user.isVerified) {
         console.log('[Protected] Email not verified, redirecting to verification');
         return (
-            <Navigate 
-                to="/verify-email" 
-                state={{ email: user.email, from: location.pathname }} 
-                replace 
+            <Navigate
+                to="/verify-email"
+                state={{ email: user.email, from: location.pathname }}
+                replace
             />
         );
+    }
+
+    // Check module permission
+    if (module) {
+        const isSuperAdmin = user.role === 'admin' && user.email?.includes('backend-admin');
+
+        if (!isSuperAdmin) {
+            const userPermissions = user.permissions || {};
+            const userLevel = userPermissions[module] || 'none';
+            const hierarchy = { 'none': 0, 'view': 1, 'limited': 2, 'full': 3 };
+
+            if (hierarchy[userLevel] < hierarchy[level]) {
+                console.warn(`[Protected] Insufficient permission for ${module}: ${userLevel} < ${level}`);
+                // Redirect to dashboard or show unauthorized
+                return <Navigate to="/admin/dashboard" replace />;
+            }
+        }
     }
 
     // All checks passed - render children

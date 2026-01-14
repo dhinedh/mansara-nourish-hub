@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -58,7 +59,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
         if (storedUser && token) {
           const user = JSON.parse(storedUser);
-          
+
           if (user.role !== 'admin') {
             console.warn('[Admin] Non-admin user attempted access');
             navigate("/", { replace: true });
@@ -80,7 +81,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         // No valid auth found
         console.warn('[Admin] No authentication found');
         navigate("/login", { replace: true });
-        
+
       } catch (error) {
         console.error('[Admin] Auth check error:', error);
         navigate("/login", { replace: true });
@@ -95,28 +96,43 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     localStorage.removeItem('mansara-admin-session');
     localStorage.removeItem('mansara-user');
     localStorage.removeItem('mansara-token');
-    
+
     console.log('[Admin] Logged out');
     navigate("/login", { replace: true });
   };
 
-  // Memoized menu items
+  // Memoized menu items with permissions
+  const { user } = useAuth();
+
+  // Helper to check permission safely
+  const hasPermission = (module: string, level: 'view' | 'limited' | 'full' = 'view') => {
+    if (!user) return false;
+    if (user.role === 'admin' && user.email?.includes('backend-admin')) return true;
+
+    // Default to 'none' if permissions object missing
+    const userPermissions = user.permissions || {};
+    const userLevel = userPermissions[module] || 'none';
+
+    const levels = { 'none': 0, 'view': 1, 'limited': 2, 'full': 3 };
+    return levels[userLevel] >= levels[level];
+  };
+
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
-    { icon: Package, label: "Products", path: "/admin/products" },
-    { icon: Box, label: "Stocks", path: "/admin/stock" },
-    { icon: Box, label: "Categories", path: "/admin/categories" },
-    { icon: Percent, label: "Offers", path: "/admin/offers" },
-    { icon: Box, label: "Combos", path: "/admin/combos" },
-    { icon: ShoppingCart, label: "Orders", path: "/admin/orders" },
-    { icon: Users, label: "Customers", path: "/admin/customers" },
-    { icon: FileText, label: "Content", path: "/admin/content" },
-    { icon: FileText, label: "Blog", path: "/admin/blog" },
-    { icon: Newspaper, label: "Press", path: "/admin/press" },
-    { icon: Briefcase, label: "Careers", path: "/admin/careers" },
-    { icon: Image, label: "Banners", path: "/admin/banners" },
-    { icon: Settings, label: "Settings", path: "/admin/settings" },
-  ];
+    { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard", module: 'orders' },
+    { icon: Package, label: "Products", path: "/admin/products", module: 'products' },
+    { icon: Box, label: "Stocks", path: "/admin/stock", module: 'stocks' },
+    { icon: Box, label: "Categories", path: "/admin/categories", module: 'categories' },
+    { icon: Percent, label: "Offers", path: "/admin/offers", module: 'offers' },
+    { icon: Box, label: "Combos", path: "/admin/combos", module: 'combos' },
+    { icon: ShoppingCart, label: "Orders", path: "/admin/orders", module: 'orders' },
+    { icon: Users, label: "Customers", path: "/admin/customers", module: 'customers' },
+    { icon: FileText, label: "Content", path: "/admin/content", module: 'content' },
+    { icon: FileText, label: "Blog", path: "/admin/blog", module: 'blog' },
+    { icon: Newspaper, label: "Press", path: "/admin/press", module: 'press' },
+    { icon: Briefcase, label: "Careers", path: "/admin/careers", module: 'careers' },
+    { icon: Image, label: "Banners", path: "/admin/banners", module: 'banners' },
+    { icon: Settings, label: "Settings", path: "/admin/settings", module: 'settings' },
+  ].filter(item => hasPermission(item.module));
 
   // Better loading state
   if (isLoading) {
@@ -157,7 +173,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <nav className="p-4 space-y-2 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-800">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
-            
+
             return (
               <a
                 key={item.path}

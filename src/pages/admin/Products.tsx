@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { PermissionGate } from "@/components/PermissionGate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,7 +31,7 @@ import { toast } from "sonner";
 const AdminProducts = () => {
   const navigate = useNavigate();
   const { products, categories, deleteProduct, updateProduct, isLoading } = useStore();
-  
+
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -146,9 +147,11 @@ const AdminProducts = () => {
               {isLoading ? "Loading..." : `${filteredProducts.length} product(s)`}
             </p>
           </div>
-          <Button onClick={() => navigate("/admin/products/new")} className="gap-2">
-            <Plus size={20} /> Add Product
-          </Button>
+          <PermissionGate module="products" requiredLevel="limited">
+            <Button onClick={() => navigate("/admin/products/new")} className="gap-2">
+              <Plus size={20} /> Add Product
+            </Button>
+          </PermissionGate>
         </div>
 
         {/* Filters - Always visible */}
@@ -257,58 +260,71 @@ const AdminProducts = () => {
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`font-medium ${
-                          product.stock === 0
-                            ? "text-red-600"
-                            : product.stock < 10
+                        className={`font-medium ${product.stock === 0
+                          ? "text-red-600"
+                          : product.stock < 10
                             ? "text-orange-600"
                             : "text-green-600"
-                        }`}
+                          }`}
                       >
                         {product.stock}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <button
-                        onClick={() => handleToggleStatus(product.id, product.isActive)}
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          product.isActive
+                      <PermissionGate module="products" requiredLevel="limited" fallback={
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                          } opacity-50 cursor-not-allowed`}>
+                          {product.isActive ? (
+                            <><Eye className="h-3 w-3 mr-1" /> Active</>
+                          ) : (
+                            <><EyeOff className="h-3 w-3 mr-1" /> Inactive</>
+                          )}
+                        </span>
+                      }>
+                        <button
+                          onClick={() => handleToggleStatus(product.id, product.isActive)}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.isActive
                             ? "bg-green-100 text-green-800"
                             : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {product.isActive ? (
-                          <>
-                            <Eye className="h-3 w-3 mr-1" />
-                            Active
-                          </>
-                        ) : (
-                          <>
-                            <EyeOff className="h-3 w-3 mr-1" />
-                            Inactive
-                          </>
-                        )}
-                      </button>
+                            }`}
+                        >
+                          {product.isActive ? (
+                            <>
+                              <Eye className="h-3 w-3 mr-1" />
+                              Active
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="h-3 w-3 mr-1" />
+                              Inactive
+                            </>
+                          )}
+                        </button>
+                      </PermissionGate>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => navigate(`/admin/products/${product.id}/edit`)}
-                          title="Edit"
-                        >
-                          <Edit2 size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => handleDelete(product.id, product.name)}
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </Button>
+                        <PermissionGate module="products" requiredLevel="limited">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => navigate(`/admin/products/${product.id}/edit`)}
+                            title="Edit"
+                          >
+                            <Edit2 size={16} />
+                          </Button>
+                        </PermissionGate>
+                        <PermissionGate module="products" requiredLevel="full">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDelete(product.id, product.name)}
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </PermissionGate>
                       </div>
                     </TableCell>
                   </TableRow>

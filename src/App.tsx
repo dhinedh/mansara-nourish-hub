@@ -168,97 +168,97 @@ const App = () => {
                       {/* Admin Routes */}
                       <Route path="/admin/login" element={<AdminLogin />} />
                       <Route path="/admin/dashboard" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="orders" level="view">
                           <AdminDashboard />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/categories" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="categories" level="view">
                           <AdminCategories />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/products" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="products" level="view">
                           <AdminProducts />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/products/:id/edit" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="products" level="limited">
                           <AdminProductEdit />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/products/new" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="products" level="limited">
                           <AdminProductEdit />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/orders" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="orders" level="view">
                           <AdminOrders />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/customers" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="customers" level="view">
                           <AdminCustomers />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/customers/:id" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="customers" level="view">
                           <AdminCustomerHistory />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/offers" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="offers" level="view">
                           <AdminOffers />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/combos" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="combos" level="view">
                           <AdminCombos />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/content" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="content" level="view">
                           <AdminContent />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/blog" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="blog" level="view">
                           <AdminBlog />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/press" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="press" level="view">
                           <AdminPress />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/careers" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="careers" level="view">
                           <AdminCareers />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/reviews" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="products" level="view">
                           <AdminReviews />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/banners" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="banners" level="view">
                           <AdminBanners />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/hero" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="banners" level="view">
                           <AdminHeroManagement />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/stock" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="stocks" level="view">
                           <AdminStock />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/settings" element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute adminOnly module="settings" level="view">
                           <AdminSettings />
                         </ProtectedRoute>
                       } />
