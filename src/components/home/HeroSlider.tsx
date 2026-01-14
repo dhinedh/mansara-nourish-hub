@@ -57,7 +57,7 @@ const HeroSlider: React.FC = () => {
 
     return (
         <section
-            className="relative w-full overflow-hidden bg-black aspect-[16/9] md:aspect-[21/9] max-h-[600px]"
+            className="relative w-full overflow-hidden bg-black aspect-[16/9] md:aspect-[16/9] max-h-[850px]"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -93,12 +93,16 @@ const HeroSlider: React.FC = () => {
                     <div className={`relative z-20 h-full flex items-center px-4 sm:px-6 lg:px-8 ${slide.alignment === 'left' ? 'justify-start text-left' : slide.alignment === 'right' ? 'justify-end text-right' : 'justify-center text-center'}`}>
                         <div className={`max-w-4xl transform transition-all duration-700 ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
                             }`}>
-                            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
-                                {slide.title}
-                            </h1>
-                            <p className="text-lg sm:text-xl md:text-2xl text-zinc-100 mb-8 max-w-2xl font-medium leading-relaxed">
-                                {slide.subtitle}
-                            </p>
+                            {slide.title && (
+                                <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
+                                    {slide.title}
+                                </h1>
+                            )}
+                            {slide.subtitle && (
+                                <p className="text-lg sm:text-xl md:text-2xl text-zinc-100 mb-8 max-w-2xl font-medium leading-relaxed">
+                                    {slide.subtitle}
+                                </p>
+                            )}
                             {slide.ctaText && slide.ctaLink && (
                                 <Link to={slide.ctaLink}>
                                     <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 py-6 rounded-full text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 btn-shine">

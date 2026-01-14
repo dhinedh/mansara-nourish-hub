@@ -54,9 +54,9 @@ const DEFAULT_CONFIG: HeroConfig = {
         {
             id: '1',
             image: '/hero-combo-5day.jpg',
-            title: 'Mansara 5-Day Nutrition Combo',
-            subtitle: 'Weekday Nutrition Plan: Traditional formulations, diverse grains, and clean-label promise.',
-            ctaText: 'View Combo',
+            title: '',
+            subtitle: '',
+            ctaText: '',
             ctaLink: '/combos'
         }
     ],
@@ -118,7 +118,7 @@ const DEFAULT_CONFIG: HeroConfig = {
 // ========================================
 // CACHING
 // ========================================
-const CACHE_KEY = 'mansara-hero-cache-v2'; // Bumped version to force refresh
+const CACHE_KEY = 'mansara-hero-cache-v3'; // Bumped version again to force refresh
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 const STALE_DURATION = 5 * 60 * 1000; // 5 minutes stale
 
