@@ -57,7 +57,7 @@ const HeroSlider: React.FC = () => {
 
     return (
         <section
-            className="relative w-full overflow-hidden bg-black aspect-[16/9] md:aspect-[16/9] max-h-[850px]"
+            className="relative w-full overflow-hidden bg-black aspect-[16/9] md:aspect-[21/9] max-h-[700px]"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
