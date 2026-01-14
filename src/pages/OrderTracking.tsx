@@ -8,20 +8,47 @@ import { CheckCircle2, Circle, ArrowLeft, Phone, BadgeCheck, PackageCheck, Truck
 const OrderTracking: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
     const navigate = useNavigate();
-    const [order, setOrder] = useState<Order | undefined>(undefined);
+    const [order, setOrder] = useState<any | undefined>(undefined);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // In a real app we'd fetch from API
-        // Since mock ID might not match exactly due to '#' prefix handling in URL
-        const foundOrder = mockOrders.find(o => o.id === `#${orderId}` || o.id === orderId);
-        setOrder(foundOrder);
+        const fetchOrder = async () => {
+            if (!orderId) return;
+            try {
+                // Import dynamically to avoid circular dependencies if any
+                const { getOrderById } = await import('@/lib/api');
+                const token = localStorage.getItem('mansara-token');
+
+                if (token) {
+                    const data = await getOrderById(orderId, token);
+                    setOrder(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch order", error);
+                // Fallback to mock for testing if needed, or just stay null
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchOrder();
     }, [orderId]);
+
+    if (loading) {
+        return (
+            <div className="container mx-auto px-4 py-8 text-center">
+                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p>Loading order details...</p>
+            </div>
+        );
+    }
 
     if (!order) {
         return (
             <div className="container mx-auto px-4 py-8 text-center">
-                <h2 className="text-xl">Order not found</h2>
-                <Button onClick={() => navigate('/orders')} className="mt-4">Back to Orders</Button>
+                <h2 className="text-xl font-bold mb-2">Order not found</h2>
+                <p className="text-muted-foreground mb-4">Could not find order #{orderId}</p>
+                <Button onClick={() => navigate('/orders')}>Back to Orders</Button>
             </div>
         );
     }
@@ -52,11 +79,11 @@ const OrderTracking: React.FC = () => {
                     <div className="flex flex-wrap justify-between gap-6">
                         <div>
                             <p className="text-muted-foreground text-sm">Order ID</p>
-                            <p className="font-bold">{order.id}</p>
+                            <p className="font-bold">{order.orderId || order.id}</p>
                         </div>
                         <div>
                             <p className="text-muted-foreground text-sm">Order Date</p>
-                            <p className="font-bold">{order.date}</p>
+                            <p className="font-bold">{new Date(order.date || order.createdAt).toLocaleDateString()}</p>
                         </div>
                         <div>
                             <p className="text-muted-foreground text-sm">Total Amount</p>
@@ -81,7 +108,7 @@ const OrderTracking: React.FC = () => {
                 <div className="bg-card p-6 rounded-xl shadow-sm border border-border">
                     <h3 className="font-bold text-lg mb-6">Order Status</h3>
                     <div className="relative pl-4 md:pl-0">
-                        {order.trackingSteps.map((step, index) => (
+                        {order.trackingSteps && order.trackingSteps.map((step: any, index: number) => (
                             <div key={index} className="flex gap-4 pb-8 last:pb-0 relative">
                                 {/* Connecting Line */}
                                 {index < order.trackingSteps.length - 1 && (
@@ -102,7 +129,7 @@ const OrderTracking: React.FC = () => {
                                         {step.status}
                                     </h4>
                                     {step.completed && step.date && (
-                                        <p className="text-xs text-muted-foreground mt-0.5">{step.date}</p>
+                                        <p className="text-xs text-muted-foreground mt-0.5">{new Date(step.date).toLocaleString()}</p>
                                     )}
                                     {/* Descriptive text based on status */}
                                     <p className="text-sm mt-1 text-muted-foreground">
