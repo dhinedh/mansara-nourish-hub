@@ -53,7 +53,7 @@ const DEFAULT_CONFIG: HeroConfig = {
     home: [
         {
             id: '1',
-            image: '/hero-combo-5day.jpg',
+            image: '/hero-home-combo.png',
             title: '',
             subtitle: '',
             ctaText: '',
