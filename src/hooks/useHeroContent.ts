@@ -84,9 +84,9 @@ const DEFAULT_CONFIG: HeroConfig = {
         subtitle: ''
     },
     products: {
-        image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-        title: 'Our Products',
-        subtitle: 'Browse our complete range of pure, nourishing foods'
+        image: '/hero-products.png',
+        title: '',
+        subtitle: ''
     },
     about: {
         image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
@@ -126,7 +126,7 @@ const DEFAULT_CONFIG: HeroConfig = {
 // ========================================
 // CACHING
 // ========================================
-const CACHE_KEY = 'mansara-hero-cache-v10'; // Bumped version to force refresh
+const CACHE_KEY = 'mansara-hero-cache-v11'; // Bumped version to force refresh
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 const STALE_DURATION = 5 * 60 * 1000; // 5 minutes stale
 
