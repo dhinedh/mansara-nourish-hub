@@ -79,9 +79,9 @@ const DEFAULT_CONFIG: HeroConfig = {
         subtitle: 'Grab these amazing deals on your favorite MANSARA products. Premium quality at special prices!'
     },
     combos: {
-        image: 'https://images.unsplash.com/photo-1547592180-85f173990554?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-        title: 'Combo Offers',
-        subtitle: 'Get more value with our carefully curated combo packs. Save more when you buy together!'
+        image: '/hero-combos-final.png',
+        title: '',
+        subtitle: ''
     },
     products: {
         image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
@@ -126,7 +126,7 @@ const DEFAULT_CONFIG: HeroConfig = {
 // ========================================
 // CACHING
 // ========================================
-const CACHE_KEY = 'mansara-hero-cache-v8'; // Bumped version to force refresh
+const CACHE_KEY = 'mansara-hero-cache-v10'; // Bumped version to force refresh
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 const STALE_DURATION = 5 * 60 * 1000; // 5 minutes stale
 
