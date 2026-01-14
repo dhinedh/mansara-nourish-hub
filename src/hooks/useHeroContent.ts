@@ -56,7 +56,7 @@ const DEFAULT_CONFIG: HeroConfig = {
             image: '/hero-combo-5day.jpg',
             title: '',
             subtitle: '',
-            ctaText: 'View Combo',
+            ctaText: '',
             ctaLink: '/combos'
         }
     ],
@@ -118,7 +118,7 @@ const DEFAULT_CONFIG: HeroConfig = {
 // ========================================
 // CACHING
 // ========================================
-const CACHE_KEY = 'mansara-hero-cache-v4'; // Bumped version to force refresh
+const CACHE_KEY = 'mansara-hero-cache-v5'; // Bumped version to force refresh
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 const STALE_DURATION = 5 * 60 * 1000; // 5 minutes stale
 
