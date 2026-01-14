@@ -98,10 +98,15 @@ const DEFAULT_CONFIG: HeroConfig = {
         title: 'Contact Us',
         subtitle: "We'd love to hear from you. Whether you have a question about our products, feedback to share, or would like to collaborate with us."
     },
+    newArrivals: {
+        image: '/hero-new-arrivals.png',
+        title: '',
+        subtitle: ''
+    },
     cart: {
-        image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-        title: 'Your Cart',
-        subtitle: 'Review your selected items before checkout.'
+        image: '/hero-cart.jpg',
+        title: '',
+        subtitle: ''
     },
     blog: {
         image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
@@ -126,7 +131,7 @@ const DEFAULT_CONFIG: HeroConfig = {
 // ========================================
 // CACHING
 // ========================================
-const CACHE_KEY = 'mansara-hero-cache-v13'; // Bumped version to force refresh
+const CACHE_KEY = 'mansara-hero-cache-v15'; // Bumped version to force refresh
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 const STALE_DURATION = 5 * 60 * 1000; // 5 minutes stale
 
