@@ -89,9 +89,9 @@ const DEFAULT_CONFIG: HeroConfig = {
         subtitle: ''
     },
     about: {
-        image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-        title: 'About MANSARA',
-        subtitle: 'Nourish from Within – The Power of MANSARA'
+        image: '/hero-about.png',
+        title: 'Our Tradition of Wellness',
+        subtitle: 'Handcrafted with care, rooted in heritage.'
     },
     contact: {
         image: 'https://images.unsplash.com/photo-1516387938699-a93567ec168e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
@@ -131,7 +131,7 @@ const DEFAULT_CONFIG: HeroConfig = {
 // ========================================
 // CACHING
 // ========================================
-const CACHE_KEY = 'mansara-hero-cache-v15'; // Bumped version to force refresh
+const CACHE_KEY = 'mansara-hero-cache-v16'; // Bumped version to force refresh
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 const STALE_DURATION = 5 * 60 * 1000; // 5 minutes stale
 
