@@ -103,13 +103,7 @@ const HeroSlider: React.FC = () => {
                                     {slide.subtitle}
                                 </p>
                             )}
-                            {slide.ctaText && slide.ctaLink && (
-                                <Link to={slide.ctaLink}>
-                                    <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 py-6 rounded-full text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 btn-shine">
-                                        {slide.ctaText}
-                                    </Button>
-                                </Link>
-                            )}
+                            {/* Button removed as per request - Image is clickable */}
                         </div>
                     </div>
                 </div>
