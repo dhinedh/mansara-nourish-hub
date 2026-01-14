@@ -370,7 +370,7 @@ const Checkout: React.FC = () => {
         total: totalAmount,
         subtotal: getCartTotal(), // Helpful for backend reference
         shipping: shippingCharge,
-        paymentMethod: paymentMethod === 'Online' ? 'Online Payment (Razorpay)' : 'Cash on Delivery',
+        paymentMethod: paymentMethod === 'Online' ? 'Online' : 'Cash on Delivery',
         paymentInfo: paymentInfo,
         deliveryAddress: {
           firstName: address.firstName,

@@ -75,6 +75,9 @@ const AdminOrders = () => {
 
   useEffect(() => {
     fetchOrders();
+    // Poll for new orders every 30 seconds
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchOrders = async () => {
