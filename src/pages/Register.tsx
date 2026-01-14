@@ -66,7 +66,7 @@ const Register: React.FC = () => {
 
                 toast.success(
                     "Registration successful!",
-                    "Please check your WhatsApp for the verification OTP."
+                    "Please check your WhatsApp and Email for the verification OTP."
                 );
 
                 // Redirect to verification page
@@ -276,7 +276,7 @@ const Register: React.FC = () => {
                     <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                         <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
                             <MessageSquare className="h-4 w-4" />
-                            You'll receive a verification code on WhatsApp
+                            You'll receive a verification code on WhatsApp and Email
                         </p>
                     </div>
 

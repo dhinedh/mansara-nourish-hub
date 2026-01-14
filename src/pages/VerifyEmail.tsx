@@ -60,7 +60,7 @@ const VerifyEmail = () => {
         setResendLoading(true);
         try {
             await resendOTP(email);
-            toast.success("New OTP has been sent to your WhatsApp.");
+            toast.success("New OTP has been sent to your WhatsApp and Email.");
             setCountdown(60); // 60 second cooldown
         } catch (error: any) {
             toast.error(error.message || "Failed to resend OTP");
@@ -83,7 +83,7 @@ const VerifyEmail = () => {
                             Verify Your Account
                         </h2>
                         <p className="mt-3 text-sm text-gray-600">
-                            We've sent a verification code to your WhatsApp
+                            We've sent a verification code to your WhatsApp and Email
                         </p>
                         <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
                             <p className="text-sm font-medium text-blue-900">
@@ -91,7 +91,7 @@ const VerifyEmail = () => {
                             </p>
                         </div>
                         <p className="text-xs text-gray-500 mt-2">
-                            Please check your WhatsApp for the 6-digit OTP
+                            Please check your WhatsApp or Email for the 6-digit OTP
                         </p>
                     </div>
 
@@ -115,9 +115,8 @@ const VerifyEmail = () => {
                                     maxLength: { value: 6, message: "OTP must be 6 digits" },
                                     pattern: { value: /^[0-9]+$/, message: "OTP must be numbers only" }
                                 })}
-                                className={`text-center tracking-widest text-2xl font-semibold ${
-                                    errors.otp ? "border-red-500" : ""
-                                }`}
+                                className={`text-center tracking-widest text-2xl font-semibold ${errors.otp ? "border-red-500" : ""
+                                    }`}
                                 autoComplete="off"
                                 autoFocus
                             />
@@ -164,14 +163,14 @@ const VerifyEmail = () => {
                                 ) : countdown > 0 ? (
                                     `Resend OTP in ${countdown}s`
                                 ) : (
-                                    "Resend OTP to WhatsApp"
+                                    "Resend OTP to WhatsApp & Email"
                                 )}
                             </button>
                         </div>
 
                         <div className="text-center pt-4 border-t border-gray-200">
-                            <Link 
-                                to="/register" 
+                            <Link
+                                to="/register"
                                 className="text-sm text-gray-600 hover:text-gray-900 underline"
                             >
                                 Change Email / Register Again
@@ -181,8 +180,8 @@ const VerifyEmail = () => {
 
                     <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <p className="text-xs text-yellow-800 text-center">
-                            <strong>Note:</strong> OTP is valid for 10 minutes. 
-                            Make sure to check your WhatsApp messages.
+                            <strong>Note:</strong> OTP is valid for 10 minutes.
+                            Make sure to check your WhatsApp or Email messages.
                         </p>
                     </div>
                 </div>

@@ -28,7 +28,7 @@ const ForgotPassword: React.FC = () => {
             setStep(2);
             toast({
                 title: "OTP Sent Successfully",
-                description: "Please check your WhatsApp for the verification code.",
+                description: "Please check your WhatsApp and Email for the verification code.",
                 duration: 5000,
             });
         } catch (error: any) {
@@ -90,7 +90,7 @@ const ForgotPassword: React.FC = () => {
             await forgotPassword(email);
             toast({
                 title: "OTP Resent",
-                description: "A new OTP has been sent to your WhatsApp.",
+                description: "A new OTP has been sent to your WhatsApp and Email.",
                 duration: 5000,
             });
         } catch (error: any) {
@@ -114,8 +114,8 @@ const ForgotPassword: React.FC = () => {
                     </h2>
                     <p className="mt-2 text-sm text-muted-foreground">
                         {step === 1
-                            ? 'Enter your email to receive an OTP on WhatsApp'
-                            : 'Enter the OTP sent to your WhatsApp and set a new password'}
+                            ? 'Enter your email to receive an OTP on WhatsApp and Email'
+                            : 'Enter the OTP sent to your WhatsApp/Email and set a new password'}
                     </p>
                 </div>
 
@@ -145,7 +145,7 @@ const ForgotPassword: React.FC = () => {
                             ) : (
                                 <>
                                     <MessageSquare className="mr-2 h-4 w-4" />
-                                    Send OTP via WhatsApp
+                                    Send OTP via WhatsApp & Email
                                 </>
                             )}
                         </Button>
@@ -157,14 +157,14 @@ const ForgotPassword: React.FC = () => {
                                 <MessageSquare size={16} />
                             </div>
                             <div className="text-sm flex-1">
-                                <p className="text-muted-foreground">OTP sent to WhatsApp for:</p>
+                                <p className="text-muted-foreground">OTP sent to WhatsApp & Email for:</p>
                                 <p className="font-medium">{email}</p>
                             </div>
-                            <Button 
+                            <Button
                                 type="button"
-                                variant="ghost" 
-                                size="sm" 
-                                className="text-xs" 
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs"
                                 onClick={() => setStep(1)}
                             >
                                 Change
@@ -245,8 +245,8 @@ const ForgotPassword: React.FC = () => {
                 )}
 
                 <div className="text-center pt-4 border-t">
-                    <Link 
-                        to="/login" 
+                    <Link
+                        to="/login"
                         className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" />
