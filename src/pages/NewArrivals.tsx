@@ -25,7 +25,7 @@ const NewArrivals: React.FC = () => {
   const { products, isLoading } = useStore();
 
   // Memoize filtering to prevent recalculation
-  const newProducts = useMemo(() => 
+  const newProducts = useMemo(() =>
     products.filter(p => p.isNewArrival && p.isActive).reverse(),
     [products]
   );
@@ -33,7 +33,7 @@ const NewArrivals: React.FC = () => {
   return (
     <Layout>
       {/* Hero Banner */}
-      <PageHero pageKey="newArrivals">
+      <PageHero pageKey="newArrivals" className="py-24 md:py-36">
         <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-sm font-bold mb-6 shadow-sm border border-white/30">
           Fresh Additions
         </span>

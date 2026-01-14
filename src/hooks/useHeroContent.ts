@@ -81,8 +81,8 @@ const DEFAULT_CONFIG: HeroConfig = {
     },
     products: {
         image: '/hero-products.png',
-        title: '',
-        subtitle: ''
+        title: 'Our Clean Range',
+        subtitle: 'Pure, wholesome, and made for your well-being.'
     },
     about: {
         image: '/hero-about.png',
@@ -96,8 +96,8 @@ const DEFAULT_CONFIG: HeroConfig = {
     },
     newArrivals: {
         image: '/hero-new-arrivals.png',
-        title: '',
-        subtitle: ''
+        title: 'Fresh Additions',
+        subtitle: 'Discover the latest from the Mansara kitchen.'
     },
     cart: {
         image: '/hero-cart.jpg',
@@ -127,7 +127,7 @@ const DEFAULT_CONFIG: HeroConfig = {
 // ========================================
 // CACHING
 // ========================================
-const CACHE_KEY = 'mansara-hero-cache-v16'; // Bumped version to force refresh
+const CACHE_KEY = 'mansara-hero-cache-v17'; // Bumped version to force refresh
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 const STALE_DURATION = 5 * 60 * 1000; // 5 minutes stale
 
