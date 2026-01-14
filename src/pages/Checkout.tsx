@@ -268,7 +268,7 @@ const Checkout: React.FC = () => {
       }
 
       const cartTotal = getCartTotal();
-      const shippingCharge = cartTotal < 1000 ? 50 : 0;
+      const shippingCharge = 0; // Shipping removed as per request
       const totalAmount = cartTotal + shippingCharge;
 
       // ==========================================
