@@ -57,7 +57,7 @@ const HeroSlider: React.FC = () => {
 
     return (
         <section
-            className="relative h-[600px] w-full overflow-hidden bg-black"
+            className="relative w-full overflow-hidden bg-black aspect-[16/9] md:aspect-[21/9] max-h-[600px]"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -74,18 +74,18 @@ const HeroSlider: React.FC = () => {
                             <img
                                 src={slide.image}
                                 alt={slide.title}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-fill md:object-cover"
                             />
-                            <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />
+                            <div className="absolute inset-0 bg-black/10" />
                         </Link>
                     ) : (
                         <div className="absolute inset-0">
                             <img
                                 src={slide.image}
                                 alt={slide.title}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-fill md:object-cover"
                             />
-                            <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />
+                            <div className="absolute inset-0 bg-black/10" />
                         </div>
                     )}
 
