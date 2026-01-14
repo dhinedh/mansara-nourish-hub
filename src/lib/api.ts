@@ -582,7 +582,7 @@ export const fetchUser = async (userId: string) => {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch(`${API_URL}/users/${userId}?time=${Date.now()}`, {
+        const response = await fetch(`${API_URL}/users/${userId}`, {
             headers
         });
         if (response.status === 404) {
