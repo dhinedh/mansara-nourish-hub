@@ -68,15 +68,26 @@ const HeroSlider: React.FC = () => {
                     className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
                         }`}
                 >
-                    {/* Background Image */}
-                    <div className="absolute inset-0">
-                        <img
-                            src={slide.image}
-                            alt={slide.title}
-                            className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />
-                    </div>
+                    {/* Background Image - Clickable if link exists */}
+                    {slide.ctaLink ? (
+                        <Link to={slide.ctaLink} className="absolute inset-0 cursor-pointer block">
+                            <img
+                                src={slide.image}
+                                alt={slide.title}
+                                className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />
+                        </Link>
+                    ) : (
+                        <div className="absolute inset-0">
+                            <img
+                                src={slide.image}
+                                alt={slide.title}
+                                className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />
+                        </div>
+                    )}
 
                     {/* Content */}
                     <div className={`relative z-20 h-full flex items-center px-4 sm:px-6 lg:px-8 ${slide.alignment === 'left' ? 'justify-start text-left' : slide.alignment === 'right' ? 'justify-end text-right' : 'justify-center text-center'}`}>

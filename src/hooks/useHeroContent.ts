@@ -53,20 +53,12 @@ const DEFAULT_CONFIG: HeroConfig = {
     home: [
         {
             id: '1',
-            image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-            title: 'Pure Tradition, Modern Wellness',
-            subtitle: 'Experience the authentic taste of South India with our handcrafted, preservative-free foods.',
-            ctaText: 'Shop Now',
-            ctaLink: '/products'
-        },
-        {
-            id: '2',
-            image: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-            title: 'Nourish Your Family',
-            subtitle: 'Wholesome porridge mixes and essentials made with care for your loved ones.',
-            ctaText: 'View Products',
-            ctaLink: '/products'
-        },
+            image: '/hero-combo-5day.jpg',
+            title: 'Mansara 5-Day Nutrition Combo',
+            subtitle: 'Weekday Nutrition Plan: Traditional formulations, diverse grains, and clean-label promise.',
+            ctaText: 'View Combo',
+            ctaLink: '/combos'
+        }
     ],
     newArrivals: {
         image: 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
@@ -126,7 +118,7 @@ const DEFAULT_CONFIG: HeroConfig = {
 // ========================================
 // CACHING
 // ========================================
-const CACHE_KEY = 'mansara-hero-cache';
+const CACHE_KEY = 'mansara-hero-cache-v2'; // Bumped version to force refresh
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 const STALE_DURATION = 5 * 60 * 1000; // 5 minutes stale
 
@@ -229,7 +221,7 @@ export const useHeroContent = () => {
             const cached = getCachedHero();
             if (cached) {
                 const { data, isFresh, isStale } = cached;
-                
+
                 setHeroConfig(data);
                 setIsLoading(false);
 
