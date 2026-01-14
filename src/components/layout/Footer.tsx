@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
             <address className="not-italic text-brand-cream/70 text-sm space-y-2">
               <p className="font-semibold text-brand-yellow">MansaraFoods Private Limited</p>
               <p className="whitespace-pre-line">{settings?.address || 'Tamil Nadu, India'}</p>
-              <p>Email: {settings?.contact_email || 'mansarafoods@gmail.com'}</p>
+              <p>Email: {settings?.contact_email || 'contact@mansarafoods.com'}</p>
               <p>Phone: {settings?.phone_number || '+91-883 888 7064'}</p>
             </address>
           </div>

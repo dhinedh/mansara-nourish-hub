@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { 
-    fetchBanners, 
-    createBanner, 
-    updateBanner as apiUpdateBanner, 
-    deleteBanner, 
-    fetchContentPages, 
-    updateContentPage, 
-    fetchSettings 
+import {
+    fetchBanners,
+    createBanner,
+    updateBanner as apiUpdateBanner,
+    deleteBanner,
+    fetchContentPages,
+    updateContentPage,
+    fetchSettings
 } from '@/lib/api';
 
 // ========================================
@@ -42,7 +42,7 @@ interface ContentContextType {
     contents: PageContent[];
     settings: any;
     isLoading: boolean;
-    
+
     addBanner: (banner: Omit<Banner, 'id' | 'active'>) => Promise<void>;
     updateBanner: (id: string, updates: Partial<Banner>) => Promise<void>;
     deleteBanner: (id: string) => Promise<void>;
@@ -73,7 +73,7 @@ const DEFAULT_CONTENT: PageContent[] = [
         sections: {
             'intro': 'We\'re Here to Help. Every message matters to us.',
             'address': 'MANSARA FOODS\nNo. 15, Government Hospital Opposite,\nTimiri Road, Kalavai, Ranipet,\nTamil Nadu – 632506, India',
-            'email': 'mansarafoods@gmail.com',
+            'email': 'contact@mansarafoods.com',
             'phone': '+91 88388 87064'
         }
     },
@@ -107,7 +107,7 @@ const getCachedData = () => {
 
         const { data, timestamp } = JSON.parse(cached);
         const age = Date.now() - timestamp;
-        
+
         // Return cached data with freshness indicator
         return {
             data,
@@ -191,9 +191,9 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
                         if (index >= 0) {
                             mergedContent[index] = {
                                 ...mergedContent[index],
-                                sections: { 
-                                    ...mergedContent[index].sections, 
-                                    ...apiPage.sections 
+                                sections: {
+                                    ...mergedContent[index].sections,
+                                    ...apiPage.sections
                                 }
                             };
                         } else {
@@ -231,20 +231,20 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // ========================================
     const loadData = useCallback(async () => {
         setIsLoading(true);
-        
+
         try {
             // Check cache first
             const cached = getCachedData();
-            
+
             if (cached) {
                 const { data, isFresh, isStale } = cached;
-                
+
                 // Use cached data immediately
                 setBanners(data.banners || []);
                 setContents(data.contents || DEFAULT_CONTENT);
                 setSettings(data.settings || {});
                 setIsLoading(false);
-                
+
                 if (isFresh) {
                     console.log('[Content] ✓ Loaded from fresh cache');
                     return;
@@ -260,7 +260,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 console.log('[Content] No cache, fetching from API');
                 await fetchAndCache(true);
             }
-            
+
         } catch (error) {
             console.error('[Content] ✗ Load error:', error);
         } finally {
@@ -291,10 +291,10 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const updateBanner = useCallback(async (id: string, updates: Partial<Banner>) => {
         // Store original for rollback
         const originalBanners = [...banners];
-        
+
         try {
             // Optimistic update
-            setBanners(prev => prev.map(b => 
+            setBanners(prev => prev.map(b =>
                 b.id === id ? { ...b, ...updates } : b
             ));
 
@@ -304,7 +304,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const apiId = banner._id || banner.id;
             await apiUpdateBanner(apiId, updates);
             clearCache();
-            
+
             console.log('[Content] ✓ Banner updated');
         } catch (error) {
             console.error('[Content] ✗ Update banner failed:', error);
@@ -317,11 +317,11 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const deleteBannerAction = useCallback(async (id: string) => {
         // Store original for rollback
         const originalBanners = [...banners];
-        
+
         try {
             // Optimistic delete
             setBanners(prev => prev.filter(b => b._id !== id && b.id !== id));
-            
+
             await deleteBanner(id);
             clearCache();
             console.log('[Content] ✓ Banner deleted');
@@ -350,7 +350,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const updateContent = useCallback(async (slug: string, sectionKey: string, value: string) => {
         // Store original for rollback
         const originalContents = [...contents];
-        
+
         try {
             // Optimistic update
             const newContents = [...contents];
@@ -358,9 +358,9 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             let currentSections = {};
 
             if (pageIndex >= 0) {
-                currentSections = { 
-                    ...newContents[pageIndex].sections, 
-                    [sectionKey]: value 
+                currentSections = {
+                    ...newContents[pageIndex].sections,
+                    [sectionKey]: value
                 };
                 newContents[pageIndex] = {
                     ...newContents[pageIndex],
@@ -370,13 +370,13 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 currentSections = { [sectionKey]: value };
                 newContents.push({ slug, sections: currentSections });
             }
-            
+
             setContents(newContents);
 
             // API call
             await updateContentPage(slug, currentSections);
             clearCache();
-            
+
             console.log('[Content] ✓ Content updated');
         } catch (error) {
             console.error('[Content] ✗ Update content failed:', error);

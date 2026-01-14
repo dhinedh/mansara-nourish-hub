@@ -92,8 +92,8 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="font-heading text-lg font-bold text-foreground mb-2">Email Us</h4>
-                    <a href={`mailto:${getContent('contact', 'email', 'mansarafoods@gmail.com')}`} className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
-                      {getContent('contact', 'email', 'mansarafoods@gmail.com')}
+                    <a href={`mailto:${getContent('contact', 'email', 'contact@mansarafoods.com')}`} className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
+                      {getContent('contact', 'email', 'contact@mansarafoods.com')}
                     </a>
                   </div>
                 </div>
