@@ -68,7 +68,6 @@ const DEFAULT_CONFIG: HeroConfig = {
             ctaLink: '/offers'
         }
     ],
-
     offers: {
         image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
         title: 'Special Offers',
@@ -76,8 +75,8 @@ const DEFAULT_CONFIG: HeroConfig = {
     },
     combos: {
         image: '/hero-combos-final.png',
-        title: '',
-        subtitle: ''
+        title: 'Perfect Pairings',
+        subtitle: 'Curated combinations for the ultimate taste experience. Save more with our value packs!'
     },
     products: {
         image: '/hero-products.png',
