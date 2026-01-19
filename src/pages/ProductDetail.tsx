@@ -8,7 +8,7 @@ import { useCart } from '@/context/CartContext';
 import { useStore } from '@/context/StoreContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { fetchProductReviews, checkReviewEligibility, createReview, notifyMe } from '@/lib/api';
+import { fetchProductReviews, checkReviewEligibility, createReview, notifyMe, deleteReview } from '@/lib/api';
 import { calculateUnitPrice } from '@/lib/utils';
 import {
   Dialog,
@@ -126,6 +126,21 @@ const ProductDetail: React.FC = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setIsReviewLoading(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!window.confirm("Are you sure you want to delete this review?")) return;
+
+    const token = localStorage.getItem("mansara-token");
+    if (!token) return;
+
+    try {
+      await deleteReview(reviewId, token);
+      toast({ title: "Review deleted", description: "The review has been removed." });
+      loadReviews();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
@@ -572,7 +587,17 @@ const ProductDetail: React.FC = () => {
                                 </span>
                               )}
                             </div>
-                            <span className="text-sm text-gray-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                            <div className="flex items-center">
+                              <span className="text-sm text-gray-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                              {user?.role === 'admin' && (
+                                <button
+                                  onClick={() => handleDeleteReview(review._id)}
+                                  className="ml-4 text-xs text-red-500 hover:text-red-700 font-medium"
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </div>
                           </div>
                           <div className="flex items-center text-yellow-500 mb-2">
                             {Array.from({ length: 5 }).map((_, i) => (

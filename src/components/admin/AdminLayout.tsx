@@ -17,7 +17,8 @@ import {
   Menu,
   X,
   Newspaper,
-  Briefcase
+  Briefcase,
+  BarChart3
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -119,6 +120,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard", module: 'orders' },
+    { icon: BarChart3, label: "Analysis", path: "/admin/analytics", module: 'orders' },
     { icon: Package, label: "Products", path: "/admin/products", module: 'products' },
     { icon: Box, label: "Stocks", path: "/admin/stock", module: 'stocks' },
     { icon: Box, label: "Categories", path: "/admin/categories", module: 'categories' },
