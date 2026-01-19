@@ -234,10 +234,10 @@ const Analytics: React.FC = () => {
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-sm line-clamp-1">{product.name}</p>
-                                                    <p className="text-xs text-gray-500">{product.totalQuantity} units sold</p>
+                                                    <p className="text-xs text-gray-500">{product.totalSold} units sold</p>
                                                 </div>
                                             </div>
-                                            <span className="font-bold text-sm">₹{product.totalRevenue.toLocaleString()}</span>
+                                            <span className="font-bold text-sm">₹{product.revenue.toLocaleString()}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -369,160 +369,160 @@ const Analytics: React.FC = () => {
                             </CardContent>
                         </Card>
 
-                </div>
+                    </div>
 
-                {/* Actionable Insights Section */}
-                <h2 className="text-2xl font-bold text-gray-900 mt-8">Growth Insights</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Actionable Insights Section */}
+                    <h2 className="text-2xl font-bold text-gray-900 mt-8">Growth Insights</h2>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-                    {/* Bundling Opportunities */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Bundling Opportunities</CardTitle>
-                            <p className="text-sm text-gray-500">Frequently bought together products</p>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {bundlingData.map((bundle, index) => (
-                                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                        <div className="flex -space-x-2">
-                                            {bundle.products.map((p: any, i: number) => (
-                                                <div key={i} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center text-xs font-bold overflow-hidden">
-                                                    {p.image ? <img src={p.image} alt={p.name} className="w-full h-full object-cover" /> : p.name[0]}
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="flex-1 ml-4">
-                                            <p className="text-sm font-medium">{bundle.products.map((p: any) => p.name).join(' + ')}</p>
-                                        </div>
-                                        <span className="text-xs font-bold bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{bundle.count} times</span>
-                                    </div>
-                                ))}
-                                {bundlingData.length === 0 && <p className="text-sm text-gray-500 text-center py-4">No bundling data available yet.</p>}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Peak Sales Times */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Peak Sales Times</CardTitle>
-                            <p className="text-sm text-gray-500">Best performing days and hours</p>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="h-[250px] w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={peakTimes}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                        <XAxis
-                                            dataKey="_id"
-                                            tickFormatter={(val) => {
-                                                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                                                return `${days[val.day - 1]} ${val.hour}h`;
-                                            }}
-                                        />
-                                        <YAxis />
-                                        <Tooltip
-                                            labelFormatter={(val) => {
-                                                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                                                return `${days[val.day - 1]} at ${val.hour}:00`;
-                                            }}
-                                        />
-                                        <Bar dataKey="orderCount" fill="#8884d8" name="Orders" />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Inactive VIPs */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>At-Risk VIP Customers</CardTitle>
-                            <p className="text-sm text-gray-500">High value customers inactive for 45+ days</p>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {inactiveCustomers.map((customer, index) => (
-                                    <div key={index} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
-                                        <div>
-                                            <p className="font-medium text-sm text-gray-900">{customer.name}</p>
-                                            <p className="text-xs text-gray-500">Last order: {customer.daysSinceLastOrder} days ago</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-bold text-sm text-gray-900">₹{customer.totalSpent.toLocaleString()}</p>
-                                            <p className="text-xs text-red-600">Lifetime Value</p>
-                                        </div>
-                                    </div>
-                                ))}
-                                {inactiveCustomers.length === 0 && <p className="text-sm text-gray-500 text-center py-4">No at-risk VIP customers found.</p>}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Slow Moving Stock */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Clearance Candidates</CardTitle>
-                            <p className="text-sm text-gray-500">High stock, low sales (last 30 days)</p>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {slowMovingStock.map((product, index) => (
-                                    <div key={index} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-white rounded border overflow-hidden">
-                                                {product.image && <img src={product.image} alt={product.name} className="w-full h-full object-cover" />}
+                        {/* Bundling Opportunities */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Bundling Opportunities</CardTitle>
+                                <p className="text-sm text-gray-500">Frequently bought together products</p>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {bundlingData.map((bundle, index) => (
+                                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                            <div className="flex -space-x-2">
+                                                {bundle.products.map((p: any, i: number) => (
+                                                    <div key={i} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center text-xs font-bold overflow-hidden">
+                                                        {p.image ? <img src={p.image} alt={p.name} className="w-full h-full object-cover" /> : p.name[0]}
+                                                    </div>
+                                                ))}
                                             </div>
+                                            <div className="flex-1 ml-4">
+                                                <p className="text-sm font-medium">{bundle.products.map((p: any) => p.name).join(' + ')}</p>
+                                            </div>
+                                            <span className="text-xs font-bold bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{bundle.count} times</span>
+                                        </div>
+                                    ))}
+                                    {bundlingData.length === 0 && <p className="text-sm text-gray-500 text-center py-4">No bundling data available yet.</p>}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Peak Sales Times */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Peak Sales Times</CardTitle>
+                                <p className="text-sm text-gray-500">Best performing days and hours</p>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-[250px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={peakTimes}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                            <XAxis
+                                                dataKey="_id"
+                                                tickFormatter={(val) => {
+                                                    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                                                    return `${days[val.day - 1]} ${val.hour}h`;
+                                                }}
+                                            />
+                                            <YAxis />
+                                            <Tooltip
+                                                labelFormatter={(val) => {
+                                                    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                                                    return `${days[val.day - 1]} at ${val.hour}:00`;
+                                                }}
+                                            />
+                                            <Bar dataKey="orderCount" fill="#8884d8" name="Orders" />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Inactive VIPs */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>At-Risk VIP Customers</CardTitle>
+                                <p className="text-sm text-gray-500">High value customers inactive for 45+ days</p>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {inactiveCustomers.map((customer, index) => (
+                                        <div key={index} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
                                             <div>
-                                                <p className="font-medium text-sm line-clamp-1">{product.name}</p>
-                                                <p className="text-xs text-gray-500">Sold: {product.soldLast30Days} units</p>
+                                                <p className="font-medium text-sm text-gray-900">{customer.name}</p>
+                                                <p className="text-xs text-gray-500">Last order: {customer.daysSinceLastOrder} days ago</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-bold text-sm text-gray-900">₹{customer.totalSpent.toLocaleString()}</p>
+                                                <p className="text-xs text-red-600">Lifetime Value</p>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <span className="font-bold text-sm text-yellow-700">{product.stock} in stock</span>
+                                    ))}
+                                    {inactiveCustomers.length === 0 && <p className="text-sm text-gray-500 text-center py-4">No at-risk VIP customers found.</p>}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Slow Moving Stock */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Clearance Candidates</CardTitle>
+                                <p className="text-sm text-gray-500">High stock, low sales (last 30 days)</p>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {slowMovingStock.map((product, index) => (
+                                        <div key={index} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-100">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-white rounded border overflow-hidden">
+                                                    {product.image && <img src={product.image} alt={product.name} className="w-full h-full object-cover" />}
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-sm line-clamp-1">{product.name}</p>
+                                                    <p className="text-xs text-gray-500">Sold: {product.soldLast30Days} units</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="font-bold text-sm text-yellow-700">{product.stock} in stock</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                                {slowMovingStock.length === 0 && <p className="text-sm text-gray-500 text-center py-4">No slow moving stock identified.</p>}
-                            </div>
-                        </CardContent>
-                    </Card>
+                                    ))}
+                                    {slowMovingStock.length === 0 && <p className="text-sm text-gray-500 text-center py-4">No slow moving stock identified.</p>}
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                    {/* Customer Segments */}
-                    <Card className="col-span-1 lg:col-span-2">
-                        <CardHeader>
-                            <CardTitle>Customer Segmentation</CardTitle>
-                            <p className="text-sm text-gray-500">Distribution by lifetime spend</p>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="h-[300px] w-full flex items-center justify-center">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={customerSegments}
-                                            dataKey="count"
-                                            nameKey="name"
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius={100}
-                                            label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                                        >
-                                            {customerSegments.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip formatter={(value: number) => [value, 'Customers']} />
-                                        <Legend />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </CardContent>
-                    </Card>
+                        {/* Customer Segments */}
+                        <Card className="col-span-1 lg:col-span-2">
+                            <CardHeader>
+                                <CardTitle>Customer Segmentation</CardTitle>
+                                <p className="text-sm text-gray-500">Distribution by lifetime spend</p>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-[300px] w-full flex items-center justify-center">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={customerSegments}
+                                                dataKey="count"
+                                                nameKey="name"
+                                                cx="50%"
+                                                cy="50%"
+                                                outerRadius={100}
+                                                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                                            >
+                                                {customerSegments.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip formatter={(value: number) => [value, 'Customers']} />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
+                        </Card>
 
+                    </div>
                 </div>
             </div>
-        </div>
         </Layout >
     );
 };
