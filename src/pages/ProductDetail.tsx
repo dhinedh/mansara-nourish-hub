@@ -613,7 +613,6 @@ const ProductDetail: React.FC = () => {
 
       <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
         <DialogContent className="max-w-md">
-          {/* ... existing review dialog content ... */}
           <DialogHeader>
             <DialogTitle>Write a Review</DialogTitle>
             <DialogDescription>
@@ -621,15 +620,7 @@ const ProductDetail: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
 
-          {/* ... keeping existing logic but truncated for brevity in replace ... */}
-          {/* Since replace_file_content requires exact match, I will append the NEW dialog after the existing one using a larger context match or simpler append if possible, but safely I will replace the end of the file or insert before the last closing tag. */}
-          {/* WAIT: I can just insert it before the closing layout tag if I match correctly. */}
-          {/* Let's try to target the end of the file actually, effectively appending the new dialog before the closing Layout */}
-
           <div className="space-y-4 py-4">
-            {/* Review form content... */}
-            {/* I need to actually MATCH the content I'm replacing. Doing a Multi-Chunk replace might be safer if I was editing existing code, but here I am adding a new block. */}
-            {/* Let's use the END of the Review Dialog to insert the Notify Dialog */}
             <div className="flex flex-col items-center gap-2 mb-4">
               <label className="text-sm font-medium">Rating</label>
               <div className="flex gap-1">
@@ -685,11 +676,11 @@ const ProductDetail: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Video URL (Optional)</label>
-              <Input
+              <label className="text-sm font-medium">Add Video (Optional)</label>
+              <VideoUpload
                 value={reviewForm.video}
-                onChange={(e) => setReviewForm(prev => ({ ...prev, video: e.target.value }))}
-                placeholder="https://youtube.com/..."
+                onChange={(url) => setReviewForm(prev => ({ ...prev, video: url }))}
+                hidePreview={false}
               />
             </div>
           </div>
@@ -703,7 +694,6 @@ const ProductDetail: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Notify Me Dialog */}
       <Dialog open={isNotifyModalOpen} onOpenChange={setIsNotifyModalOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>

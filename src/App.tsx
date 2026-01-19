@@ -54,7 +54,6 @@ import AdminPress from "./pages/admin/Press";
 import AdminCareers from "./pages/admin/Careers";
 import AdminReviews from "./pages/admin/Reviews";
 import AdminAnalytics from "./pages/admin/Analytics";
-import AdminAnalytics from "./pages/admin/Analytics";
 
 import TermsAndConditions from "./pages/policies/TermsAndConditions";
 import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
@@ -123,19 +122,12 @@ const App = () => {
                       <Route path="/cart" element={<Cart />} />
 
                       {/* Content Pages */}
-                      {/* Content Pages */}
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogDetail />} />
                       <Route path="/press" element={<Press />} />
                       <Route path="/press/:slug" element={<PressDetail />} />
                       <Route path="/careers" element={<Careers />} />
                       <Route path="/careers/:id" element={<CareerDetail />} />
-
-                      import ProtectedRoute from "./components/auth/ProtectedRoute";
-
-                      // ... (imports remain the same)
-
-                      // ... (rest of the file until Routes)
 
                       {/* User */}
                       <Route path="/checkout" element={
@@ -172,6 +164,11 @@ const App = () => {
                       <Route path="/admin/dashboard" element={
                         <ProtectedRoute adminOnly module="orders" level="view">
                           <AdminDashboard />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/admin/analytics" element={
+                        <ProtectedRoute adminOnly module="orders" level="view">
+                          <AdminAnalytics />
                         </ProtectedRoute>
                       } />
                       <Route path="/admin/categories" element={

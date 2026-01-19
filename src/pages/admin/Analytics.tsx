@@ -3,7 +3,7 @@ import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { Loader2, TrendingUp, Users, ShoppingBag, IndianRupee, Package } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios';
@@ -33,29 +33,29 @@ const Analytics: React.FC = () => {
             const token = localStorage.getItem('mansara-token');
             const config = { headers: { Authorization: `Bearer ${token}` } };
 
+            // Fetch Dashboard Stats (for totals)
+            const statsRes = await axios.get(`${API_URL}/stats`, config);
+            const dashboardStats = statsRes.data;
+
+            setStats({
+                totalRevenue: dashboardStats.totalRevenue || 0,
+                totalOrders: dashboardStats.totalOrders || 0,
+                averageOrderValue: dashboardStats.totalOrders > 0 ? Math.round(dashboardStats.totalRevenue / dashboardStats.totalOrders) : 0,
+                totalCustomers: dashboardStats.totalCustomers || 0
+            });
+
             // Fetch Sales Data
-            const salesRes = await axios.get(`${API_URL}/stats/sales?days=${timeRange}`, config);
-            setSalesData(salesRes.data.sales || []);
-
-            // Calculate totals from sales data
-            const totalRev = salesRes.data.sales.reduce((acc: number, curr: any) => acc + curr.totalSales, 0);
-            const totalOrd = salesRes.data.sales.reduce((acc: number, curr: any) => acc + curr.totalOrders, 0);
-
-            setStats(prev => ({
-                ...prev,
-                totalRevenue: totalRev,
-                totalOrders: totalOrd,
-                averageOrderValue: totalOrd > 0 ? Math.round(totalRev / totalOrd) : 0
-            }));
+            // Backend expects 'period' query param like '30days'
+            const salesRes = await axios.get(`${API_URL}/stats/sales?period=${timeRange}days`, config);
+            setSalesData(salesRes.data || []);
 
             // Fetch Top Products
             const productsRes = await axios.get(`${API_URL}/stats/products?limit=5`, config);
-            setTopProducts(productsRes.data.products || []);
+            setTopProducts(productsRes.data || []);
 
             // Fetch Top Customers
             const customersRes = await axios.get(`${API_URL}/stats/customers?limit=5`, config);
-            setTopCustomers(customersRes.data.customers || []);
-            setStats(prev => ({ ...prev, totalCustomers: customersRes.data.totalCustomers || 0 }));
+            setTopCustomers(customersRes.data || []);
 
         } catch (error) {
             console.error('Error fetching analytics:', error);
@@ -240,7 +240,6 @@ const Analytics: React.FC = () => {
     );
 };
 
-// Helper for AreaChart since I used it above but didn't import it
-import { AreaChart, Area } from 'recharts';
+
 
 export default Analytics;
