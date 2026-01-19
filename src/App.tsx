@@ -53,6 +53,8 @@ import AdminBlog from "./pages/admin/Blog";
 import AdminPress from "./pages/admin/Press";
 import AdminCareers from "./pages/admin/Careers";
 import AdminReviews from "./pages/admin/Reviews";
+import AdminAnalytics from "./pages/admin/Analytics";
+import AdminAnalytics from "./pages/admin/Analytics";
 
 import TermsAndConditions from "./pages/policies/TermsAndConditions";
 import PrivacyPolicy from "./pages/policies/PrivacyPolicy";

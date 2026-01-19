@@ -19,6 +19,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import ImageUpload from "@/components/admin/ImageUpload";
+import VideoUpload from "@/components/admin/VideoUpload";
 import { MessageCircle } from 'lucide-react';
 
 const ProductDetail: React.FC = () => {
