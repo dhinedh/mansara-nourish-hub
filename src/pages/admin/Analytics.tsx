@@ -3,7 +3,7 @@ import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, Legend } from 'recharts';
 import { Loader2, TrendingUp, Users, ShoppingBag, IndianRupee, Package } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios';
@@ -22,6 +22,9 @@ const Analytics: React.FC = () => {
         averageOrderValue: 0,
         totalCustomers: 0
     });
+    const [categoryData, setCategoryData] = useState<any[]>([]);
+    const [paymentData, setPaymentData] = useState<any[]>([]);
+    const [stockData, setStockData] = useState<any>(null);
 
     useEffect(() => {
         fetchAnalytics();
@@ -56,6 +59,18 @@ const Analytics: React.FC = () => {
             // Fetch Top Customers
             const customersRes = await axios.get(`${API_URL}/stats/customers?limit=5`, config);
             setTopCustomers(customersRes.data || []);
+
+            // Fetch Category Sales
+            const categoryRes = await axios.get(`${API_URL}/stats/categories`, config);
+            setCategoryData(categoryRes.data || []);
+
+            // Fetch Payment Methods
+            const paymentRes = await axios.get(`${API_URL}/stats/payment-methods`, config);
+            setPaymentData(paymentRes.data || []);
+
+            // Fetch Stock Health
+            const stockRes = await axios.get(`${API_URL}/stats/stock-health`, config);
+            setStockData(stockRes.data || { inStock: 0, lowStock: 0, outOfStock: 0 });
 
         } catch (error) {
             console.error('Error fetching analytics:', error);
@@ -233,6 +248,105 @@ const Analytics: React.FC = () => {
                             </CardContent>
                         </Card>
 
+                    </div>
+
+                    {/* Advanced Analytics Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Category Sales */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Sales by Category</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-[250px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={categoryData}
+                                                dataKey="revenue"
+                                                nameKey="_id"
+                                                cx="50%"
+                                                cy="50%"
+                                                outerRadius={80}
+                                                label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                                            >
+                                                {categoryData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Revenue']} />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Payment Methods */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Payment Methods</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-[250px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={paymentData}
+                                                dataKey="count"
+                                                nameKey="_id"
+                                                cx="50%"
+                                                cy="50%"
+                                                outerRadius={80}
+                                                label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                                            >
+                                                {paymentData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip formatter={(value: number) => [value, 'Orders']} />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Stock Health */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Stock Health</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-[250px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={[
+                                                { name: 'In Stock', value: stockData?.inStock || 0, fill: '#22c55e' },
+                                                { name: 'Low Stock', value: stockData?.lowStock || 0, fill: '#eab308' },
+                                                { name: 'Out of Stock', value: stockData?.outOfStock || 0, fill: '#ef4444' }
+                                            ]}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                            <XAxis dataKey="name" />
+                                            <YAxis />
+                                            <Tooltip />
+                                            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                                                {
+                                                    [
+                                                        { name: 'In Stock', value: stockData?.inStock || 0, fill: '#22c55e' },
+                                                        { name: 'Low Stock', value: stockData?.lowStock || 0, fill: '#eab308' },
+                                                        { name: 'Out of Stock', value: stockData?.outOfStock || 0, fill: '#ef4444' }
+                                                    ].map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                                                    ))
+                                                }
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>
