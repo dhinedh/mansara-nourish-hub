@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, MessageCircle, Loader2, Package, Truck, CheckCircle, XCircle } from "lucide-react";
+import { Eye, MessageCircle, Loader2, Package, Truck, CheckCircle, XCircle, Star, Send } from "lucide-react";
 import api from '@/lib/api';
 
 interface Order {
@@ -73,6 +73,9 @@ const AdminOrders = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [confirmingOrderId, setConfirmingOrderId] = useState<string | null>(null);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [messageContent, setMessageContent] = useState("");
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -274,6 +277,41 @@ const AdminOrders = () => {
     const whatsappUrl = `https://wa.me/${phoneParam}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     toast.success("WhatsApp opened!");
+  };
+
+  const handleRequestReview = async (orderId: string) => {
+    try {
+      const token = localStorage.getItem('mansara-token');
+      await api.post(`/orders/${orderId}/notify/review`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Review request sent successfully");
+    } catch (error: any) {
+      console.error("Failed to send review request:", error);
+      toast.error(error.response?.data?.message || "Failed to send review request");
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!selectedOrder || !messageContent.trim()) return;
+
+    setSendingMessage(true);
+    try {
+      const token = localStorage.getItem('mansara-token');
+      await api.post(`/orders/${selectedOrder._id}/notify/message`, {
+        message: messageContent
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Message sent successfully (Email & WhatsApp)");
+      setMessageDialogOpen(false);
+      setMessageContent("");
+    } catch (error: any) {
+      console.error("Failed to send message:", error);
+      toast.error(error.response?.data?.message || "Failed to send message");
+    } finally {
+      setSendingMessage(false);
+    }
   };
 
   const statusOptions = [
@@ -625,40 +663,105 @@ const AdminOrders = () => {
               )}
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 border-t">
-                <PermissionGate module="orders" requiredLevel="limited">
-                  {selectedOrder.orderStatus === 'Ordered' && (
+              <div className="flex flex-col gap-3 pt-4 border-t">
+                <div className="flex gap-3">
+                  <PermissionGate module="orders" requiredLevel="limited">
+                    {selectedOrder.orderStatus === 'Ordered' && (
+                      <Button
+                        onClick={() => handleConfirmOrder(selectedOrder)}
+                        disabled={confirmingOrderId === selectedOrder._id}
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                      >
+                        {confirmingOrderId === selectedOrder._id ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Confirming...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Confirm Order & Notify
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </PermissionGate>
+
+                  <Button
+                    onClick={() => handleManualWhatsApp(selectedOrder)}
+                    variant="outline"
+                    className="flex-1 border-green-600 text-green-600 hover:bg-green-50"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    WhatsApp (Manual)
+                  </Button>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => setMessageDialogOpen(true)}
+                    variant="outline"
+                    className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Custom Message
+                  </Button>
+
+                  {selectedOrder.orderStatus === 'Delivered' && (
                     <Button
-                      onClick={() => handleConfirmOrder(selectedOrder)}
-                      disabled={confirmingOrderId === selectedOrder._id}
-                      className="flex-1 bg-green-600 hover:bg-green-700"
+                      onClick={() => handleRequestReview(selectedOrder._id)}
+                      variant="outline"
+                      className="flex-1 border-yellow-600 text-yellow-600 hover:bg-yellow-50"
                     >
-                      {confirmingOrderId === selectedOrder._id ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Confirming...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Confirm Order & Notify
-                        </>
-                      )}
+                      <Star className="h-4 w-4 mr-2" />
+                      Request Review
                     </Button>
                   )}
-                </PermissionGate>
-
-                <Button
-                  onClick={() => handleManualWhatsApp(selectedOrder)}
-                  variant="outline"
-                  className="flex-1 border-green-600 text-green-600 hover:bg-green-50"
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Send WhatsApp Message
-                </Button>
+                </div>
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Custom Message Dialog */}
+      <Dialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Message to Customer</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Message Content</Label>
+              <textarea
+                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="Type your message here..."
+                value={messageContent}
+                onChange={(e) => setMessageContent(e.target.value)}
+              />
+              <p className="text-xs text-slate-500">
+                This message will be sent via Email and WhatsApp.
+              </p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setMessageDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSendMessage} disabled={sendingMessage || !messageContent.trim()}>
+                {sendingMessage ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Message
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </AdminLayout>
