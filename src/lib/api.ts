@@ -570,6 +570,18 @@ export const cancelOrder = async (orderId: string) => {
     }
 };
 
+export const deleteOrder = async (orderId: string) => {
+    try {
+        const token = localStorage.getItem('mansara-token');
+        const response = await api.delete(`/orders/${orderId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to delete order');
+    }
+};
+
 // ========================================
 // USERS API
 // ========================================
@@ -1236,7 +1248,7 @@ export const deleteReview = async (id: string, token: string) => {
     return response.json();
 };
 
-export const sendContactForm = async (data: { name: string; email: string; subject: string; message: string }) => {
+export const sendContactForm = async (data: { name: string; email: string; subject: string; message: string; phone?: string }) => {
     const response = await fetch(`${API_URL}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

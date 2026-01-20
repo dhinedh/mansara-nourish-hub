@@ -27,8 +27,9 @@ const Contact: React.FC = () => {
       await sendContactForm({
         name: formData.name,
         email: formData.email,
+        phone: formData.phone,
         subject: `Start a Conversation: ${formData.name}`,
-        message: `${formData.message}\n\nPhone: ${formData.phone}`
+        message: formData.message
       });
 
       toast({

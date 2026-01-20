@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, MessageCircle, Loader2, Package, Truck, CheckCircle, XCircle, Star, Send } from "lucide-react";
+import { Eye, MessageCircle, Loader2, Package, Truck, CheckCircle, XCircle, Star, Send, Trash2 } from "lucide-react";
 import api from '@/lib/api';
 
 interface Order {
@@ -67,265 +67,379 @@ interface Order {
 }
 
 const AdminOrders = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
-  const [confirmingOrderId, setConfirmingOrderId] = useState<string | null>(null);
-  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+  return () => clearInterval(interval);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [messageContent, setMessageContent] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
 
-  useEffect(() => {
-    fetchOrders();
-    // Poll for new orders every 30 seconds
-    const interval = setInterval(fetchOrders, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem('mansara-token');
-      if (!token) {
-        toast.error("Please login to continue");
-        return;
-      }
-
-      const response = await api.get('/orders', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      console.log("Fetched Orders:", response.data);
-      setOrders(response.data.orders || response.data);
-    } catch (error: any) {
-      console.error("Failed to fetch orders:", error);
-      toast.error(error.response?.data?.message || "Failed to fetch orders");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleConfirmOrder = async (order: Order) => {
-    if (order.orderStatus !== 'Ordered') {
-      toast.error("Only orders with 'Ordered' status can be confirmed");
+const fetchOrders = async () => {
+  try {
+    const token = localStorage.getItem('mansara-token');
+    if (!token) {
+      toast.error("Please login to continue");
       return;
     }
 
-    setConfirmingOrderId(order._id);
-
-    try {
-      const token = localStorage.getItem('mansara-token');
-
-      // Calculate delivery date (4 days from now)
-      const deliveryDate = new Date();
-      deliveryDate.setDate(deliveryDate.getDate() + 4);
-
-      const response = await api.put(
-        `/orders/${order._id}/confirm`,
-        { estimatedDeliveryDate: deliveryDate.toISOString() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      toast.success('Order confirmed! Customer notified via WhatsApp');
-
-      // Update local state
-      setOrders(prev => prev.map(o =>
-        o._id === order._id ? { ...o, ...response.data } : o
-      ));
-
-      if (selectedOrder?._id === order._id) {
-        setSelectedOrder(response.data);
-      }
-
-      await fetchOrders(); // Refresh to get latest data
-    } catch (error: any) {
-      console.error('Failed to confirm order:', error);
-      toast.error(error.response?.data?.message || 'Failed to confirm order');
-    } finally {
-      setConfirmingOrderId(null);
-    }
-  };
-
-  const handleUpdateStatus = async (orderId: string, newStatus: string) => {
-    setUpdatingStatusId(orderId);
-
-    try {
-      const token = localStorage.getItem('mansara-token');
-
-      const response = await api.put(
-        `/orders/${orderId}/status`,
-        { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      toast.success(`Order status updated to ${newStatus}. Customer notified via WhatsApp`);
-
-      // Update local state
-      setOrders(prev => prev.map(o =>
-        o._id === orderId ? { ...o, ...response.data } : o
-      ));
-
-      if (selectedOrder?._id === orderId) {
-        setSelectedOrder(response.data);
-      }
-
-      await fetchOrders();
-    } catch (error: any) {
-      console.error('Failed to update status:', error);
-      toast.error(error.response?.data?.message || 'Failed to update order status');
-    } finally {
-      setUpdatingStatusId(null);
-    }
-  };
-
-  const handleUpdateFeedback = async (orderId: string, status: 'Received' | 'Not Received') => {
-    try {
-      const token = localStorage.getItem('mansara-token');
-      await api.put(
-        `/orders/${orderId}/feedback`,
-        { status },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      toast.success(`Feedback marked as ${status}`);
-
-      // Refresh orders to reflect changes (e.g. auto-close)
-      await fetchOrders();
-
-      // Update selected order if open
-      if (selectedOrder?._id === orderId) {
-        // Fetch updated single order or just patch local
-        // Re-fetch list is safer for side effects like status change
-        const updatedList = await api.get('/orders', { headers: { Authorization: `Bearer ${token}` } });
-        const updatedOrder = (updatedList.data.orders || updatedList.data).find((o: Order) => o._id === orderId);
-        if (updatedOrder) setSelectedOrder(updatedOrder);
-      }
-    } catch (error: any) {
-      console.error('Failed to update feedback:', error);
-      toast.error(error.response?.data?.message || 'Failed to update feedback');
-    }
-  };
-
-  const handleViewDetails = (order: Order) => {
-    setSelectedOrder(order);
-    setShowDetails(true);
-  };
-
-  const handleManualWhatsApp = (order: Order) => {
-    const whatsappNumber = order.deliveryAddress.whatsapp || order.user.whatsapp || order.deliveryAddress.phone || order.user.phone;
-
-    if (!whatsappNumber) {
-      toast.error("No WhatsApp number available for this customer");
-      return;
-    }
-
-    // Format delivery date
-    const deliveryDate = order.estimatedDeliveryDate
-      ? new Date(order.estimatedDeliveryDate)
-      : new Date(Date.now() + 4 * 24 * 60 * 60 * 1000);
-
-    const formattedDate = deliveryDate.toLocaleDateString('en-IN', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
+    const response = await api.get('/orders', {
+      headers: { Authorization: `Bearer ${token}` }
     });
 
-    // Construct WhatsApp message
-    const newLine = '\n';
-    const bold = (text: string) => `*${text}*`;
+    console.log("Fetched Orders:", response.data);
+    setOrders(response.data.orders || response.data);
+  } catch (error: any) {
+    console.error("Failed to fetch orders:", error);
+    toast.error(error.response?.data?.message || "Failed to fetch orders");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    let itemDetails = '';
-    order.items.forEach(item => {
-      itemDetails += `• ${item.quantity}x ${item.name} - ₹${item.price * item.quantity}${newLine}`;
-    });
+const handleConfirmOrder = async (order: Order) => {
+  if (order.orderStatus !== 'Ordered') {
+    toast.error("Only orders with 'Ordered' status can be confirmed");
+    return;
+  }
 
-    const statusMessage = order.orderStatus === 'Ordered'
-      ? '⏳ Waiting for Confirmation'
-      : order.orderStatus === 'Processing'
-        ? '✅ Order Confirmed'
-        : `📦 ${order.orderStatus}`;
+  setConfirmingOrderId(order._id);
 
-    const message = `${bold('Mansara Foods')} 🌿${newLine}${newLine}` +
-      `Hi ${order.user.name},${newLine}${newLine}` +
-      `${bold('Order Update')}${newLine}` +
-      `Order ID: ${order.orderId}${newLine}` +
-      `Status: ${statusMessage}${newLine}${newLine}` +
-      `${bold('Order Items:')}${newLine}` +
-      itemDetails +
-      `${newLine}${bold('Total:')} ₹${order.total}${newLine}` +
-      `${bold('Payment:')} ${order.paymentMethod}${newLine}${newLine}` +
-      (order.estimatedDeliveryDate
-        ? `${bold('Expected Delivery:')} ${formattedDate}${newLine}${newLine}`
-        : '') +
-      `Track: ${window.location.origin}/order-tracking/${order.orderId}${newLine}${newLine}` +
-      `Thank you for choosing Mansara Foods! 🙏`;
+  try {
+    const token = localStorage.getItem('mansara-token');
 
-    // Clean and format phone number
-    let phoneParam = whatsappNumber.replace(/\D/g, '');
+    // Calculate delivery date (4 days from now)
+    const deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 4);
 
-    if (phoneParam.length === 10) {
-      phoneParam = `91${phoneParam}`;
+    const response = await api.put(
+      `/orders/${order._id}/confirm`,
+      { estimatedDeliveryDate: deliveryDate.toISOString() },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    toast.success('Order confirmed! Customer notified via WhatsApp');
+
+    // Update local state
+    setOrders(prev => prev.map(o =>
+      o._id === order._id ? { ...o, ...response.data } : o
+    ));
+
+    if (selectedOrder?._id === order._id) {
+      setSelectedOrder(response.data);
     }
 
-    if (!phoneParam || phoneParam.length < 10) {
-      toast.error("Invalid WhatsApp number");
+    await fetchOrders(); // Refresh to get latest data
+  } catch (error: any) {
+    console.error('Failed to confirm order:', error);
+    toast.error(error.response?.data?.message || 'Failed to confirm order');
+  } finally {
+    setConfirmingOrderId(null);
+  }
+};
+
+const handleUpdateStatus = async (orderId: string, newStatus: string) => {
+  setUpdatingStatusId(orderId);
+
+  try {
+    const token = localStorage.getItem('mansara-token');
+
+    const response = await api.put(
+      `/orders/${orderId}/status`,
+      { status: newStatus },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    toast.success(`Order status updated to ${newStatus}. Customer notified via WhatsApp`);
+
+    // Update local state
+    setOrders(prev => prev.map(o =>
+      o._id === orderId ? { ...o, ...response.data } : o
+    ));
+
+    if (selectedOrder?._id === orderId) {
+      setSelectedOrder(response.data);
+    }
+
+    await fetchOrders();
+  } catch (error: any) {
+    console.error('Failed to update status:', error);
+    toast.error(error.response?.data?.message || 'Failed to update order status');
+  } finally {
+    setUpdatingStatusId(null);
+  }
+};
+
+const handleUpdateFeedback = async (orderId: string, status: 'Received' | 'Not Received') => {
+  try {
+    const token = localStorage.getItem('mansara-token');
+    await api.put(
+      `/orders/${orderId}/feedback`,
+      { status },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    toast.success(`Feedback marked as ${status}`);
+
+    // Refresh orders to reflect changes (e.g. auto-close)
+    await fetchOrders();
+
+    // Update selected order if open
+    if (selectedOrder?._id === orderId) {
+      // Fetch updated single order or just patch local
+      // Re-fetch list is safer for side effects like status change
+      const updatedList = await api.get('/orders', { headers: { Authorization: `Bearer ${token}` } });
+      const updatedOrder = (updatedList.data.orders || updatedList.data).find((o: Order) => o._id === orderId);
+      if (updatedOrder) setSelectedOrder(updatedOrder);
+    }
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
+
+const fetchOrders = async () => {
+  try {
+    const token = localStorage.getItem('mansara-token');
+    if (!token) {
+      toast.error("Please login to continue");
       return;
     }
 
-    const whatsappUrl = `https://wa.me/${phoneParam}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-    toast.success("WhatsApp opened!");
-  };
+    const response = await api.get('/orders', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-  const handleRequestReview = async (orderId: string) => {
-    try {
-      const token = localStorage.getItem('mansara-token');
-      await api.post(`/orders/${orderId}/notify/review`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success("Review request sent successfully");
-    } catch (error: any) {
-      console.error("Failed to send review request:", error);
-      toast.error(error.response?.data?.message || "Failed to send review request");
+    console.log("Fetched Orders:", response.data);
+    setOrders(response.data.orders || response.data);
+  } catch (error: any) {
+    console.error("Failed to fetch orders:", error);
+    toast.error(error.response?.data?.message || "Failed to fetch orders");
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleConfirmOrder = async (order: Order) => {
+  if (order.orderStatus !== 'Ordered') {
+    toast.error("Only orders with 'Ordered' status can be confirmed");
+    return;
+  }
+
+  setConfirmingOrderId(order._id);
+
+  try {
+    const token = localStorage.getItem('mansara-token');
+
+    // Calculate delivery date (4 days from now)
+    const deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 4);
+
+    const response = await api.put(
+      `/orders/${order._id}/confirm`,
+      { estimatedDeliveryDate: deliveryDate.toISOString() },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    toast.success('Order confirmed! Customer notified via WhatsApp');
+
+    // Update local state
+    setOrders(prev => prev.map(o =>
+      o._id === order._id ? { ...o, ...response.data } : o
+    ));
+
+    if (selectedOrder?._id === order._id) {
+      setSelectedOrder(response.data);
     }
-  };
 
-  const handleSendMessage = async () => {
-    if (!selectedOrder || !messageContent.trim()) return;
+    await fetchOrders(); // Refresh to get latest data
+  } catch (error: any) {
+    console.error('Failed to confirm order:', error);
+    toast.error(error.response?.data?.message || 'Failed to confirm order');
+  } finally {
+    setConfirmingOrderId(null);
+  }
+};
 
-    setSendingMessage(true);
+const handleUpdateStatus = async (orderId: string, newStatus: string) => {
+  setUpdatingStatusId(orderId);
+
+  try {
+    const token = localStorage.getItem('mansara-token');
+
+    const response = await api.put(
+      `/orders/${orderId}/status`,
+      { status: newStatus },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    toast.success(`Order status updated to ${newStatus}. Customer notified via WhatsApp`);
+
+    // Update local state
+    setOrders(prev => prev.map(o =>
+      o._id === orderId ? { ...o, ...response.data } : o
+    ));
+
+    if (selectedOrder?._id === orderId) {
+      setSelectedOrder(response.data);
+    }
+
+    await fetchOrders();
+  } catch (error: any) {
+    console.error('Failed to update status:', error);
+    toast.error(error.response?.data?.message || 'Failed to update order status');
+  } finally {
+    setUpdatingStatusId(null);
+  }
+};
+
+const handleUpdateFeedback = async (orderId: string, status: 'Received' | 'Not Received') => {
+  try {
+    const token = localStorage.getItem('mansara-token');
+    await api.put(
+      `/orders/${orderId}/feedback`,
+      { status },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    toast.success(`Feedback marked as ${status}`);
+
+    // Refresh orders to reflect changes (e.g. auto-close)
+    await fetchOrders();
+
+    // Update selected order if open
+    if (selectedOrder?._id === orderId) {
+      // Fetch updated single order or just patch local
+      // Re-fetch list is safer for side effects like status change
+      const updatedList = await api.get('/orders', { headers: { Authorization: `Bearer ${token}` } });
+      const updatedOrder = (updatedList.data.orders || updatedList.data).find((o: Order) => o._id === orderId);
+      if (updatedOrder) setSelectedOrder(updatedOrder);
+    }
+  } catch (error: any) {
+    console.error('Failed to update feedback:', error);
+    toast.error(error.response?.data?.message || 'Failed to update feedback');
+  }
+};
+
+  const handleDeleteOrder = async () => {
+    if (!orderToDelete) return;
+
+    setDeletingOrderId(orderToDelete._id);
     try {
-      const token = localStorage.getItem('mansara-token');
-      await api.post(`/orders/${selectedOrder._id}/notify/message`, {
-        message: messageContent
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success("Message sent successfully (Email & WhatsApp)");
-      setMessageDialogOpen(false);
-      setMessageContent("");
+      await api.deleteOrder(orderToDelete._id);
+      toast.success("Order deleted successfully");
+      
+      // Update local state
+      setOrders(prev => prev.filter(o => o._id !== orderToDelete._id));
+      
+      if (selectedOrder?._id === orderToDelete._id) {
+        setSelectedOrder(null);
+        setShowDetails(false);
+      }
+      
+      setDeleteDialogOpen(false);
+      setOrderToDelete(null);
     } catch (error: any) {
-      console.error("Failed to send message:", error);
-      toast.error(error.response?.data?.message || "Failed to send message");
+      console.error("Failed to delete order:", error);
+      toast.error(error.message || "Failed to delete order");
     } finally {
-      setSendingMessage(false);
+      setDeletingOrderId(null);
     }
   };
 
-  const statusOptions = [
-    { value: "Ordered", label: "Ordered", icon: Package },
-    { value: "Processing", label: "Processing", icon: Package },
-    { value: "Shipped", label: "Shipped", icon: Truck },
-    { value: "Out for Delivery", label: "Out for Delivery", icon: Truck },
-    { value: "Delivered", label: "Delivered", icon: CheckCircle },
-    { value: "Cancelled", label: "Cancelled", icon: Package }
-  ];
+  const confirmDelete = (order: Order) => {
+    setOrderToDelete(order);
+    setDeleteDialogOpen(true);
+  };
 
-  const getStatusBadge = (status: string) => {
-    const statusMap: any = {
-      "Ordered": "secondary",
+const handleViewDetails = (order: Order) => {
+  setSelectedOrder(order);
+  setShowDetails(true);
+};
+
+const handleManualWhatsApp = (order: Order) => {
+  const whatsappNumber = order.deliveryAddress.whatsapp || order.user.whatsapp || order.deliveryAddress.phone || order.user.phone;
+
+  if (!whatsappNumber) {
+    toast.error("No WhatsApp number available for this customer");
+    return;
+  }
+
+  // Format delivery date
+  const deliveryDate = order.estimatedDeliveryDate
+    ? new Date(order.estimatedDeliveryDate)
+    : new Date(Date.now() + 4 * 24 * 60 * 60 * 1000);
+
+  const formattedDate = deliveryDate.toLocaleDateString('en-IN', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  // Construct WhatsApp message
+  const newLine = '\n';
+  const bold = (text: string) => `*${text}*`;
+
+  let itemDetails = '';
+  order.items.forEach(item => {
+    itemDetails += `• ${item.quantity}x ${item.name} - ₹${item.price * item.quantity}${newLine}`;
+  });
+
+  const statusMessage = order.orderStatus === 'Ordered'
+    ? '⏳ Waiting for Confirmation'
+    : order.orderStatus === 'Processing'
+      ? '✅ Order Confirmed'
+      : `📦 ${order.orderStatus}`;
+
+  const message = `${bold('Mansara Foods')} 🌿${newLine}${newLine}` +
+    `Hi ${order.user.name},${newLine}${newLine}` +
+    `${bold('Order Update')}${newLine}` +
+    `Order ID: ${order.orderId}${newLine}` +
+    `Status: ${statusMessage}${newLine}${newLine}` +
+    `${bold('Order Items:')}${newLine}` +
+    itemDetails +
+    `${newLine}${bold('Total:')} ₹${order.total}${newLine}` +
+    `${bold('Payment:')} ${order.paymentMethod}${newLine}${newLine}` +
+    (order.estimatedDeliveryDate
+      ? `${bold('Expected Delivery:')} ${formattedDate}${newLine}${newLine}`
+      : '') +
+    `Track: ${window.location.origin}/order-tracking/${order.orderId}${newLine}${newLine}` +
+    `Thank you for choosing Mansara Foods! 🙏`;
+
+  // Clean and format phone number
+  let phoneParam = whatsappNumber.replace(/\D/g, '');
+
+  if (phoneParam.length === 10) {
+    phoneParam = `91${phoneParam}`;
+  }
+
+  if (!phoneParam || phoneParam.length < 10) {
+    toast.error("Invalid WhatsApp number");
+    return;
+  }
+
+  const whatsappUrl = `https://wa.me/${phoneParam}?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
+  toast.success("WhatsApp opened!");
+};
+
+const handleRequestReview = async (orderId: string) => {
+  try {
+    const token = localStorage.getItem('mansara-token');
+    await api.post(`/orders/${orderId}/notify/review`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    toast.success("Review request sent successfully");
+  } catch (error: any) {
+    console.error("Failed to send review request:", error);
+    toast.error(error.response?.data?.message || "Failed to send review request");
+  }
+};
+
+const handleSendMessage = async () => {
+  if (!selectedOrder || !messageContent.trim()) return;
+
+  setSendingMessage(true);
+  try {
+    const token = localStorage.getItem('mansara-token');
+    await api.post(`/orders/${selectedOrder._id}/notify/message`, {
       "Processing": "default",
       "Shipped": "default",
       "Out for Delivery": "default",
@@ -718,6 +832,20 @@ const AdminOrders = () => {
                     </Button>
                   )}
                 </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <PermissionGate module="orders" requiredLevel="full">
+                    <Button
+                      onClick={() => confirmDelete(selectedOrder)}
+                      variant="destructive"
+                      className="w-full"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Order
+                    </Button>
+                  </PermissionGate>
+                </div>
               </div>
             </div>
           )}
@@ -761,6 +889,43 @@ const AdminOrders = () => {
                 )}
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Order</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-slate-600">
+              Are you sure you want to delete order <span className="font-mono font-bold text-slate-900">{orderToDelete?.orderId}</span>?
+              This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteOrder}
+              disabled={!!deletingOrderId}
+            >
+              {deletingOrderId ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Order
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
