@@ -564,7 +564,7 @@ const ProductDetail: React.FC = () => {
                 </div>
 
                 {/* Reviews Section */}
-                <section className="mt-12 border-t pt-8">
+                <section id="reviews" className="mt-12 border-t pt-8">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold" style={{ color: '#1F2A7C' }}>Customer Reviews</h2>
                     {canReview && (
