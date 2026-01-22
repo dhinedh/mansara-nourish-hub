@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,17 +51,17 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
-  const StatCard = ({ icon: Icon, label, value }: any) => (
+  const StatCard = React.memo(({ icon: Icon, label, value }: any) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{label}</CardTitle>
         <Icon className="h-4 w-4 text-blue-600" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{loading ? "..." : value}</div>
+        <div className="text-2xl font-bold">{value}</div>
       </CardContent>
     </Card>
-  );
+  ));
 
   return (
     <AdminLayout>

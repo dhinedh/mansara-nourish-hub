@@ -40,3 +40,13 @@ export function calculateUnitPrice(price: number, weightStr?: string): string | 
 
   return `₹${unitPrice.toFixed(2)} / ${baseUnit}`;
 }
+
+export function optimizeImage(url: string, width: number = 500): string {
+  if (!url || !url.includes('cloudinary.com')) return url || "https://placehold.co/800x800/f5f5f5/999999?text=Product";
+
+  // Check if already optimized (has w_ or q_ or f_)
+  if (url.includes('/w_') || url.includes('/q_')) return url;
+
+  // Insert transformation params after /upload/
+  return url.replace('/upload/', `/upload/w_${width},q_auto,f_auto/`);
+}

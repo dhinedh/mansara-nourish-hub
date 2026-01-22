@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Zap } from 'lucide-react';
-import { calculateUnitPrice } from '@/lib/utils';
+import { calculateUnitPrice, optimizeImage } from '@/lib/utils';
 import { Product as DataProduct } from '@/data/products';
 import { Product as StoreProduct } from '@/context/StoreContext';
 import { useCart } from '@/context/CartContext';
@@ -22,7 +22,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const [adding, setAdding] = useState(false);
 
   // Normalize product data common fields
-  const imageUrl = product.image || (product as any).image_url || '';
+  const rawImage = product.image || (product as any).image_url || '';
+  const imageUrl = optimizeImage(rawImage, 400);
 
   // Determine effective stock
   const stock = product.stock;

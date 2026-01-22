@@ -14,6 +14,7 @@ const navLinks = [
   { name: 'Combos', path: '/combos' },
   { name: 'New Arrivals', path: '/new-arrivals' },
   { name: 'Products', path: '/products' },
+  { name: 'Track Order', path: '/orders' },
   { name: 'About', path: '/about' },
   { name: 'Contact', path: '/contact' },
 ];
