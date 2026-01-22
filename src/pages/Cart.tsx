@@ -102,9 +102,16 @@ const Cart: React.FC = () => {
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           {/* Initial Loading State */}
           {showInitialLoading ? (
-            <div className="text-center py-12">
-              <Loader2 className="h-12 w-12 animate-spin mx-auto text-brand-blue" />
-              <p className="mt-4 text-muted-foreground">Loading your cart...</p>
+            <div className="space-y-4 animate-pulse">
+              {[1, 2].map((i) => (
+                <div key={i} className="bg-card rounded-xl p-4 h-32 flex gap-4">
+                  <div className="w-24 h-24 bg-secondary rounded-lg"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-secondary rounded w-1/3"></div>
+                    <div className="h-4 bg-secondary rounded w-1/4"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : localItems.length === 0 ? (
             /* Empty Cart State */
