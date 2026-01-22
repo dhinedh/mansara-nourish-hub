@@ -209,19 +209,45 @@ const retryFetch = async <T,>(
 // STORE PROVIDER
 // ========================================
 
+// Minify product for storage to save space (avoid quota limit)
+const minifyProduct = (p: Product) => ({
+    id: p.id,
+    _id: p._id,
+    name: p.name,
+    slug: p.slug,
+    price: p.price,
+    offerPrice: p.offerPrice,
+    image: p.image,
+    category: p.category, // Normalized category string or ID
+    stock: p.stock,
+    isNewArrival: p.isNewArrival
+});
+
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // 1. INSTANT LOAD: Initialize with empty arrays (localStorage removed to prevent quota errors)
-    const [products, setProducts] = useState<Product[]>([]);
+    // 1. INSTANT LOAD: Initialize with cached mini-data (Stale-While-Revalidate pattern)
+    const [products, setProducts] = useState<Product[]>(() => {
+        try {
+            const saved = localStorage.getItem('mansara-mini-products');
+            return saved ? JSON.parse(saved) : [];
+        } catch { return []; }
+    });
+
     const [combos, setCombos] = useState<Combo[]>([]);
     const [categories, setCategories] = useState<Category[]>(() => {
         try {
             const saved = localStorage.getItem('mansara-categories');
-            const parsed = saved ? JSON.parse(saved) : [];
-            return Array.isArray(parsed) ? parsed : [];
+            return saved ? JSON.parse(saved) : [];
         } catch { return []; }
     });
 
-    const [isLoading, setIsLoading] = useState(true); // Always loading initially
+    // If we have products, we are NOT loading initially from user perspective
+    const [isLoading, setIsLoading] = useState(() => {
+        try {
+            const saved = localStorage.getItem('mansara-mini-products');
+            return !saved; // If saved data exists, not loading
+        } catch { return true; }
+    });
+
     const [error, setError] = useState<string | null>(null);
 
     // ========================================
@@ -229,7 +255,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // ========================================
 
     const fetchData = useCallback(async (forceRefresh = false) => {
-        // Don't show loading spinner if we already have data (Background Refresh)
+        // Only show spinner if we have absolutely no data
         if (products.length === 0) setIsLoading(true);
         setError(null);
 
@@ -273,7 +299,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             });
 
             setProducts(enhancedProducts);
-            // STORAGE QUOTA FIX: Removed localStorage.setItem('mansara-products', ...)
+
+            // 2. INSTANT LOAD: Persist minified data for next visit
+            try {
+                // @ts-ignore - minifyProduct is defined above StoreProvider
+                const minified = enhancedProducts.map(minifyProduct);
+                localStorage.setItem('mansara-mini-products', JSON.stringify(minified));
+            } catch (e) {
+                console.warn('[Store] LocalStorage quota exceeded, skipping cache');
+            }
 
             // Products are loaded, stop spinner!
             setIsLoading(false);

@@ -13,9 +13,16 @@ import { ContentProvider } from "./context/ContentContext";
 import { StoreProvider } from "./context/StoreContext";
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
-// Public Pages
-const Index = lazy(() => import("./pages/Index"));
-const Products = lazy(() => import("./pages/Products"));
+// Public Pages (Eager Load for Speed)
+import Index from "./pages/Index";
+import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
+import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
+import OrderTracking from "./pages/OrderTracking";
+import Checkout from "./pages/Checkout";
+
+// Secondary Pages (Lazy Load)
 const Offers = lazy(() => import("./pages/Offers"));
 const Combos = lazy(() => import("./pages/Combos"));
 const Blog = lazy(() => import("./pages/Blog"));
@@ -25,9 +32,6 @@ const PressDetail = lazy(() => import("./pages/PressDetail"));
 const Careers = lazy(() => import("./pages/Careers"));
 const CareerDetail = lazy(() => import("./pages/CareerDetail"));
 const NewArrivals = lazy(() => import("./pages/NewArrivals"));
-const ProductDetail = lazy(() => import("./pages/ProductDetail"));
-const Cart = lazy(() => import("./pages/Cart"));
-const Checkout = lazy(() => import("./pages/Checkout"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -36,8 +40,6 @@ const Register = lazy(() => import("./pages/Register"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const Account = lazy(() => import("./pages/Account"));
-const Orders = lazy(() => import("./pages/Orders"));
-const OrderTracking = lazy(() => import("./pages/OrderTracking"));
 
 // Admin Pages
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
