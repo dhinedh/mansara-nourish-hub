@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Package, ChevronRight, ArrowLeft } from 'lucide-react';
-import ReviewModal from '@/components/reviews/ReviewModal';
+
 
 const Orders: React.FC = () => {
     const navigate = useNavigate();
@@ -13,18 +13,7 @@ const Orders: React.FC = () => {
     const [orders, setOrders] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
 
-    // Review Modal State
-    const [isReviewModalOpen, setIsReviewModalOpen] = React.useState(false);
-    const [reviewProduct, setReviewProduct] = React.useState<{ id: string, name: string, image: string } | null>(null);
 
-    const handleOpenReview = (product: any) => {
-        setReviewProduct({
-            id: product.product || product._id || product.id,
-            name: product.name,
-            image: product.image
-        });
-        setIsReviewModalOpen(true);
-    };
 
     React.useEffect(() => {
         if (!isAuthenticated) {
@@ -114,12 +103,12 @@ const Orders: React.FC = () => {
                                                             )}
                                                         </span>
                                                     </p>
-                                                    {order.orderStatus === 'Delivered' && (
+                                                    {order.orderStatus === 'Delivered' && item.product && item.product.slug && (
                                                         <Button
                                                             variant="link"
                                                             size="sm"
                                                             className="h-auto p-0 text-primary"
-                                                            onClick={() => handleOpenReview(item)}
+                                                            onClick={() => navigate(`/product/${item.product.slug}#reviews`)}
                                                         >
                                                             Write Review
                                                         </Button>
@@ -139,18 +128,9 @@ const Orders: React.FC = () => {
                     </div>
                 )}
             </div>
-
-            {reviewProduct && (
-                <ReviewModal
-                    isOpen={isReviewModalOpen}
-                    onClose={() => setIsReviewModalOpen(false)}
-                    productId={reviewProduct.id}
-                    productName={reviewProduct.name}
-                    productImage={reviewProduct.image}
-                />
-            )}
         </div>
     );
 };
+
 
 export default Orders;

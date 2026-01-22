@@ -36,9 +36,12 @@ const OrderTracking: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="container mx-auto px-4 py-8 text-center">
-                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p>Loading order details...</p>
+            <div className="container mx-auto px-4 py-8">
+                <div className="max-w-3xl mx-auto space-y-6 animate-pulse">
+                    <div className="h-8 bg-slate-200 rounded w-48 mb-6"></div>
+                    <div className="bg-slate-100 h-64 rounded-xl"></div>
+                    <div className="bg-slate-100 h-40 rounded-xl"></div>
+                </div>
             </div>
         );
     }

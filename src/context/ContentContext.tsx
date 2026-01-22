@@ -143,10 +143,28 @@ let fetchInProgress: Promise<any> | null = null;
 // OPTIMIZED CONTENT PROVIDER
 // ========================================
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [contents, setContents] = useState<PageContent[]>(DEFAULT_CONTENT);
-    const [banners, setBanners] = useState<Banner[]>([]);
-    const [settings, setSettings] = useState<any>({});
-    const [isLoading, setIsLoading] = useState(true);
+    // 1. INSTANT LOAD: Initialize with cached data directly
+    const getInitialState = (key: string, defaultVal: any) => {
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const { data } = JSON.parse(cached);
+                return data[key] || defaultVal;
+            }
+        } catch { }
+        return defaultVal;
+    };
+
+    const [contents, setContents] = useState<PageContent[]>(() => getInitialState('contents', DEFAULT_CONTENT));
+    const [banners, setBanners] = useState<Banner[]>(() => getInitialState('banners', []));
+    const [settings, setSettings] = useState<any>(() => getInitialState('settings', {}));
+
+    // Only loading if NO data exists at all
+    const [isLoading, setIsLoading] = useState(() => {
+        try {
+            return !localStorage.getItem(CACHE_KEY);
+        } catch { return true; }
+    });
 
     // ========================================
     // FETCH AND CACHE
@@ -229,41 +247,43 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // ========================================
     // LOAD DATA WITH SMART CACHING
     // ========================================
+    // ========================================
+    // LOAD DATA WITH SMART CACHING
+    // ========================================
     const loadData = useCallback(async () => {
-        setIsLoading(true);
+        // NOTE: State is already initialized from cache in useState above.
+        // We only need to check if we should refresh content.
 
         try {
-            // Check cache first
             const cached = getCachedData();
 
             if (cached) {
-                const { data, isFresh, isStale } = cached;
-
-                // Use cached data immediately
-                setBanners(data.banners || []);
-                setContents(data.contents || DEFAULT_CONTENT);
-                setSettings(data.settings || {});
-                setIsLoading(false);
+                const { isFresh, isStale } = cached;
 
                 if (isFresh) {
-                    console.log('[Content] ✓ Loaded from fresh cache');
+                    console.log('[Content] ✓ Data is fresh');
+                    // Ensure loading is false (should be already, but just in case)
+                    setIsLoading(false);
                     return;
-                } else if (isStale) {
-                    console.log('[Content] ⚠ Loaded from stale cache, refreshing in background');
-                    // Fetch in background
-                    fetchAndCache(false);
-                } else {
-                    console.log('[Content] ⚠ Cache expired, fetching new data');
-                    await fetchAndCache(false);
                 }
-            } else {
-                console.log('[Content] No cache, fetching from API');
-                await fetchAndCache(true);
+
+                if (isStale) {
+                    console.log('[Content] ⚠ Data is stale, refreshing in background...');
+                    // Background refresh - don't show spinner
+                    fetchAndCache(false);
+                    return;
+                }
             }
+
+            // If we are here, cache is missing or very old
+            // We only show loading if we don't have ANY data in state (which we might if cache read failed partially but init succeeded?)
+            // Actually, if cache is missing, init set isLoading=true.
+
+            console.log('[Content] Fetching fresh data...');
+            await fetchAndCache(true);
 
         } catch (error) {
             console.error('[Content] ✗ Load error:', error);
-        } finally {
             setIsLoading(false);
         }
     }, [fetchAndCache]);

@@ -21,10 +21,10 @@ import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import OrderTracking from "./pages/OrderTracking";
 import Checkout from "./pages/Checkout";
+import Offers from "./pages/Offers";
+import Combos from "./pages/Combos";
 
 // Secondary Pages (Lazy Load)
-const Offers = lazy(() => import("./pages/Offers"));
-const Combos = lazy(() => import("./pages/Combos"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogDetail = lazy(() => import("./pages/BlogDetail"));
 const Press = lazy(() => import("./pages/Press"));
