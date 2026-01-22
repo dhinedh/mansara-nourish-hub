@@ -93,6 +93,12 @@ const OrderTracking: React.FC = () => {
                             <p className="text-muted-foreground text-sm">Payment Method</p>
                             <p className="font-bold">{order.paymentMethod}</p>
                         </div>
+                        {order.trackingNumber && (
+                            <div>
+                                <p className="text-muted-foreground text-sm">Tracking Number</p>
+                                <p className="font-bold">{order.trackingNumber} <span className="text-xs text-muted-foreground">({order.courier || 'Courier'})</span></p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="mt-6 pt-6 border-t border-border">

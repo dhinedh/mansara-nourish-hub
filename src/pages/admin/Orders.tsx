@@ -64,6 +64,8 @@ interface Order {
   createdAt: string;
   updatedAt: string;
   feedbackStatus?: 'Pending' | 'Received' | 'Not Received';
+  trackingNumber?: string;
+  courier?: string;
 }
 
 const AdminOrders = () => {
@@ -73,6 +75,7 @@ const AdminOrders = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [confirmingOrderId, setConfirmingOrderId] = useState<string | null>(null);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+  const [shippingOrderId, setShippingOrderId] = useState<string | null>(null);
 
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [messageContent, setMessageContent] = useState("");
@@ -156,6 +159,30 @@ const AdminOrders = () => {
       toast.error(error.response?.data?.message || 'Failed to confirm order');
     } finally {
       setConfirmingOrderId(null);
+    }
+  };
+
+  const handleShipOrder = async (order: Order) => {
+    setShippingOrderId(order._id);
+    try {
+      const token = localStorage.getItem('mansara-token');
+      await api.post(`/orders/${order._id}/ship`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Shipment created with iCarry!");
+
+      // Refresh
+      await fetchOrders();
+      if (selectedOrder?._id === order._id) {
+        // Ideally fetch single, but this works
+        setSelectedOrder(prev => prev ? ({ ...prev, orderStatus: 'Shipped' }) : null);
+      }
+
+    } catch (error: any) {
+      console.error('Failed to ship order:', error);
+      toast.error(error.response?.data?.message || 'Failed to create shipment');
+    } finally {
+      setShippingOrderId(null);
     }
   };
 
@@ -525,6 +552,18 @@ const AdminOrders = () => {
                         </span>
                       </div>
                     )}
+                    {(selectedOrder as any).trackingNumber && (
+                      <>
+                        <div className="flex justify-between border-t pt-2 mt-2">
+                          <span className="text-slate-600">Tracking #:</span>
+                          <span className="font-mono font-medium">{(selectedOrder as any).trackingNumber}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Courier:</span>
+                          <span>{(selectedOrder as any).courier || 'iCarry'}</span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -705,6 +744,28 @@ const AdminOrders = () => {
                           <>
                             <CheckCircle className="h-4 w-4 mr-2" />
                             Confirm Order & Notify
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </PermissionGate>
+
+                  <PermissionGate module="orders" requiredLevel="limited">
+                    {selectedOrder.orderStatus === 'Processing' && (
+                      <Button
+                        onClick={() => handleShipOrder(selectedOrder)}
+                        disabled={shippingOrderId === selectedOrder._id}
+                        className="flex-1 bg-purple-600 hover:bg-purple-700"
+                      >
+                        {shippingOrderId === selectedOrder._id ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Shipping...
+                          </>
+                        ) : (
+                          <>
+                            <Truck className="h-4 w-4 mr-2" />
+                            Ship with iCarry
                           </>
                         )}
                       </Button>
