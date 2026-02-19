@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Zap } from 'lucide-react';
 import { calculateUnitPrice, optimizeImage } from '@/lib/utils';
+import ProgressiveImage from '@/components/ui/ProgressiveImage';
 import { Product as DataProduct } from '@/data/products';
 import { Product as StoreProduct } from '@/context/StoreContext';
 import { useCart } from '@/context/CartContext';
@@ -119,16 +120,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
       className="group bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 border border-transparent hover:border-black/5"
     >
       <div className="relative overflow-hidden aspect-square">
-        <img
+        <ProgressiveImage
           src={imageUrl}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            if (!target.src.includes('placeholder')) {
-              target.src = "https://placehold.co/800x800/f5f5f5/999999?text=Product";
-            }
-          }}
+          placeholder="/placeholder.svg"
         />
         {showBadge && (
           <>
