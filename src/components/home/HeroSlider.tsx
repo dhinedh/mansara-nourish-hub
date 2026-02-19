@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHeroContent } from '@/hooks/useHeroContent';
+import ProgressiveImage from '@/components/ui/ProgressiveImage';
 
 const HeroSlider: React.FC = () => {
     const { heroConfig } = useHeroContent();
@@ -71,19 +72,21 @@ const HeroSlider: React.FC = () => {
                     {/* Background Image - Clickable if link exists */}
                     {slide.ctaLink ? (
                         <Link to={slide.ctaLink} className="absolute inset-0 cursor-pointer block">
-                            <img
+                            <ProgressiveImage
                                 src={slide.image}
                                 alt={slide.title}
                                 className="w-full h-full object-fill md:object-cover"
+                                placeholder="/placeholder.svg"
                             />
                             <div className="absolute inset-0 bg-black/10" />
                         </Link>
                     ) : (
                         <div className="absolute inset-0">
-                            <img
+                            <ProgressiveImage
                                 src={slide.image}
                                 alt={slide.title}
                                 className="w-full h-full object-fill md:object-cover"
+                                placeholder="/placeholder.svg"
                             />
                             <div className="absolute inset-0 bg-black/10" />
                         </div>

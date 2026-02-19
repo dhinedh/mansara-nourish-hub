@@ -6,6 +6,7 @@ import PageHero from '@/components/layout/PageHero';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import ProgressiveImage from '@/components/ui/ProgressiveImage';
 
 // ========================================
 // OPTIMIZED CART PAGE
@@ -152,11 +153,11 @@ const Cart: React.FC = () => {
 
                     {/* Product Image */}
                     <div className="w-24 h-24 bg-secondary rounded-lg overflow-hidden flex-shrink-0">
-                      <img
+                      <ProgressiveImage
                         src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover"
-                        loading="lazy"
+                        placeholder="/placeholder.svg"
                       />
                     </div>
 

@@ -10,6 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { fetchProductReviews, checkReviewEligibility, createReview, notifyMe, deleteReview } from '@/lib/api';
 import { calculateUnitPrice } from '@/lib/utils';
+import ProgressiveImage from '@/components/ui/ProgressiveImage';
 import {
   Dialog,
   DialogContent,
@@ -296,16 +297,11 @@ const ProductDetail: React.FC = () => {
               {/* Product Image Gallery - Sticky */}
               <div className="lg:sticky lg:top-24 space-y-4">
                 <div className="aspect-square rounded-xl overflow-hidden bg-gray-50 border">
-                  <img
+                  <ProgressiveImage
                     src={selectedImage || product.image}
                     alt={product.name}
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (!target.src.includes('placeholder')) {
-                        target.src = "https://placehold.co/800x800/f5f5f5/999999?text=Product+Image";
-                      }
-                    }}
+                    placeholder="/placeholder.svg"
                   />
                 </div>
                 {/* Thumbnails */}
@@ -318,7 +314,7 @@ const ProductDetail: React.FC = () => {
                         className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImage === img ? 'border-[#1F2A7C]' : 'border-transparent hover:border-gray-300'
                           }`}
                       >
-                        <img src={img} alt={`View ${idx + 1}`} className="w-full h-full object-cover" />
+                        <ProgressiveImage src={img} alt={`View ${idx + 1}`} className="w-full h-full object-cover" placeholder="/placeholder.svg" />
                       </button>
                     ))}
                   </div>
