@@ -19,7 +19,7 @@ export interface Product {
     _id?: string;
     slug: string;
     name: string;
-    category: string;
+    category: "porridge-mixes" | "oil-ghee" | "health-drink-mixes";
     categoryId?: string; // For storing the actual ObjectId
     price: number;
     offerPrice?: number;

@@ -2,7 +2,7 @@ export interface Product {
   id: string;
   slug: string;
   name: string;
-  category: "porridge-mixes" | "oil-ghee";
+  category: "porridge-mixes" | "oil-ghee" | "health-drink-mixes";
   price: number;
   offerPrice?: number;
   image: string;
@@ -243,6 +243,37 @@ export const products: Product[] = [
     isNewArrival: false,
     isFeatured: true,
     stock: 30
+  },
+  {
+    id: "11",
+    slug: "ragi-choco-malt",
+    name: "Ragi Choco Malt",
+    category: "health-drink-mixes",
+    price: 180,
+    offerPrice: 180,
+    weight: "250g",
+    image: "https://images.unsplash.com/photo-1542990253-a781e5e41602?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    description: "A nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa. Specially formulated for daily energy and growth.",
+    highlights: [
+      "No preservatives",
+      "Millet-based with natural cocoa",
+      "Rich in calcium",
+      "Kids friendly (2+ years)"
+    ],
+    ingredients: "Ragi (Finger Millet), Brown Sugar, Cocoa Powder, Cashew Nuts, Almonds, Dry Ginger, Cardamom, Saffron",
+    howToUse: "Mix 2 tbsp with milk or water. Cook on low flame with continuous stirring until smooth. Add sugar if required. Serve warm or cold.",
+    storage: "Store in a cool, dry place. Keep airtight after opening.",
+    isOffer: false,
+    isNewArrival: true,
+    isFeatured: true,
+    stock: 100,
+    variants: [
+      {
+        weight: "250g",
+        price: 180,
+        stock: 100
+      }
+    ]
   }
 ];
 
