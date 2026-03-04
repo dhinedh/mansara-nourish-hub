@@ -252,7 +252,7 @@ export const products: Product[] = [
     price: 180,
     offerPrice: 180,
     weight: "250g",
-    image: "https://images.unsplash.com/photo-1542990253-a781e5e41602?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    image: "/products/ragi-choco-malt-front.jpg",
     description: "A nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa. Specially formulated for daily energy and growth.",
     highlights: [
       "No preservatives",

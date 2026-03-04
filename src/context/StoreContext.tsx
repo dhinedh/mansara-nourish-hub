@@ -371,7 +371,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 // It's a slug, convert to ID
                 const categoryId = getCategoryIdBySlug(productData.category);
                 if (categoryId) {
-                    categoryToSend = categoryId;
+                    categoryToSend = categoryId as any;
                 }
             }
 
@@ -423,11 +423,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 if (!updates.category.match(/^[0-9a-fA-F]{24}$/)) {
                     const categoryId = getCategoryIdBySlug(updates.category);
                     if (categoryId) {
-                        updatesToSend.category = categoryId;
+                        updatesToSend.category = categoryId as any;
                     }
                 } else if (updates.categoryId) {
                     // Use categoryId if available
-                    updatesToSend.category = updates.categoryId;
+                    updatesToSend.category = updates.categoryId as any;
                 }
             }
 
