@@ -260,9 +260,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             console.log('[Store] Fetching data...');
 
             // OPTIMIZATION: Start all fetches in parallel, but handle products FIRST
-            const productsPromise = retryFetch(() => fetchProducts());
-            const combosPromise = retryFetch(() => fetchCombos());
-            const categoriesPromise = retryFetch(() => getCategories());
+            const productsPromise = retryFetch(() => fetchProducts(forceRefresh));
+            const combosPromise = retryFetch(() => fetchCombos(forceRefresh));
+            const categoriesPromise = retryFetch(() => getCategories(forceRefresh));
 
             // 1. Wait for Products (Critical) and update UI immediately
             console.log('[Store] Awaiting products...');

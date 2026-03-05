@@ -207,10 +207,14 @@ export const cancelAllRequests = () => {
 // PRODUCTS API
 // ========================================
 
-export const fetchProducts = async () => {
-    return dedupedFetch('products', async () => {
+export const fetchProducts = async (noCache = false) => {
+    return dedupedFetch(noCache ? 'products-nocache' : 'products', async () => {
         // Fetch all products (up to 1000) to ensure client-side search/filtering works
-        const response = await fetch(`${API_URL}/products?limit=1000`);
+        const url = noCache
+            ? `${API_URL}/products?limit=1000&_t=${Date.now()}`
+            : `${API_URL}/products?limit=1000`;
+
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
         return data.products || data;
@@ -318,9 +322,13 @@ export const verifyPayment = async (data: any) => {
 };
 
 
-export const fetchCombos = async () => {
-    return dedupedFetch('combos', async () => {
-        const response = await fetch(`${API_URL}/combos`);
+export const fetchCombos = async (noCache = false) => {
+    return dedupedFetch(noCache ? 'combos-nocache' : 'combos', async () => {
+        const url = noCache
+            ? `${API_URL}/combos?_t=${Date.now()}`
+            : `${API_URL}/combos`;
+
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch combos');
         const data = await response.json();
         return data.combos || data;
@@ -385,9 +393,13 @@ export const deleteCombo = async (id: string, token: string) => {
 // CATEGORIES API
 // ========================================
 
-export const getCategories = async () => {
-    return dedupedFetch('categories', async () => {
-        const response = await fetch(`${API_URL}/categories`);
+export const getCategories = async (noCache = false) => {
+    return dedupedFetch(noCache ? 'categories-nocache' : 'categories', async () => {
+        const url = noCache
+            ? `${API_URL}/categories?_t=${Date.now()}`
+            : `${API_URL}/categories`;
+
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch categories');
         return response.json();
     });
