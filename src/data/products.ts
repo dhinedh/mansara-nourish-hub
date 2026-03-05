@@ -17,6 +17,7 @@ export interface Product {
   isOffer: boolean;
   isNewArrival: boolean;
   isFeatured: boolean;
+  isActive?: boolean;
   stock?: number;
   highlights?: string[];
   nutrition?: string;
@@ -112,7 +113,8 @@ export const products: Product[] = [
     ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: false
+    isFeatured: false,
+    isActive: true
   },
   {
     id: "69a83fe61c2c00db0a9ba528",
@@ -137,7 +139,8 @@ export const products: Product[] = [
     ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: false
+    isFeatured: false,
+    isActive: true
   },
   {
     id: "69a83fe61c2c00db0a9ba529",
@@ -162,7 +165,8 @@ export const products: Product[] = [
     ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: false
+    isFeatured: false,
+    isActive: true
   },
   {
     id: "69a83fe61c2c00db0a9ba52a",
@@ -187,7 +191,8 @@ export const products: Product[] = [
     ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: false
+    isFeatured: false,
+    isActive: true
   },
   {
     id: "69a83fe61c2c00db0a9ba52b",
@@ -212,7 +217,8 @@ export const products: Product[] = [
     ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: false
+    isFeatured: false,
+    isActive: true
   },
   {
     id: "69a83fe71c2c00db0a9ba52c",
@@ -237,7 +243,8 @@ export const products: Product[] = [
     ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: false
+    isFeatured: false,
+    isActive: true
   },
   {
     id: "69a83fe71c2c00db0a9ba52d",
@@ -262,7 +269,8 @@ export const products: Product[] = [
     ],
     isOffer: false,
     isNewArrival: true,
-    isFeatured: true
+    isFeatured: true,
+    isActive: true
   },
   {
     id: "69a8face2fef7ae403186838",
@@ -284,7 +292,8 @@ export const products: Product[] = [
     weight: "1kg (5 x 200g)",
     isOffer: true,
     isNewArrival: false,
-    isFeatured: true
+    isFeatured: true,
+    isActive: true
   }
 ];
 
@@ -324,7 +333,7 @@ export const getOfferProducts = (): Product[] => {
 };
 
 export const getNewArrivals = (): Product[] => {
-  return products.filter(p => p.isNewArrival);
+  return products.filter(p => p.slug === 'ragi-choco-malt');
 };
 
 export const getProductsByCategory = (category: string): Product[] => {

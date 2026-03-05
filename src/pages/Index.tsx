@@ -36,7 +36,7 @@ const Index: React.FC = () => {
   );
 
   const newArrivals = useMemo(() =>
-    products.filter(p => p.slug === 'ragi-choco-malt' && p.isActive),
+    products.filter(p => p.slug === 'ragi-choco-malt'),
     [products]
   );
 
@@ -57,7 +57,7 @@ const Index: React.FC = () => {
             </h2>
             <div className="w-20 h-1 bg-brand-orange mx-auto rounded-full mb-4" />
             <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto px-4 leading-relaxed">
-              Check out the latest additions to the Mansara family
+              Introducing our nutritious and delicious Ragi Choco Malt
             </p>
           </div>
 
@@ -67,17 +67,15 @@ const Index: React.FC = () => {
             </div>
           ) : newArrivals.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                {newArrivals.map((product, index) => (
-                  <div key={product.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.15}s` }}>
-                    <ProductCard product={product} />
-                  </div>
-                ))}
+              <div className="flex justify-center max-w-lg mx-auto">
+                <div className="w-full animate-fade-in-up">
+                  <ProductCard product={newArrivals[0]} />
+                </div>
               </div>
               <div className="text-center mt-10 sm:mt-12">
                 <Link to="/new-arrivals">
                   <Button variant="outline" size="lg" className="text-sm sm:text-base px-8 py-6 rounded-full border-2 hover:bg-brand-orange hover:text-white hover:border-brand-orange transition-all duration-300 shadow-sm hover:shadow-lg btn-shine group">
-                    View All New Arrivals
+                    Learn More About Ragi Choco Malt
                     <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>

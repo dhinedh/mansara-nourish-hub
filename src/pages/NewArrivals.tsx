@@ -26,7 +26,7 @@ const NewArrivals: React.FC = () => {
 
   // Memoize filtering to prevent recalculation
   const newProducts = useMemo(() =>
-    products.filter(p => p.slug === 'ragi-choco-malt' && p.isActive),
+    products.filter(p => p.slug === 'ragi-choco-malt'),
     [products]
   );
 
@@ -34,8 +34,8 @@ const NewArrivals: React.FC = () => {
     <Layout>
       {/* Hero Banner */}
       <PageHero pageKey="newArrivals" className="py-24 md:py-36">
-        <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-sm font-bold mb-6 shadow-sm border border-white/30">
-          Fresh Additions
+        <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-sm font-bold mb-6 shadow-sm border border-white/30 lowercase italic">
+          #NewArrival
         </span>
       </PageHero>
 
@@ -45,22 +45,16 @@ const NewArrivals: React.FC = () => {
           {isLoading ? (
             // Loading State
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              {[1, 2, 3, 4].map((i) => (
                 <ProductSkeleton key={i} />
               ))}
             </div>
           ) : newProducts.length > 0 ? (
             // Products Grid
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {newProducts.map((product, index) => (
-                <div
-                  key={product.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <ProductCard product={product} showBadge={true} />
-                </div>
-              ))}
+            <div className="flex justify-center max-w-lg mx-auto">
+              <div className="w-full animate-fade-in">
+                <ProductCard product={newProducts[0]} showBadge={true} />
+              </div>
             </div>
           ) : (
             // Empty State

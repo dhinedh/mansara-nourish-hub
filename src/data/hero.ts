@@ -53,8 +53,8 @@ export const heroConfig: HeroConfig = {
     ],
     newArrivals: {
         image: '/hero-new-arrivals.png',
-        title: 'Fresh Additions',
-        subtitle: 'Discover the latest from the Mansara kitchen.'
+        title: 'New Launch: Ragi Choco Malt',
+        subtitle: 'The perfect blend of tradition and taste. Nutritious Ragi meets premium Cocoa.'
     },
     offers: {
         image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
