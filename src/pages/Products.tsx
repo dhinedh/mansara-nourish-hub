@@ -40,16 +40,24 @@ const Products: React.FC = () => {
 
       if (categoryObj) {
         result = result.filter((p) => {
+          // Check if product is active
+          if (p.isActive === false) return false;
+
           // Handle both unpopulated (ID string) and populated (Object) category field
-          const pCatId = p.category && typeof p.category === 'object' ? p.category?._id || p.category?.id : p.category;
-          return pCatId === categoryObj.id || pCatId === categoryObj._id;
+          const category = p.category;
+          const pCatId = category && typeof category === 'object' ? (category as any)?._id || (category as any)?.id : category;
+
+          // Match against category ID or Slug/Value
+          return (
+            pCatId === categoryObj.id ||
+            pCatId === categoryObj._id ||
+            category === selectedCategory ||
+            p.categoryId === categoryObj.id
+          );
         });
       } else {
-        // Fallback: If no category found (maybe data mismatch), try matching by string if p.category is slug (unlikely)
-        // or just return empty/all? Better to return empty if category explicitly selected but not found.
-        // But for now, let's assume if categoryObj is missing, maybe it's an ID passed as value?
-        // Let's also check if selectedCategory matches p.category directly
-        result = result.filter(p => p.category === selectedCategory);
+        // Fallback: match by string directly if no category object found
+        result = result.filter(p => (p.isActive !== false) && (p.category === selectedCategory || p.categoryId === selectedCategory));
       }
     }
 
