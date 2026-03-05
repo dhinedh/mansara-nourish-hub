@@ -222,6 +222,8 @@ const minifyProduct = (p: Product) => ({
     slug: p.slug,
     price: p.price,
     offerPrice: p.offerPrice,
+    originalPrice: (p as any).originalPrice,
+    isOffer: p.isOffer,
     image: p.image,
     category: p.category, // Normalized category string or ID
     stock: p.stock,
@@ -325,6 +327,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     ...staticP, // Use static details as base
                     id: apiP.id || apiP._id || staticP.id,
                     _id: apiP._id || apiP.id,
+                    price: apiP.price || staticP.price,
+                    offerPrice: apiP.offerPrice !== undefined ? apiP.offerPrice : staticP.offerPrice,
+                    originalPrice: apiP.originalPrice || apiP.price || staticP.price,
+                    isOffer: apiP.isOffer !== undefined ? apiP.isOffer : staticP.isOffer,
                     stock: apiP.stock,
                     variants: apiP.variants || staticP.variants,
                     isActive: apiP.isActive !== undefined ? apiP.isActive : true,

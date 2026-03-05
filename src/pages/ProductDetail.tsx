@@ -285,7 +285,9 @@ const ProductDetail: React.FC = () => {
   const unitPrice = calculateUnitPrice(displayPrice, displayWeight);
 
   // Determine current stock for display
-  const currentStock = product.stock;
+  const currentStock = selectedVariant && selectedVariant.stock !== undefined
+    ? selectedVariant.stock
+    : product.stock;
 
   return (
     <Layout>

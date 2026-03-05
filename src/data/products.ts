@@ -127,7 +127,7 @@ export const products: Product[] = [
     offerPrice: 70,
     image: "/products/urad-salt-pepper-front.jpg",
     images: ["/products/urad-salt-pepper-front.jpg", "/products/urad-salt-pepper-back.jpg", "/products/urad-salt-pepper-side.jpg"],
-    description: "Mansara Urad Porridge Mix – Salt & Pepper is a savoury twist on the traditional ulunthankanji, infused with natural spices like pepper and mild seasoning for a comforting yet flavourful experience.",
+    description: "Mansara Urad Porridge Mix – Salt & Pepper is a savoury twist on the traditional ulunthankanji, infused into natural spices like pepper and mild seasoning for a comforting yet flavourful experience.",
     highlights: ["No artificial flavours", "Digestive spices", "Savoury taste", "Good for gut health"],
     ingredients: "Black Gram (60.9%), Kavuni Rice (30%), Black Pepper (4.55%), Cumin Seeds (2.73%), Salt (1.82%).",
     howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously to avoid lumps, and serve warm.",
@@ -290,7 +290,7 @@ export const products: Product[] = [
     howToUse: "Each variant follows its own cooking instructions as detailed on its individual packaging.",
     storage: "Store in a cool, dry place.",
     weight: "1kg (5 x 200g)",
-    isOffer: true,
+    isOffer: false,
     isNewArrival: false,
     isFeatured: true,
     isActive: true
