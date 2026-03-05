@@ -283,18 +283,26 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             setCategories(categoriesArray);
             localStorage.setItem('mansara-categories', JSON.stringify(categoriesArray));
 
-            // Create lookup for Normalization
+            // Create TWO lookup maps:
+            // 1. slug → id  (for sending to API)
+            // 2. id → slug  (for displaying/filtering in UI)
             const categoryMap = new Map(
                 categoriesArray.map(cat => [cat.slug || cat.value, cat.id])
+            );
+            const categoryIdToSlug = new Map(
+                categoriesArray.map(cat => [cat.id, cat.slug || cat.value])
             );
 
             // Normalize and Update Products UI
             const enhancedProducts = productsArray.map(product => {
-                const categoryId = categoryMap.get(product.category) || product.category;
+                const rawCategory = product.category;
+                // If category is an ObjectId, resolve to slug; otherwise keep slug as-is
+                const resolvedSlug = categoryIdToSlug.get(rawCategory) || rawCategory || 'uncategorized';
+                const categoryId = categoryMap.get(resolvedSlug) || rawCategory;
                 return {
                     ...product,
                     categoryId: categoryId,
-                    category: product.category || 'uncategorized'
+                    category: resolvedSlug
                 };
             });
 
