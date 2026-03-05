@@ -24,7 +24,7 @@ export interface Product {
     _id?: string;
     slug: string;
     name: string;
-    category: "porridge-mixes" | "oil-ghee" | "health-drink-mixes";
+    category: "porridge-mixes" | "oil-ghee" | "health-drink-mixes" | "idly-podi" | "rice-mixes";
     categoryId?: string; // For storing the actual ObjectId
     price: number;
     offerPrice?: number;
