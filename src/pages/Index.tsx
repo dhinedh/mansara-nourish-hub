@@ -36,7 +36,7 @@ const Index: React.FC = () => {
   );
 
   const newArrivals = useMemo(() =>
-    products.filter(p => p.isNewArrival && p.isActive).reverse(),
+    products.filter(p => p.slug === 'ragi-choco-malt' && p.isActive),
     [products]
   );
 

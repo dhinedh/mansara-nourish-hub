@@ -1,11 +1,14 @@
 export interface Product {
   id: string;
+  _id?: string;
   slug: string;
   name: string;
-  category: "porridge-mixes" | "oil-ghee" | "health-drink-mixes";
+  category: string;
+  categoryId?: string;
   price: number;
   offerPrice?: number;
   image: string;
+  images?: string[];
   description: string;
   ingredients: string;
   howToUse: string;
@@ -14,9 +17,9 @@ export interface Product {
   isOffer: boolean;
   isNewArrival: boolean;
   isFeatured: boolean;
-  stock: number;
+  stock?: number;
   highlights?: string[];
-  nutrition?: string; // HTML or text content
+  nutrition?: string;
   compliance?: string;
   short_description?: string;
   variants?: {
@@ -39,286 +42,273 @@ export interface Combo {
   description: string;
 }
 
+export interface Category {
+  id: string;
+  _id?: string;
+  name: string;
+  value: string;
+  slug: string;
+}
+
+export const categories: Category[] = [
+  {
+    id: "69a83fe41c2c00db0a9ba523",
+    _id: "69a83fe41c2c00db0a9ba523",
+    name: "Urad Porridge Mix",
+    value: "urad-porridge-mix",
+    slug: "urad-porridge-mix"
+  },
+  {
+    id: "69a83fe41c2c00db0a9ba524",
+    _id: "69a83fe41c2c00db0a9ba524",
+    name: "Black Rice mix",
+    value: "black-rice-mix",
+    slug: "black-rice-mix"
+  },
+  {
+    id: "69a83fe41c2c00db0a9ba525",
+    _id: "69a83fe41c2c00db0a9ba525",
+    name: "Millet fusion mix",
+    value: "millet-fusion-mix",
+    slug: "millet-fusion-mix"
+  },
+  {
+    id: "69a83fe41c2c00db0a9ba526",
+    _id: "69a83fe41c2c00db0a9ba526",
+    name: "Health drink mix",
+    value: "health-drink-mixes",
+    slug: "health-drink-mixes"
+  },
+  {
+    id: "69a8facd2fef7ae403186831",
+    _id: "69a8facd2fef7ae403186831",
+    name: "Combo",
+    value: "combos",
+    slug: "combos"
+  }
+];
+
 export const products: Product[] = [
   {
-    id: "1",
+    id: "69a83fe51c2c00db0a9ba527",
+    _id: "69a83fe51c2c00db0a9ba527",
     slug: "urad-porridge-mix-classic",
-    name: "Classic Urad Porridge Mix",
-    category: "porridge-mixes",
-    price: 55,
-    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "A simple and nourishing porridge mix made primarily from premium black gram. Light on the stomach and easy to prepare, ideal for everyday nourishment for all age groups.",
-    highlights: [
-      "Made with carefully selected grains & pulses",
-      "No artificial colours or preservatives",
-      "Easy to cook, suitable for all age groups",
-      "Traditional nutrition with modern convenience"
-    ],
-    ingredients: "Black Gram (Urad Dal), Black Rice (Kavuni Dal), Dry Ginger, Cardamom",
-    howToUse: "1. Take 2 tablespoons of MansaraFoods Classic Urad Porridge Mix in a clean pan.\n2. Add 250 ml of water then cook on medium flame for 10 minutes, stirring continuously to avoid lump formation.\n3. Add Salt/Pepper/jaggery as per your taste, stir well, and serve warm.",
-    nutrition: "Testing in progress",
-    storage: "Store in a cool, dry place.\nKeep away from moisture.\nOnce opened, store in an airtight container.",
-    compliance: "FSSAI License No: [Pending]",
-    weight: "100g",
-    isOffer: false,
-    isNewArrival: false,
-    isFeatured: true,
-    stock: 50,
-    variants: [
-      { weight: "100g", price: 55, stock: 100 },
-      { weight: "200g", price: 105, stock: 100 }
-    ]
-  },
-  {
-    id: "2",
-    slug: "urad-porridge-mix-salt-pepper",
-    name: "URAD Porridge Mix – Salt & Pepper",
-    category: "porridge-mixes",
-    price: 55,
-    image: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "A savory twist on our classic URAD mix, enhanced with the warmth of freshly ground black pepper. Perfect for those who prefer a more robust flavor profile.",
-    ingredients: "Black Gram (Urad Dal), Rice, Black Pepper, Rock Salt, Cumin, Asafoetida",
-    howToUse: "Mix 2 tablespoons with warm water. Cook for 5-7 minutes. Best enjoyed hot with a drizzle of sesame oil.",
-    storage: "Store in a cool, dry place. Keep away from direct sunlight. Use within 6 months of opening.",
-    weight: "100g",
-    isOffer: false,
-    isNewArrival: false,
-    isFeatured: true,
-    stock: 35,
-    variants: [
-      { weight: "100g", price: 55, stock: 100 },
-      { weight: "200g", price: 105, stock: 100 }
-    ]
-  },
-  {
-    id: "3",
-    slug: "urad-porridge-mix-millet-magic",
-    name: "URAD Porridge Mix – Millet Magic",
-    category: "porridge-mixes",
-    price: 60,
-    image: "https://images.unsplash.com/photo-1644433159048-436d4df13117?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "The power of millets combined with URAD for a nutritionally superior porridge. Rich in fiber and essential minerals for holistic wellness.",
-    ingredients: "Black Gram (Urad Dal), Finger Millet (Ragi), Foxtail Millet, Cumin, Black Pepper, Salt",
-    howToUse: "Mix 2 tablespoons with warm water or milk. Cook for 7-8 minutes. Add jaggery or honey for natural sweetness.",
-    storage: "Store in a cool, dry place. Keep away from direct sunlight. Use within 6 months of opening.",
-    weight: "100g",
-    isOffer: false,
-    isNewArrival: false,
-    isFeatured: true,
-    stock: 40,
-    variants: [
-      { weight: "100g", price: 60, stock: 100 },
-      { weight: "200g", price: 115, stock: 100 }
-    ]
-  },
-  {
-    id: "4",
-    slug: "urad-porridge-mix-premium",
-    name: "URAD Porridge Mix – Premium",
-    category: "porridge-mixes",
-    price: 65,
-    image: "https://images.unsplash.com/photo-1505253149613-112d21d9f6a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "Our finest selection of URAD porridge mix, featuring premium quality ingredients and enhanced nutritional profile for the discerning health enthusiast.",
-    ingredients: "Premium Black Gram (Urad Dal), Basmati Rice, Organic Cumin, Himalayan Pink Salt, Black Pepper",
-    howToUse: "Mix 2 tablespoons with warm milk. Cook for 5-6 minutes. Garnish with nuts and dried fruits.",
-    storage: "Store in a cool, dry place away from direct sunlight. Best consumed within 4 months of opening.",
-    weight: "100g",
-    isOffer: false,
-    isNewArrival: false,
-    isFeatured: false,
-    stock: 25,
-    variants: [
-      { weight: "100g", price: 65, stock: 100 },
-      { weight: "200g", price: 125, stock: 100 }
-    ]
-  },
-  {
-    id: "5",
-    slug: "porridge-mix-black-rice-delight",
-    name: "Porridge Mix – Black Rice Delight",
-    category: "porridge-mixes",
+    name: "Urad Porridge Mix – Classic",
+    category: "urad-porridge-mix",
+    categoryId: "69a83fe41c2c00db0a9ba523",
     price: 70,
-    image: "https://images.unsplash.com/photo-1595348020949-87cdfbb44174?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "Experience the antioxidant-rich goodness of black rice in this unique porridge blend. A modern superfood with traditional preparation methods.",
-    ingredients: "Black Rice (Kavuni), Black Gram, Cardamom, Cinnamon, Natural Vanilla",
-    howToUse: "Soak 2 tablespoons in water for 10 minutes. Cook with milk for 10-12 minutes. Sweeten with jaggery.",
-    storage: "Store in an airtight container in a cool, dry place. Use within 5 months of opening.",
+    offerPrice: 70,
+    image: "/products/urad-classic-front.jpg",
+    images: ["/products/urad-classic-front.jpg", "/products/urad-classic-back.jpg", "/products/urad-classic-side.jpg"],
+    description: "Mansara Classic Urad Porridge Mix is a time-tested nourishing blend made primarily from premium black gram (Urad Dal). It is formulated to be gentle on the stomach while providing essential proteins and energy. This traditional porridge helps in strengthening the body and is an excellent choice for a healthy, easily digestible meal or snack for children, adults, and the elderly.",
+    highlights: ["High Protein", "Easy Digestion", "No Preservatives", "Traditional Recipe"],
+    ingredients: "Black Gram (Urad Dal), Samba Wheat, Fried Gram, Cardamom.",
+    howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+    storage: "Store in a cool, dry place.",
     weight: "100g",
+    variants: [
+      { weight: "100g", price: 70, offerPrice: 70 },
+      { weight: "200g", price: 105, offerPrice: 105 }
+    ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: true,
-    stock: 30,
-    variants: [
-      { weight: "100g", price: 70, stock: 100 },
-      { weight: "200g", price: 135, stock: 100 }
-    ]
+    isFeatured: false
   },
   {
-    id: "6",
-    slug: "idly-powder-mix-millet-fusion",
-    name: "Idly Powder Mix – Millet Fusion",
-    category: "porridge-mixes",
-    price: 75,
-    image: "https://images.unsplash.com/photo-1610440042657-612c34d95e9f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "A nutritious millet-based idly powder that adds taste and health to your everyday idlis. Enjoy the traditional South Indian favorite with added wellness benefits.",
-    ingredients: "Mixed Millets, Urad Dal, Dried Red Chili, Curry Leaves, Asafoetida, Sesame Seeds",
-    howToUse: "Sprinkle generously over hot idlis. Mix with ghee or sesame oil for best taste. Can also be used with dosa.",
-    storage: "Store in a cool, dry place. Keep the container tightly closed. Use within 3 months of opening.",
+    id: "69a83fe61c2c00db0a9ba528",
+    _id: "69a83fe61c2c00db0a9ba528",
+    slug: "urad-porridge-mix-salt-pepper",
+    name: "Urad Porridge Mix – Salt & Pepper",
+    category: "urad-porridge-mix",
+    categoryId: "69a83fe41c2c00db0a9ba523",
+    price: 70,
+    offerPrice: 70,
+    image: "/products/urad-salt-pepper-front.jpg",
+    images: ["/products/urad-salt-pepper-front.jpg", "/products/urad-salt-pepper-back.jpg", "/products/urad-salt-pepper-side.jpg"],
+    description: "Mansara Urad Porridge Mix – Salt & Pepper is a savoury twist on the traditional ulunthankanji, infused with natural spices like pepper and mild seasoning for a comforting yet flavourful experience.",
+    highlights: ["No artificial flavours", "Digestive spices", "Savoury taste", "Good for gut health"],
+    ingredients: "Black Gram (60.9%), Kavuni Rice (30%), Black Pepper (4.55%), Cumin Seeds (2.73%), Salt (1.82%).",
+    howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously to avoid lumps, and serve warm.",
+    storage: "Store in a cool, dry place.",
     weight: "100g",
-    isOffer: false,
-    isNewArrival: false,
-    isFeatured: false,
-    stock: 60,
     variants: [
-      { weight: "100g", price: 75, stock: 100 },
-      { weight: "200g", price: 145, stock: 100 }
-    ]
-  },
-  {
-    id: "7",
-    slug: "groundnut-oil-classic",
-    name: "Groundnut Oil – Classic",
-    category: "oil-ghee",
-    price: 549,
-    image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd03a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "Pure, cold-pressed groundnut oil made from carefully selected peanuts. Our traditional extraction method preserves all natural nutrients and authentic flavor.",
-    ingredients: "100% Pure Groundnut Oil (Cold-Pressed)",
-    howToUse: "Ideal for deep frying, sautéing, and everyday cooking. Perfect for traditional South Indian dishes.",
-    storage: "Store in a cool, dark place. Keep away from direct sunlight and heat. Use within 6 months of opening.",
-    weight: "1 Litre",
+      { weight: "100g", price: 70, offerPrice: 70 },
+      { weight: "200g", price: 105, offerPrice: 105 }
+    ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: true,
-    stock: 45
+    isFeatured: false
   },
   {
-    id: "8",
-    slug: "sesame-oil-classic",
-    name: "Sesame Oil – Classic",
-    category: "oil-ghee",
-    price: 599,
-    image: "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "Traditional wood-pressed sesame oil with its characteristic nutty aroma and flavor. A staple in South Indian cooking and Ayurvedic practices.",
-    ingredients: "100% Pure Sesame Oil (Wood-Pressed)",
-    howToUse: "Perfect for tempering, marinades, and traditional recipes. Also suitable for oil pulling and massage.",
-    storage: "Store in a cool, dark place. Keep the bottle tightly sealed. Best used within 6 months.",
-    weight: "500ml",
+    id: "69a83fe61c2c00db0a9ba529",
+    _id: "69a83fe61c2c00db0a9ba529",
+    slug: "urad-porridge-mix-millet-magic",
+    name: "Urad Porridge Mix – Millet Magic",
+    category: "urad-porridge-mix",
+    categoryId: "69a83fe41c2c00db0a9ba523",
+    price: 70,
+    offerPrice: 70,
+    image: "/products/urad-millet-magic-back.jpg",
+    images: ["/products/urad-millet-magic-front.jpg", "/products/urad-millet-magic-back.jpg", "/products/urad-millet-magic-side.jpg"],
+    description: "Mansara Millet Magic Urad Porridge Mix brings together the muscle-strengthening benefits of black gram with the mineral-rich goodness of diverse millets.",
+    highlights: ["Fiber Rich", "Mineral Rich", "Low GI", "Muscle Support"],
+    ingredients: "Black Gram, Finger Millet, Foxtail Millet, Pearl Millet, Little Millet, Kodo Millet, Barnyard Millet, Jowar, Bajra, Spices.",
+    howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+    storage: "Store in a cool, dry place.",
+    weight: "100g",
+    variants: [
+      { weight: "100g", price: 70, offerPrice: 70 },
+      { weight: "200g", price: 115, offerPrice: 115 }
+    ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: true,
-    stock: 40
+    isFeatured: false
   },
   {
-    id: "9",
-    slug: "coconut-oil-classic",
-    name: "Coconut Oil – Classic",
-    category: "oil-ghee",
-    price: 449,
-    image: "https://images.unsplash.com/photo-1590487372295-8669e2c65768?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "Pure virgin coconut oil extracted from fresh coconuts using cold-press method. Retains natural aroma and all nutritional benefits.",
-    ingredients: "100% Pure Virgin Coconut Oil (Cold-Pressed)",
-    howToUse: "Excellent for cooking, baking, and as a hair/skin moisturizer. Ideal for Kerala-style dishes.",
-    storage: "Store at room temperature. May solidify in cold weather - this is natural. Use within 8 months.",
-    weight: "500ml",
+    id: "69a83fe61c2c00db0a9ba52a",
+    _id: "69a83fe61c2c00db0a9ba52a",
+    slug: "urad-porridge-mix-premium",
+    name: "Urad Porridge Mix – Premium",
+    category: "urad-porridge-mix",
+    categoryId: "69a83fe41c2c00db0a9ba523",
+    price: 70,
+    offerPrice: 70,
+    image: "/products/urad-premium-front.jpg",
+    images: ["/products/urad-premium-front.jpg", "/products/urad-premium-back.jpg", "/products/urad-premium-side.jpg"],
+    description: "Mansara Premium Urad Porridge Mix is a carefully crafted blend designed for those who want maximum nutrition in every serving.",
+    highlights: ["Finer grind", "Premium processing", "Multi-Grain", "High Nutrition", "Immunity Support"],
+    ingredients: "Black Gram, Ragi, Kavuni Rice, Mappillai Samba Rice, Bamboo Rice, Red Rice, Hand-Pounded Rice.",
+    howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+    storage: "Store in a cool, dry place.",
+    weight: "100g",
+    variants: [
+      { weight: "100g", price: 70, offerPrice: 70 },
+      { weight: "200g", price: 125, offerPrice: 125 }
+    ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: false,
-    stock: 55
+    isFeatured: false
   },
   {
-    id: "10",
-    slug: "ghee-classic",
-    name: "Ghee – Classic",
-    category: "oil-ghee",
-    price: 699,
-    image: "https://images.unsplash.com/photo-1621966144883-8a3d5e2e8310?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "Traditional bilona method ghee made from A2 cow milk. Rich in flavor and packed with the goodness of pure clarified butter.",
-    ingredients: "100% Pure A2 Cow Ghee (Bilona Method)",
-    howToUse: "Add to hot rice, rotis, or dal for enhanced taste. Perfect for making sweets and for tempering.",
-    storage: "Store in a cool, dry place. No refrigeration needed. Use clean, dry spoon. Best within 6 months.",
-    weight: "500g",
+    id: "69a83fe61c2c00db0a9ba52b",
+    _id: "69a83fe61c2c00db0a9ba52b",
+    slug: "black-rice-delight-porridge-mix",
+    name: "Black Rice Delight Porridge Mix",
+    category: "black-rice-mix",
+    categoryId: "69a83fe41c2c00db0a9ba524",
+    price: 70,
+    offerPrice: 70,
+    image: "/products/black-rice-delight-front.jpg",
+    images: ["/products/black-rice-delight-front.jpg", "/products/black-rice-delight-back.jpg", "/products/black-rice-delight-side.jpg"],
+    description: "Mansara Black Rice Delight Porridge Mix is made using traditional black rice (Karuppu Kavuni Arisi), known for its powerful antioxidant properties and mineral richness.",
+    highlights: ["No added spices", "Antioxidant Rich", "Iron Rich", "Heart Healthy"],
+    ingredients: "Kavuni Rice (49.50%), Samba Wheat (24.75%), Barley (12.87%), Horse Gram (12.87%).",
+    howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+    storage: "Store in a cool, dry place.",
+    weight: "100g",
+    variants: [
+      { weight: "100g", price: 70, offerPrice: 70 },
+      { weight: "200g", price: 135, offerPrice: 135 }
+    ],
     isOffer: false,
     isNewArrival: false,
-    isFeatured: true,
-    stock: 30
+    isFeatured: false
   },
   {
-    id: "11",
+    id: "69a83fe71c2c00db0a9ba52c",
+    _id: "69a83fe71c2c00db0a9ba52c",
+    slug: "millet-fusion-idly-podi",
+    name: "Millet Fusion Idly Podi",
+    category: "millet-fusion-mix",
+    categoryId: "69a83fe41c2c00db0a9ba525",
+    price: 70,
+    offerPrice: 70,
+    image: "/products/millet-idly-podi-front.jpg",
+    images: ["/products/millet-idly-podi-front.jpg", "/products/millet-idly-podi-back.jpg", "/products/millet-idly-podi-side.jpg"],
+    description: "Mansara Millet Fusion Idly Podi is a wholesome blend of traditional millets, pulses, and spices, roasted and ground to perfection.",
+    highlights: ["No preservatives", "Traditional roast & grind", "Protein Rich", "Spicy & Savoury"],
+    ingredients: "Urad Dal, Bengal Gram, Green Gram, Millets (Foxtail, Little, Barnyard, Kodo), Dry Red Chilli, Kashmiri Chilli, Spices.",
+    howToUse: "Mix with required quantity of Ghee or Gingelly oil. Use it with Idly, Dosa, Chapatti, Poori, etc.",
+    storage: "Store in a cool, dry place.",
+    weight: "100g",
+    variants: [
+      { weight: "100g", price: 70, offerPrice: 70 },
+      { weight: "200g", price: 145, offerPrice: 145 }
+    ],
+    isOffer: false,
+    isNewArrival: false,
+    isFeatured: false
+  },
+  {
+    id: "69a83fe71c2c00db0a9ba52d",
+    _id: "69a83fe71c2c00db0a9ba52d",
     slug: "ragi-choco-malt",
     name: "Ragi Choco Malt",
     category: "health-drink-mixes",
-    price: 180,
-    weight: "250g",
-    image: "/products/ragi-choco-malt-front.png",
-    description: "A nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa. Specially formulated for daily energy and growth.",
-    highlights: [
-      "No preservatives",
-      "Millet-based with natural cocoa",
-      "Rich in calcium",
-      "Kids friendly (2+ years)"
-    ],
-    ingredients: "Ragi (Finger Millet), Brown Sugar, Cocoa Powder, Cashew Nuts, Almonds, Dry Ginger, Cardamom, Saffron",
-    howToUse: "Mix 2 tbsp with milk or water. Cook on low flame with continuous stirring until smooth. Add sugar if required. Serve warm or cold.",
-    storage: "Store in a cool, dry place. Keep airtight after opening.",
-    isOffer: false,
-    isNewArrival: false,
-    isFeatured: true,
-    stock: 100,
+    categoryId: "69a83fe41c2c00db0a9ba526",
+    price: 70,
+    offerPrice: 70,
+    image: "/products/ragi-choco-malt-label.png",
+    images: ["/products/ragi-choco-malt-label.png", "/products/ragi-choco-malt-front.png"],
+    description: "Mansara Ragi Choco Malt is a nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa.",
+    highlights: ["No preservatives", "Millet-based with natural cocoa", "Rich in calcium", "Enriched with Saffron & Almonds"],
+    ingredients: "Ragi (Finger Millet), Brown Sugar, Cocoa Powder, Cashew Nuts, Almonds, Dry Ginger, Cardamom, Saffron.",
+    howToUse: "Mix 2 tbsp (approx. 25g) with milk or water. Cook on low flame with continuous stirring until smooth.",
+    storage: "Store in a cool, dry place. Keep the container tightly closed.",
+    weight: "100g",
     variants: [
-      {
-        weight: "250g",
-        price: 180,
-        stock: 100
-      }
-    ]
+      { weight: "100g", price: 70, offerPrice: 70 },
+      { weight: "250g", price: 180, offerPrice: 180 }
+    ],
+    isOffer: false,
+    isNewArrival: true,
+    isFeatured: true
+  },
+  {
+    id: "69a8face2fef7ae403186838",
+    _id: "69a8face2fef7ae403186838",
+    slug: "ultimate-wellness-combo-5-mixes",
+    name: "Ultimate Wellness Combo (5 Mixes)",
+    category: "combos",
+    categoryId: "69a8facd2fef7ae403186831",
+    price: 260,
+    offerPrice: 260,
+    image: "/product-combo-5mixes.jpg",
+    images: ["/product-combo-5mixes.jpg"],
+    description: "Experience the complete range of Mansara Foods premium porridge mixes. This pack contains all 5 of our signature blends- Urad Porridge Mix (Classic, Premium, Salt & Pepper, Millet Magic) and Black Rice Delight.",
+    short_description: "All 5 Premium Porridge Mixes (Excludes Idly Podi)",
+    highlights: ["Value Pack", "All 5 Variants", "Perfect for Families"],
+    ingredients: "Contains all 5 variants: Classic, Premium, Salt & Pepper, Millet Magic, and Black Rice Delight.",
+    howToUse: "Each variant follows its own cooking instructions as detailed on its individual packaging.",
+    storage: "Store in a cool, dry place.",
+    weight: "1kg (5 x 200g)",
+    isOffer: true,
+    isNewArrival: false,
+    isFeatured: true
   }
 ];
 
 export const combos: Combo[] = [
   {
-    id: "combo-1",
-    slug: "morning-wellness-combo",
-    name: "Morning Wellness Combo",
-    products: ["1", "7"],
-    originalPrice: 848,
-    comboPrice: 749,
-    image: "https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "Start your day right with our URAD Porridge Mix Classic and pure Groundnut Oil. A perfect combination for a wholesome breakfast."
-  },
-  {
-    id: "combo-2",
-    slug: "complete-kitchen-essentials",
-    name: "Complete Kitchen Essentials",
-    products: ["7", "8", "10"],
-    originalPrice: 1847,
-    comboPrice: 1599,
-    image: "https://images.unsplash.com/photo-1516668705353-c9183cc66148?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "All your cooking essentials in one combo - Groundnut Oil, Sesame Oil, and Premium Ghee for the perfect MANSARA kitchen."
-  },
-  {
-    id: "combo-3",
-    slug: "porridge-lovers-pack",
-    name: "Porridge Lovers Pack",
-    products: ["1", "2", "3"],
-    originalPrice: 977,
-    comboPrice: 849,
-    image: "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "Try all three variants of our signature URAD Porridge Mix - Classic, Salt & Pepper, and Millet Magic."
-  },
-  {
-    id: "combo-4",
-    slug: "family-nutrition-bundle",
-    name: "Family Nutrition Bundle",
-    products: ["3", "5", "10"],
-    originalPrice: 1447,
-    comboPrice: 1249,
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "Nourish your entire family with Millet Magic Porridge, Black Rice Delight, and Pure Ghee - complete nutrition in one bundle."
+    id: "69a8face2fef7ae403186838",
+    slug: "ultimate-wellness-combo-5-mixes",
+    name: "Ultimate Wellness Combo (5 Mixes)",
+    products: [
+      "69a83fe51c2c00db0a9ba527",
+      "69a83fe61c2c00db0a9ba528",
+      "69a83fe61c2c00db0a9ba529",
+      "69a83fe61c2c00db0a9ba52a",
+      "69a83fe61c2c00db0a9ba52b"
+    ],
+    originalPrice: 275,
+    comboPrice: 260,
+    image: "/product-combo-5mixes.jpg",
+    description: "Experience the complete range of Mansara Foods premium porridge mixes."
   }
 ];
 
 export const getProductById = (id: string): Product | undefined => {
-  return products.find(p => p.id === id);
+  return products.find(p => p.id === id || p._id === id);
 };
 
 export const getProductBySlug = (slug: string): Product | undefined => {
@@ -338,5 +328,5 @@ export const getNewArrivals = (): Product[] => {
 };
 
 export const getProductsByCategory = (category: string): Product[] => {
-  return products.filter(p => p.category === category);
+  return products.filter(p => p.category === category || p.categoryId === category);
 };

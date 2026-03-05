@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { fetchProducts, fetchCombos, getCategories } from '@/lib/api';
+import {
+    products as staticProducts,
+    categories as staticCategories,
+    combos as staticCombos
+} from '@/data/products';
 
 // ========================================
 // FULLY OPTIMIZED STORE CONTEXT - FIXED
@@ -225,20 +230,10 @@ const minifyProduct = (p: Product) => ({
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     // 1. INSTANT LOAD: Initialize with cached mini-data (Stale-While-Revalidate pattern)
-    const [products, setProducts] = useState<Product[]>(() => {
-        try {
-            const saved = localStorage.getItem('mansara-mini-products');
-            return saved ? JSON.parse(saved) : [];
-        } catch { return []; }
-    });
+    const [products, setProducts] = useState<Product[]>(staticProducts as any);
 
     const [combos, setCombos] = useState<Combo[]>([]);
-    const [categories, setCategories] = useState<Category[]>(() => {
-        try {
-            const saved = localStorage.getItem('mansara-categories');
-            return saved ? JSON.parse(saved) : [];
-        } catch { return []; }
-    });
+    const [categories, setCategories] = useState<Category[]>(staticCategories as any);
 
     // If we have products, we are NOT loading initially from user perspective
     const [isLoading, setIsLoading] = useState(() => {
@@ -269,38 +264,70 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
             // 1. Wait for Products (Critical) and update UI immediately
             console.log('[Store] Awaiting products...');
-            const productsData = await productsPromise;
-            console.log('[Store] Products received. Awaiting categories...');
+            const [productsData, categoriesData] = await Promise.all([productsPromise, categoriesPromise]);
+            console.log('[Store] Data received.');
 
             const productsArray = extractArray(productsData, 'products').map(normalizeId);
-
-            // Need categories for normalization, wait for them too
-            const categoriesData = await categoriesPromise;
-            console.log('[Store] Categories received.');
             const categoriesArray = extractArray(categoriesData, 'categories').map(normalizeCategory);
 
-            // Update Categories UI
-            setCategories(categoriesArray);
-            localStorage.setItem('mansara-categories', JSON.stringify(categoriesArray));
+            // Update Categories UI - MERGE WITH STATIC DATA
+            const enhancedCategories = staticCategories.map(staticCat => {
+                const apiCat = categoriesArray.find(c =>
+                    c.slug.toLowerCase() === staticCat.slug.toLowerCase() ||
+                    c.value.toLowerCase() === staticCat.value.toLowerCase() ||
+                    c.name.toLowerCase() === staticCat.name.toLowerCase()
+                );
+                return {
+                    ...staticCat,
+                    _id: apiCat?._id || apiCat?.id || (staticCat as any)._id,
+                    id: apiCat?.id || apiCat?._id || staticCat.id
+                };
+            });
+
+            setCategories(enhancedCategories);
+            localStorage.setItem('mansara-categories', JSON.stringify(enhancedCategories));
 
             // Create TWO lookup maps:
             // 1. slug → id  (for sending to API)
             // 2. id → slug  (for displaying/filtering in UI)
             const categoryMap = new Map(
-                categoriesArray.map(cat => [cat.slug || cat.value, cat.id])
+                enhancedCategories.map(cat => [cat.slug || cat.value, cat.id])
             );
             const categoryIdToSlug = new Map(
-                categoriesArray.map(cat => [cat.id, cat.slug || cat.value])
+                enhancedCategories.map(cat => [cat.id, (cat as any)._id]) // Map both internal ID and _id to slug
             );
+            // Add _id mapping if available
+            enhancedCategories.forEach(cat => {
+                if (cat._id) categoryIdToSlug.set(cat._id, cat.slug || cat.value);
+                categoryIdToSlug.set(cat.id, cat.slug || cat.value);
+            });
 
             // Normalize and Update Products UI
-            const enhancedProducts = productsArray.map(product => {
-                const rawCategory = product.category;
-                // If category is an ObjectId, resolve to slug; otherwise keep slug as-is
-                const resolvedSlug = categoryIdToSlug.get(rawCategory) || rawCategory || 'uncategorized';
+            // Normalize and Update Products UI - MERGE WITH STATIC DATA
+            const enhancedProducts = staticProducts.map(staticP => {
+                // Find matching product in API data (by slug)
+                const apiP = productsArray.find(p => p.slug === staticP.slug);
+
+                if (!apiP) {
+                    console.warn(`[Store] Product not found in backend: ${staticP.slug}`);
+                    return {
+                        ...staticP,
+                        isActive: false, // Default to inactive if not found in DB
+                        categoryId: getCategoryIdBySlug(staticP.category as string) || (staticP as any).categoryId
+                    } as any;
+                }
+
+                const rawCategory = apiP.category;
+                const resolvedSlug = categoryIdToSlug.get(rawCategory) || rawCategory || staticP.category;
                 const categoryId = categoryMap.get(resolvedSlug) || rawCategory;
+
                 return {
-                    ...product,
+                    ...staticP, // Use static details as base
+                    id: apiP.id || apiP._id || staticP.id,
+                    _id: apiP._id || apiP.id,
+                    stock: apiP.stock,
+                    variants: apiP.variants || staticP.variants,
+                    isActive: apiP.isActive !== undefined ? apiP.isActive : true,
                     categoryId: categoryId,
                     category: resolvedSlug
                 };
@@ -308,9 +335,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
             setProducts(enhancedProducts);
 
-            // 2. INSTANT LOAD: Persist minified data for next visit
+            // 2. INSTANT LOAD: Persist data for next visit (minified)
             try {
-                // @ts-ignore - minifyProduct is defined above StoreProvider
                 const minified = enhancedProducts.map(minifyProduct);
                 localStorage.setItem('mansara-mini-products', JSON.stringify(minified));
             } catch (e) {
@@ -324,8 +350,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             try {
                 const combosData = await combosPromise;
                 const combosArray = extractArray(combosData, 'combos').map(normalizeId);
-                setCombos(combosArray);
-                // STORAGE QUOTA FIX: Removed localStorage.setItem('mansara-combos', ...)
+
+                // MERGE WITH STATIC DATA
+                const enhancedCombos = staticCombos.map(staticC => {
+                    const apiC = combosArray.find(c => c.slug === staticC.slug);
+                    if (!apiC) return staticC;
+                    return {
+                        ...staticC,
+                        id: apiC.id || apiC._id || staticC.id,
+                        _id: apiC._id || apiC.id,
+                        comboPrice: apiC.comboPrice || staticC.comboPrice,
+                        originalPrice: apiC.originalPrice || staticC.originalPrice,
+                        stock: apiC.stock !== undefined ? apiC.stock : 0
+                    };
+                });
+
+                setCombos(enhancedCombos);
             } catch (e) {
                 console.warn('[Store] Failed to load combos (non-critical)');
             }

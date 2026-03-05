@@ -26,7 +26,7 @@ const NewArrivals: React.FC = () => {
 
   // Memoize filtering to prevent recalculation
   const newProducts = useMemo(() =>
-    products.filter(p => p.isNewArrival && p.isActive).reverse(),
+    products.filter(p => p.slug === 'ragi-choco-malt' && p.isActive),
     [products]
   );
 
