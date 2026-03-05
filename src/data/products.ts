@@ -123,7 +123,6 @@ export const products: Product[] = [
     weight: "100g",
     variants: [
       { weight: "100g", price: 55, offerPrice: 55 },
-      { weight: "200g", price: 105, offerPrice: 105 },
       { weight: "250g", price: 140, offerPrice: 140 }
     ],
     isOffer: false,
@@ -150,7 +149,6 @@ export const products: Product[] = [
     weight: "100g",
     variants: [
       { weight: "100g", price: 55, offerPrice: 55 },
-      { weight: "200g", price: 105, offerPrice: 105 },
       { weight: "250g", price: 140, offerPrice: 140 }
     ],
     isOffer: false,
@@ -177,7 +175,6 @@ export const products: Product[] = [
     weight: "100g",
     variants: [
       { weight: "100g", price: 60, offerPrice: 60 },
-      { weight: "200g", price: 115, offerPrice: 115 },
       { weight: "250g", price: 150, offerPrice: 150 }
     ],
     isOffer: false,
@@ -204,7 +201,6 @@ export const products: Product[] = [
     weight: "100g",
     variants: [
       { weight: "100g", price: 65, offerPrice: 65 },
-      { weight: "200g", price: 125, offerPrice: 125 },
       { weight: "250g", price: 160, offerPrice: 160 }
     ],
     isOffer: false,
@@ -231,7 +227,6 @@ export const products: Product[] = [
     weight: "100g",
     variants: [
       { weight: "100g", price: 70, offerPrice: 70 },
-      { weight: "200g", price: 135, offerPrice: 135 },
       { weight: "250g", price: 180, offerPrice: 180 }
     ],
     isOffer: false,
@@ -306,7 +301,7 @@ export const products: Product[] = [
     ingredients: "Contains all 5 variants: Classic, Premium, Salt & Pepper, Millet Magic, and Black Rice Delight.",
     howToUse: "Each variant follows its own cooking instructions as detailed on its individual packaging.",
     storage: "Store in a cool, dry place.",
-    weight: "1kg (5 x 200g)",
+    weight: "500g (5 x 100g)",
     isOffer: false,
     isNewArrival: false,
     isFeatured: true,
