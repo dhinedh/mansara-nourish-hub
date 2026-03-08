@@ -123,9 +123,9 @@ export const products: Product[] = [
     weight: "100g",
     variants: [
       { weight: "100g", price: 66, offerPrice: 66 },
-      { weight: "250g", price: 168, offerPrice: 168 }
+      { weight: "250g", price: 140, offerPrice: 112 }
     ],
-    isOffer: false,
+    isOffer: true,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -149,9 +149,9 @@ export const products: Product[] = [
     weight: "100g",
     variants: [
       { weight: "100g", price: 66, offerPrice: 66 },
-      { weight: "250g", price: 168, offerPrice: 168 }
+      { weight: "250g", price: 140, offerPrice: 112 }
     ],
-    isOffer: false,
+    isOffer: true,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -175,9 +175,9 @@ export const products: Product[] = [
     weight: "100g",
     variants: [
       { weight: "100g", price: 72, offerPrice: 72 },
-      { weight: "250g", price: 180, offerPrice: 180 }
+      { weight: "250g", price: 150, offerPrice: 120 }
     ],
-    isOffer: false,
+    isOffer: true,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -201,9 +201,9 @@ export const products: Product[] = [
     weight: "100g",
     variants: [
       { weight: "100g", price: 78, offerPrice: 78 },
-      { weight: "250g", price: 192, offerPrice: 192 }
+      { weight: "250g", price: 160, offerPrice: 128 }
     ],
-    isOffer: false,
+    isOffer: true,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -227,9 +227,9 @@ export const products: Product[] = [
     weight: "100g",
     variants: [
       { weight: "100g", price: 84, offerPrice: 84 },
-      { weight: "250g", price: 216, offerPrice: 216 }
+      { weight: "250g", price: 180, offerPrice: 144 }
     ],
-    isOffer: false,
+    isOffer: true,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -252,9 +252,9 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     weight: "100g",
     variants: [
-      { weight: "100g", price: 90, stock: 100 }
+      { weight: "100g", price: 75, offerPrice: 60, stock: 100 }
     ],
-    isOffer: false,
+    isOffer: true,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -266,8 +266,8 @@ export const products: Product[] = [
     name: "Ragi Choco Malt",
     category: "health-drink-mixes",
     categoryId: "69a83fe41c2c00db0a9ba526",
-    price: 300,
-    offerPrice: 300,
+    price: 250,
+    offerPrice: 200,
     image: "/products/RagiChocoMalt.PNG",
     images: ["/products/RagiChocoMalt.PNG", "/products/RagiChocoMaltLabel.PNG"],
     description: "Mansara Ragi Choco Malt is a nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa.",
@@ -277,9 +277,9 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep the container tightly closed.",
     weight: "250g",
     variants: [
-      { weight: "250g", price: 300, offerPrice: 300 }
+      { weight: "250g", price: 250, offerPrice: 200 }
     ],
-    isOffer: false,
+    isOffer: true,
     isNewArrival: true,
     isFeatured: true,
     isActive: true
@@ -313,8 +313,8 @@ export const products: Product[] = [
     name: "Nutriminix – Multi Grain Health Mix",
     category: "health-drink-mixes",
     categoryId: "69a83fe41c2c00db0a9ba526",
-    price: 240,
-    offerPrice: 240,
+    price: 200,
+    offerPrice: 160,
     stock: 100,
     weight: "250g",
     image: "/products/NutriMix.PNG",
@@ -331,10 +331,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: true,
     isNewArrival: false,
-    isOffer: false,
+    isOffer: true,
     isActive: true,
     variants: [
-      { weight: "250g", price: 240, stock: 100 }
+      { weight: "250g", price: 200, offerPrice: 160, stock: 100 }
     ]
   },
   {
@@ -343,8 +343,8 @@ export const products: Product[] = [
     name: "Idly Podi – Traditional",
     category: "idly-podi",
     categoryId: "69a83fe41c2c00db0a9ba528",
-    price: 90,
-    offerPrice: 90,
+    price: 75,
+    offerPrice: 60,
     stock: 100,
     weight: "100g",
     image: "/products/TraditionalIdlyPodi.PNG",
@@ -361,10 +361,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: false,
+    isOffer: true,
     isActive: true,
     variants: [
-      { weight: "100g", price: 90, stock: 100 }
+      { weight: "100g", price: 75, offerPrice: 60, stock: 100 }
     ]
   },
   {
@@ -373,8 +373,8 @@ export const products: Product[] = [
     name: "Rice Podi Mix",
     category: "rice-mixes",
     categoryId: "69a83fe41c2c00db0a9ba529",
-    price: 102,
-    offerPrice: 102,
+    price: 85,
+    offerPrice: 68,
     stock: 100,
     weight: "100g",
     image: "/products/HomeStyleParuppu.PNG",
@@ -391,10 +391,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: false,
+    isOffer: true,
     isActive: true,
     variants: [
-      { weight: "100g", price: 102, stock: 100 }
+      { weight: "100g", price: 85, offerPrice: 68, stock: 100 }
     ]
   },
   {
@@ -403,8 +403,8 @@ export const products: Product[] = [
     name: "Curry Leaves Rice Podi Mix",
     category: "rice-mixes",
     categoryId: "69a83fe41c2c00db0a9ba529",
-    price: 102,
-    offerPrice: 102,
+    price: 85,
+    offerPrice: 68,
     stock: 100,
     weight: "100g",
     image: "/products/KaruveppillaiSpecial.PNG",
@@ -421,10 +421,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: false,
+    isOffer: true,
     isActive: true,
     variants: [
-      { weight: "100g", price: 102, stock: 100 }
+      { weight: "100g", price: 85, offerPrice: 68, stock: 100 }
     ]
   },
   {
@@ -433,8 +433,8 @@ export const products: Product[] = [
     name: "Coriander Rice Podi Mix",
     category: "rice-mixes",
     categoryId: "69a83fe41c2c00db0a9ba529",
-    price: 102,
-    offerPrice: 102,
+    price: 85,
+    offerPrice: 68,
     stock: 100,
     weight: "100g",
     image: "/products/KothamalliAroma.PNG",
@@ -451,10 +451,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: false,
+    isOffer: true,
     isActive: true,
     variants: [
-      { weight: "100g", price: 102, stock: 100 }
+      { weight: "100g", price: 85, offerPrice: 68, stock: 100 }
     ]
   },
   {
@@ -463,8 +463,8 @@ export const products: Product[] = [
     name: "Moringa Rice Podi Mix",
     category: "rice-mixes",
     categoryId: "69a83fe41c2c00db0a9ba529",
-    price: 102,
-    offerPrice: 102,
+    price: 85,
+    offerPrice: 68,
     stock: 100,
     weight: "100g",
     image: "/products/MurungaiVital.PNG",
@@ -481,10 +481,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: false,
+    isOffer: true,
     isActive: true,
     variants: [
-      { weight: "100g", price: 102, stock: 100 }
+      { weight: "100g", price: 85, offerPrice: 68, stock: 100 }
     ]
   },
   {
@@ -493,8 +493,8 @@ export const products: Product[] = [
     name: "Pirandai Rice Podi Mix",
     category: "rice-mixes",
     categoryId: "69a83fe41c2c00db0a9ba529",
-    price: 102,
-    offerPrice: 102,
+    price: 85,
+    offerPrice: 68,
     stock: 100,
     weight: "100g",
     image: "/products/PirandaiPower.PNG",
@@ -511,10 +511,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: false,
+    isOffer: true,
     isActive: true,
     variants: [
-      { weight: "100g", price: 102, stock: 100 }
+      { weight: "100g", price: 85, offerPrice: 68, stock: 100 }
     ]
   },
 ];
