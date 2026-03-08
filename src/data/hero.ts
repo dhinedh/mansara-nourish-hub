@@ -35,24 +35,16 @@ export interface HeroConfig {
 export const heroConfig: HeroConfig = {
     home: [
         {
-            id: 'womens-day-2026',
-            image: '/hero-launch-offer.png', // Temporary placeholder until image gen is back
-            title: "International Women's Day Special",
-            subtitle: "Celebrate with 20% OFF on all products! Handcrafted wellness for the incredible women in your life.",
-            ctaText: "Shop Now",
-            ctaLink: "/products"
-        },
-        {
             id: '1',
-            image: '/hero-home-combo-final.jpg',
+            image: '/hero-womens-day-home-v2.png',
             title: '',
             subtitle: '',
             ctaText: '',
-            ctaLink: '/combos'
+            ctaLink: '/products'
         },
         {
             id: '2',
-            image: '/hero-launch-offer.png',
+            image: '/hero-womens-day-home-v1.png',
             title: '',
             subtitle: '',
             ctaText: '',
@@ -65,9 +57,9 @@ export const heroConfig: HeroConfig = {
         subtitle: 'The perfect blend of tradition and taste. Nutritious Ragi meets premium Cocoa.'
     },
     offers: {
-        image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
-        title: 'Special Offers',
-        subtitle: 'Grab these amazing deals on your favorite MANSARA products. Premium quality at special prices!'
+        image: '/hero-womens-day-offer-final.png',
+        title: 'Special International Women\'s Day Offer',
+        subtitle: 'Celebrate health and wellness with a 20% discount on all Mansara products. Honoring women everywhere!'
     },
     combos: {
         image: '/hero-combos-final.png',

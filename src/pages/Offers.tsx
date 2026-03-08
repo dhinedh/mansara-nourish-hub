@@ -25,7 +25,7 @@ const Offers: React.FC = () => {
   const { products, isLoading } = useStore();
 
   // Memoize filtering to prevent recalculation
-  const offerProducts = useMemo(() => 
+  const offerProducts = useMemo(() =>
     products.filter(p => p.isOffer && p.isActive),
     [products]
   );
