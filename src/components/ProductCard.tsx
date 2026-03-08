@@ -35,24 +35,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const firstVariant = hasVariants ? product.variants[0] : null;
 
   // SAFE FALLBACK LOGIC:
-  // We prioritize the specialized offerPrice field. 
-  // If isOffer is true but offerPrice is missing, we check variants.
-  let price = firstVariant ? firstVariant.price : product.price;
+  // If variant has no offer price (0 or undefined), but its price matches the main product price,
+  // we assume it should inherit the main product's offer price.
   let offerPrice = firstVariant ? firstVariant.offerPrice : product.offerPrice;
+  const price = firstVariant ? firstVariant.price : product.price;
 
-  // Ensure offerPrice is always populated if isOffer is true
-  if (product.isOffer && !offerPrice) {
-    if (firstVariant && firstVariant.price === product.price && product.offerPrice) {
+  if (firstVariant && !offerPrice && firstVariant.price === product.price) {
+    // Only inherit offer price if it is valid (less than the original price)
+    // This handles cases where user mistakenly puts a higher price in the offer field
+    if (product.offerPrice && product.offerPrice < product.price) {
       offerPrice = product.offerPrice;
-    } else if (price > 0) {
-      // Emergency fallback: calculate 20% discount if missing but flag is on
-      offerPrice = Math.round(price * 0.8);
     }
-  }
-
-  // Ensure offerPrice isn't mistakenly higher than base price
-  if (offerPrice && offerPrice >= price && !hasVariants) {
-    offerPrice = undefined;
   }
 
   const isNewArrival = product.isNewArrival;

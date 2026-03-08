@@ -112,7 +112,7 @@ export const products: Product[] = [
     category: "urad-porridge-mix",
     categoryId: "69a83fe41c2c00db0a9ba523",
     price: 66,
-    offerPrice: 53,
+    offerPrice: 66,
     image: "/products/urad-classic-front.jpg",
     images: ["/products/urad-classic-front.jpg", "/products/urad-classic-back.jpg", "/products/urad-classic-side.jpg"],
     description: "Mansara Classic Urad Health Mix is a time-tested nourishing blend made primarily from premium black gram (Urad Dal).",
@@ -122,10 +122,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place.",
     weight: "100g",
     variants: [
-      { weight: "100g", price: 66, offerPrice: 53 },
-      { weight: "250g", price: 168, offerPrice: 134 }
+      { weight: "100g", price: 66, offerPrice: 66 },
+      { weight: "250g", price: 168, offerPrice: 168 }
     ],
-    isOffer: true,
+    isOffer: false,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -138,7 +138,7 @@ export const products: Product[] = [
     category: "urad-porridge-mix",
     categoryId: "69a83fe41c2c00db0a9ba523",
     price: 66,
-    offerPrice: 53,
+    offerPrice: 66,
     image: "/products/urad-salt-pepper-front.jpg",
     images: ["/products/urad-salt-pepper-front.jpg", "/products/urad-salt-pepper-back.jpg", "/products/urad-salt-pepper-side.jpg"],
     description: "Mansara Urad Health Mix – Salt n Pepper is a savoury twist on the traditional ulunthankanji.",
@@ -148,10 +148,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place.",
     weight: "100g",
     variants: [
-      { weight: "100g", price: 66, offerPrice: 53 },
-      { weight: "250g", price: 168, offerPrice: 134 }
+      { weight: "100g", price: 66, offerPrice: 66 },
+      { weight: "250g", price: 168, offerPrice: 168 }
     ],
-    isOffer: true,
+    isOffer: false,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -164,7 +164,7 @@ export const products: Product[] = [
     category: "urad-porridge-mix",
     categoryId: "69a83fe41c2c00db0a9ba523",
     price: 72,
-    offerPrice: 58,
+    offerPrice: 72,
     image: "/products/urad-millet-magic-back.jpg",
     images: ["/products/urad-millet-magic-front.jpg", "/products/urad-millet-magic-back.jpg", "/products/urad-millet-magic-side.jpg"],
     description: "Mansara Millet Magic Urad Health Mix brings together the muscle-strengthening benefits of black gram with the mineral-rich goodness of diverse millets.",
@@ -174,10 +174,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place.",
     weight: "100g",
     variants: [
-      { weight: "100g", price: 72, offerPrice: 58 },
-      { weight: "250g", price: 180, offerPrice: 144 }
+      { weight: "100g", price: 72, offerPrice: 72 },
+      { weight: "250g", price: 180, offerPrice: 180 }
     ],
-    isOffer: true,
+    isOffer: false,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -190,7 +190,7 @@ export const products: Product[] = [
     category: "urad-porridge-mix",
     categoryId: "69a83fe41c2c00db0a9ba523",
     price: 78,
-    offerPrice: 62,
+    offerPrice: 78,
     image: "/products/urad-premium-front.jpg",
     images: ["/products/urad-premium-front.jpg", "/products/urad-premium-back.jpg", "/products/urad-premium-side.jpg"],
     description: "Mansara Premium Urad Health Mix is a carefully crafted blend designed for those who want maximum nutrition in every serving.",
@@ -200,10 +200,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place.",
     weight: "100g",
     variants: [
-      { weight: "100g", price: 78, offerPrice: 62 },
-      { weight: "250g", price: 192, offerPrice: 154 }
+      { weight: "100g", price: 78, offerPrice: 78 },
+      { weight: "250g", price: 192, offerPrice: 192 }
     ],
-    isOffer: true,
+    isOffer: false,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -216,7 +216,7 @@ export const products: Product[] = [
     category: "black-rice-mix",
     categoryId: "69a83fe41c2c00db0a9ba524",
     price: 84,
-    offerPrice: 67,
+    offerPrice: 84,
     image: "/products/black-rice-delight-front.jpg",
     images: ["/products/black-rice-delight-front.jpg", "/products/black-rice-delight-back.jpg", "/products/black-rice-delight-side.jpg"],
     description: "Mansara Black Rice Delight Health Mix is made using traditional black rice (Karuppu Kavuni Arisi).",
@@ -226,10 +226,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place.",
     weight: "100g",
     variants: [
-      { weight: "100g", price: 84, offerPrice: 67 },
-      { weight: "250g", price: 216, offerPrice: 173 }
+      { weight: "100g", price: 84, offerPrice: 84 },
+      { weight: "250g", price: 216, offerPrice: 216 }
     ],
-    isOffer: true,
+    isOffer: false,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -242,7 +242,7 @@ export const products: Product[] = [
     category: "idly-podi",
     categoryId: "69a83fe41c2c00db0a9ba528",
     price: 90,
-    offerPrice: 72,
+    offerPrice: 90,
     image: "/products/MilletFusionIdlyPodi.PNG",
     images: ["/products/MilletFusionIdlyPodi.PNG", "/products/MilletFusionIdlyPodiLabel.PNG"],
     description: "A nutritious millet-enriched idly podi combining lentils, millets, and spices for a healthy traditional side dish.",
@@ -252,9 +252,9 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     weight: "100g",
     variants: [
-      { weight: "100g", price: 90, offerPrice: 72, stock: 100 }
+      { weight: "100g", price: 90, stock: 100 }
     ],
-    isOffer: true,
+    isOffer: false,
     isNewArrival: false,
     isFeatured: false,
     isActive: true
@@ -267,7 +267,7 @@ export const products: Product[] = [
     category: "health-drink-mixes",
     categoryId: "69a83fe41c2c00db0a9ba526",
     price: 300,
-    offerPrice: 240,
+    offerPrice: 300,
     image: "/products/RagiChocoMalt.PNG",
     images: ["/products/RagiChocoMalt.PNG", "/products/RagiChocoMaltLabel.PNG"],
     description: "Mansara Ragi Choco Malt is a nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa.",
@@ -277,9 +277,9 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep the container tightly closed.",
     weight: "250g",
     variants: [
-      { weight: "250g", price: 300, offerPrice: 240 }
+      { weight: "250g", price: 300, offerPrice: 300 }
     ],
-    isOffer: true,
+    isOffer: false,
     isNewArrival: true,
     isFeatured: true,
     isActive: true
@@ -292,7 +292,7 @@ export const products: Product[] = [
     category: "combos",
     categoryId: "69a8facd2fef7ae403186831",
     price: 312,
-    offerPrice: 250,
+    offerPrice: 312,
     image: "/product-combo-5mixes.jpg",
     images: ["/product-combo-5mixes.jpg"],
     description: "Experience the complete range of Mansara Foods premium porridge mixes. This pack contains all 5 of our signature blends- Urad Porridge Mix (Classic, Premium, Salt & Pepper, Millet Magic) and Black Rice Delight.",
@@ -302,7 +302,7 @@ export const products: Product[] = [
     howToUse: "Each variant follows its own cooking instructions as detailed on its individual packaging.",
     storage: "Store in a cool, dry place.",
     weight: "500g (5 x 100g)",
-    isOffer: true,
+    isOffer: false,
     isNewArrival: false,
     isFeatured: true,
     isActive: true
@@ -314,7 +314,7 @@ export const products: Product[] = [
     category: "health-drink-mixes",
     categoryId: "69a83fe41c2c00db0a9ba526",
     price: 240,
-    offerPrice: 192,
+    offerPrice: 240,
     stock: 100,
     weight: "250g",
     image: "/products/NutriMix.PNG",
@@ -331,10 +331,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: true,
     isNewArrival: false,
-    isOffer: true,
+    isOffer: false,
     isActive: true,
     variants: [
-      { weight: "250g", price: 240, offerPrice: 192, stock: 100 }
+      { weight: "250g", price: 240, stock: 100 }
     ]
   },
   {
@@ -344,7 +344,7 @@ export const products: Product[] = [
     category: "idly-podi",
     categoryId: "69a83fe41c2c00db0a9ba528",
     price: 90,
-    offerPrice: 72,
+    offerPrice: 90,
     stock: 100,
     weight: "100g",
     image: "/products/TraditionalIdlyPodi.PNG",
@@ -361,10 +361,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: true,
+    isOffer: false,
     isActive: true,
     variants: [
-      { weight: "100g", price: 90, offerPrice: 72, stock: 100 }
+      { weight: "100g", price: 90, stock: 100 }
     ]
   },
   {
@@ -374,7 +374,7 @@ export const products: Product[] = [
     category: "rice-mixes",
     categoryId: "69a83fe41c2c00db0a9ba529",
     price: 102,
-    offerPrice: 82,
+    offerPrice: 102,
     stock: 100,
     weight: "100g",
     image: "/products/HomeStyleParuppu.PNG",
@@ -391,10 +391,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: true,
+    isOffer: false,
     isActive: true,
     variants: [
-      { weight: "100g", price: 102, offerPrice: 82, stock: 100 }
+      { weight: "100g", price: 102, stock: 100 }
     ]
   },
   {
@@ -404,7 +404,7 @@ export const products: Product[] = [
     category: "rice-mixes",
     categoryId: "69a83fe41c2c00db0a9ba529",
     price: 102,
-    offerPrice: 82,
+    offerPrice: 102,
     stock: 100,
     weight: "100g",
     image: "/products/KaruveppillaiSpecial.PNG",
@@ -421,10 +421,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: true,
+    isOffer: false,
     isActive: true,
     variants: [
-      { weight: "100g", price: 102, offerPrice: 82, stock: 100 }
+      { weight: "100g", price: 102, stock: 100 }
     ]
   },
   {
@@ -434,7 +434,7 @@ export const products: Product[] = [
     category: "rice-mixes",
     categoryId: "69a83fe41c2c00db0a9ba529",
     price: 102,
-    offerPrice: 82,
+    offerPrice: 102,
     stock: 100,
     weight: "100g",
     image: "/products/KothamalliAroma.PNG",
@@ -451,10 +451,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: true,
+    isOffer: false,
     isActive: true,
     variants: [
-      { weight: "100g", price: 102, offerPrice: 82, stock: 100 }
+      { weight: "100g", price: 102, stock: 100 }
     ]
   },
   {
@@ -464,7 +464,7 @@ export const products: Product[] = [
     category: "rice-mixes",
     categoryId: "69a83fe41c2c00db0a9ba529",
     price: 102,
-    offerPrice: 82,
+    offerPrice: 102,
     stock: 100,
     weight: "100g",
     image: "/products/MurungaiVital.PNG",
@@ -481,10 +481,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: true,
+    isOffer: false,
     isActive: true,
     variants: [
-      { weight: "100g", price: 102, offerPrice: 82, stock: 100 }
+      { weight: "100g", price: 102, stock: 100 }
     ]
   },
   {
@@ -494,7 +494,7 @@ export const products: Product[] = [
     category: "rice-mixes",
     categoryId: "69a83fe41c2c00db0a9ba529",
     price: 102,
-    offerPrice: 82,
+    offerPrice: 102,
     stock: 100,
     weight: "100g",
     image: "/products/PirandaiPower.PNG",
@@ -511,10 +511,10 @@ export const products: Product[] = [
     storage: "Store in a cool, dry place. Keep airtight after opening.",
     isFeatured: false,
     isNewArrival: false,
-    isOffer: true,
+    isOffer: false,
     isActive: true,
     variants: [
-      { weight: "100g", price: 102, offerPrice: 82, stock: 100 }
+      { weight: "100g", price: 102, stock: 100 }
     ]
   },
 ];
@@ -532,7 +532,7 @@ export const combos: Combo[] = [
       "69a83fe61c2c00db0a9ba52b"
     ],
     originalPrice: 330,
-    comboPrice: 250,
+    comboPrice: 312,
     image: "/product-combo-5mixes.jpg",
     description: "Experience the complete range of Mansara Foods premium porridge mixes."
   }

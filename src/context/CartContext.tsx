@@ -109,15 +109,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Validate and sanitize
         const sanitizedCart = validateCartItems(serverCart);
 
-        const priceSyncedCart = sanitizedCart.map(item => {
-          const storeProduct = products.find(p => p.id === item.id);
-          if (storeProduct && item.type === 'product') {
-            const currentPrice = storeProduct.offerPrice || storeProduct.price;
-            if (item.price !== currentPrice) return { ...item, price: currentPrice };
-          }
-          return item;
-        });
-        setItems(priceSyncedCart);
+        setItems(sanitizedCart);
         console.log('[Cart] ✓ Loaded from server:', sanitizedCart.length, 'items');
       } catch (error: any) {
         console.error('[Cart] ✗ Failed to load cart:', error);
@@ -129,29 +121,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     loadCart();
   }, [user?.id, isAuthenticated]);
-
-  // ========================================
-  // REACTIVE PRICE SYNC
-  // ========================================
-  useEffect(() => {
-    if (products.length > 0 && items.length > 0) {
-      setItems(currentItems => {
-        let changed = false;
-        const synced = currentItems.map(item => {
-          const storeProduct = products.find(p => p.id === item.id);
-          if (storeProduct && item.type === 'product') {
-            const currentPrice = storeProduct.offerPrice || storeProduct.price;
-            if (item.price !== currentPrice) {
-              changed = true;
-              return { ...item, price: currentPrice };
-            }
-          }
-          return item;
-        });
-        return changed ? synced : currentItems;
-      });
-    }
-  }, [products]);
 
   // ========================================
   // DEBOUNCED SYNC TO BACKEND
