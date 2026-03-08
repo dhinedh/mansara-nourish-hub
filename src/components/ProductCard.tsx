@@ -31,18 +31,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
 
   const hasVariants = product.variants && product.variants.length > 0;
 
-  // Use first variant for price display, or fallback to product
-  const firstVariant = hasVariants ? product.variants[0] : null;
+  // Intelligent Variant Selection for Listing View:
+  // Instead of always picking the first variant, we look for one that has an active offer.
+  const discountedVariant = product.variants?.find(v => v.offerPrice && v.offerPrice < v.price);
+  const firstVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
+
+  // Prioritize the discounted variant for the card display
+  const displayVariant = discountedVariant || firstVariant;
 
   // SAFE FALLBACK LOGIC:
   // If variant has no offer price (0 or undefined), but its price matches the main product price,
   // we assume it should inherit the main product's offer price.
-  let offerPrice = firstVariant ? firstVariant.offerPrice : product.offerPrice;
-  const price = firstVariant ? firstVariant.price : product.price;
+  let offerPrice = displayVariant ? displayVariant.offerPrice : product.offerPrice;
+  const price = displayVariant ? displayVariant.price : product.price;
 
-  if (firstVariant && !offerPrice && firstVariant.price === product.price) {
-    // Only inherit offer price if it is valid (less than the original price)
-    // This handles cases where user mistakenly puts a higher price in the offer field
+  if (displayVariant && !offerPrice && displayVariant.price === product.price) {
     if (product.offerPrice && product.offerPrice < product.price) {
       offerPrice = product.offerPrice;
     }
@@ -110,8 +113,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
     ? Math.round(((price - offerPrice) / price) * 100)
     : 0;
 
-  // Use first variant weight if available
-  const displayWeight = firstVariant ? firstVariant.weight : product.weight;
+  // Use the selected display variant weight if available
+  const displayWeight = displayVariant ? displayVariant.weight : product.weight;
   const unitPrice = calculateUnitPrice(displayPrice, displayWeight);
 
   return (
