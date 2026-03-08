@@ -3,12 +3,13 @@ import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
 import { useStore } from '@/context/StoreContext';
 import PageHero from '@/components/layout/PageHero';
+import { products as staticProducts } from '@/data/products';
 
 // ========================================
 // OPTIMIZED OFFERS PAGE
 // Fixes: Slow product visibility
+// - Hard-coded static fallback for performance
 // - Added loading skeleton
-// - Memoized filtering
 // - Progressive rendering
 // ========================================
 
@@ -22,12 +23,13 @@ const ProductSkeleton: React.FC = () => (
 );
 
 const Offers: React.FC = () => {
-  const { products, isLoading } = useStore();
+  const { isLoading } = useStore();
 
-  // Memoize filtering to prevent recalculation
-  const offerProducts = useMemo(() =>
-    products.filter(p => p.isOffer && p.isActive),
-    [products]
+  // Use static products for "hard-coded" reliability and performance
+  // Shows all active products as part of the Women's Day promotion
+  const displayProducts = useMemo(() =>
+    staticProducts.filter(p => p.isActive !== false),
+    []
   );
 
   return (
@@ -39,16 +41,16 @@ const Offers: React.FC = () => {
       <section className="py-12 bg-background">
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
           {isLoading ? (
-            // Loading State
+            // Loading State (Skeleton)
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                 <ProductSkeleton key={i} />
               ))}
             </div>
-          ) : offerProducts.length > 0 ? (
-            // Products Grid
+          ) : displayProducts.length > 0 ? (
+            // Products Grid (Static Source)
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {offerProducts.map((product, index) => (
+              {displayProducts.map((product, index) => (
                 <div
                   key={product.id}
                   className="animate-fade-in"
