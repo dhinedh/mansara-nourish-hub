@@ -24,6 +24,7 @@ export interface CartItem {
   price: number;
   name: string;
   image: string;
+  weight?: string;
 }
 
 interface CartContextType {
@@ -53,7 +54,8 @@ const sanitizeCartItem = (item: any): CartItem => ({
   name: item.name || 'Unknown Item',
   price: Number(item.price) || 0,
   quantity: Math.max(1, Math.min(999, Number(item.quantity) || 1)),
-  image: item.image || ''
+  image: item.image || '',
+  weight: item.weight || undefined
 });
 
 /**
@@ -70,7 +72,7 @@ const validateCartItems = (items: any[]): CartItem[] => {
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
-  const { updateProduct, products, getProduct, refetch, updateLocalStock } = useStore(); // Get Store functions
+  const { updateProduct, products, combos, getProduct, getCombo, refetch, updateLocalStock } = useStore(); // Get Store functions
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -121,6 +123,47 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     loadCart();
   }, [user?.id, isAuthenticated]);
+
+  // ========================================
+  // SYNC CART PRICES WITH STORE DATA
+  // ========================================
+  useEffect(() => {
+    if (products.length === 0 && combos.length === 0 && !isLoading) return;
+
+    setItems(prev => {
+      let changed = false;
+      const updated = prev.map(item => {
+        if (item.type === 'product') {
+          const liveProduct = products.find(p => p.id === item.id || p._id === item.id);
+          if (liveProduct) {
+            let livePrice = liveProduct.offerPrice || liveProduct.price;
+
+            // Handle variants
+            if (item.weight && liveProduct.variants && liveProduct.variants.length > 0) {
+              const variant = liveProduct.variants.find(v => v.weight === item.weight);
+              if (variant) {
+                livePrice = variant.offerPrice || variant.price;
+              }
+            }
+
+            if (item.price !== livePrice) {
+              changed = true;
+              return { ...item, price: livePrice };
+            }
+          }
+        } else if (item.type === 'combo') {
+          const liveCombo = combos.find(c => c.id === item.id || c.slug === item.id);
+          if (liveCombo && item.price !== liveCombo.comboPrice) {
+            changed = true;
+            return { ...item, price: liveCombo.comboPrice };
+          }
+        }
+        return item;
+      });
+
+      return changed ? updated : prev;
+    });
+  }, [products, combos, isLoading]);
 
   // ========================================
   // DEBOUNCED SYNC TO BACKEND
@@ -197,23 +240,47 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     setItems(prev => {
-      const existingItem = prev.find(i => i.id === item.id && i.type === type);
+      // For products with variants, we need to check both ID and weight
+      const existingItem = prev.find(i =>
+        i.id === item.id &&
+        i.type === type &&
+        (type === 'combo' || (i as any).weight === (item as Product).weight)
+      );
 
       let newItems: CartItem[];
 
       if (existingItem) {
         // Update quantity
         newItems = prev.map(i =>
-          i.id === item.id && i.type === type
+          (i.id === item.id && i.type === type && (type === 'combo' || (i as any).weight === (item as Product).weight))
             ? { ...i, quantity: Math.min(999, i.quantity + 1) }
             : i
         );
         toast.success('Cart updated', { duration: 2000 });
       } else {
-        // Calculate price
-        const price = type === 'product'
-          ? ((item as Product).offerPrice || (item as Product).price)
-          : (item as Combo).comboPrice;
+        // Calculate price from live data if possible
+        let price: number;
+        let weight: string | undefined = undefined;
+
+        if (type === 'product') {
+          const p = item as Product;
+          weight = p.weight;
+          const liveProduct = products.find(lp => lp.id === p.id || lp._id === p.id);
+
+          if (liveProduct) {
+            price = liveProduct.offerPrice || liveProduct.price;
+            if (weight && liveProduct.variants && liveProduct.variants.length > 0) {
+              const variant = liveProduct.variants.find(v => v.weight === weight);
+              if (variant) {
+                price = variant.offerPrice || variant.price;
+              }
+            }
+          } else {
+            price = p.offerPrice || p.price;
+          }
+        } else {
+          price = (item as Combo).comboPrice;
+        }
 
         // Add new item
         const newItem: CartItem = {
@@ -222,7 +289,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           quantity: 1,
           price,
           name: item.name,
-          image: item.image || ''
+          image: item.image || '',
+          weight
         };
 
         newItems = [...prev, newItem];

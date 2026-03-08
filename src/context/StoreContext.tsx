@@ -98,6 +98,7 @@ interface StoreContextType {
     refetch: () => Promise<void>;
     getCategoryIdBySlug: (slug: string) => string | undefined;
     updateLocalStock: (id: string, newStock: number) => void;
+    getCombo: (id: string) => Combo | undefined;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -676,6 +677,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // ========================================
     // CONTEXT VALUE
+    const getCombo = useCallback((identifier: string) => {
+        return combos.find(c => c.id === identifier || c.slug === identifier);
+    }, [combos]);
+
     // ========================================
 
     const value: StoreContextType = {
@@ -695,7 +700,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         refetch,
 
         getCategoryIdBySlug,
-        updateLocalStock
+        updateLocalStock,
+        getCombo
     };
 
     return (

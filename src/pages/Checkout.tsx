@@ -365,7 +365,8 @@ const Checkout: React.FC = () => {
           product: item.id,
           name: item.name,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
+          weight: item.weight
         })),
         total: totalAmount,
         subtotal: getCartTotal(), // Helpful for backend reference
