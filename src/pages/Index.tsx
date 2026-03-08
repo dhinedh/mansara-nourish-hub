@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Leaf, Sparkles } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { products as staticProducts } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import TrustStrip from '@/components/TrustStrip';
 import HeroSlider from '@/components/home/HeroSlider';
@@ -37,8 +36,8 @@ const Index: React.FC = () => {
   );
 
   const newArrivals = useMemo(() =>
-    staticProducts.filter(p => p.slug === 'ragi-choco-malt'),
-    []
+    products.filter(p => p.slug === 'ragi-choco-malt' && p.isActive),
+    [products]
   );
 
   return (

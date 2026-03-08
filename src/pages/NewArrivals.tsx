@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
 import { useStore } from '@/context/StoreContext';
-import { products as staticProducts } from '@/data/products';
 import PageHero from '@/components/layout/PageHero';
 
 // ========================================
@@ -27,8 +26,8 @@ const NewArrivals: React.FC = () => {
 
   // Memoize filtering to prevent recalculation
   const newProducts = useMemo(() =>
-    staticProducts.filter(p => p.slug === 'ragi-choco-malt'),
-    []
+    products.filter(p => p.slug === 'ragi-choco-malt' && p.isActive),
+    [products]
   );
 
   return (

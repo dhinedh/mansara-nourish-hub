@@ -328,10 +328,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     id: apiP.id || apiP._id || staticP.id,
                     _id: apiP._id || apiP.id,
                     price: apiP.price || staticP.price,
-                    offerPrice: apiP.offerPrice !== undefined ? apiP.offerPrice : staticP.offerPrice,
+                    // IMPORTANT: Prioritize API offer price if product exists in DB
+                    offerPrice: apiP.offerPrice !== undefined ? apiP.offerPrice : (apiP ? undefined : staticP.offerPrice),
                     originalPrice: apiP.originalPrice || apiP.price || staticP.price,
-                    isOffer: apiP.isOffer !== undefined ? apiP.isOffer : staticP.isOffer,
-                    stock: apiP.stock,
+                    // Trust API for offer status
+                    isOffer: apiP.isOffer !== undefined ? apiP.isOffer : (apiP ? false : staticP.isOffer),
+                    stock: apiP.stock !== undefined ? apiP.stock : 0,
                     variants: apiP.variants || staticP.variants,
                     isActive: apiP.isActive !== undefined ? apiP.isActive : true,
                     categoryId: categoryId,
