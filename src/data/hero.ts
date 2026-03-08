@@ -35,6 +35,14 @@ export interface HeroConfig {
 export const heroConfig: HeroConfig = {
     home: [
         {
+            id: 'womens-day-2026',
+            image: '/hero-launch-offer.png', // Temporary placeholder until image gen is back
+            title: "International Women's Day Special",
+            subtitle: "Celebrate with 20% OFF on all products! Handcrafted wellness for the incredible women in your life.",
+            ctaText: "Shop Now",
+            ctaLink: "/products"
+        },
+        {
             id: '1',
             image: '/hero-home-combo-final.jpg',
             title: '',
