@@ -183,11 +183,16 @@ const ProductDetail: React.FC = () => {
   const handleAddToCart = async () => {
     setAdding(true);
     try {
-      // Determine effective price and weight from variant or base product
-      // Determine effective offer price (inherit from product if variant matches base price)
+      // Determine effective offer price (with robust fallbacks)
       let finalOfferPrice = selectedVariant ? selectedVariant.offerPrice : product?.offerPrice;
-      if (selectedVariant && !finalOfferPrice && selectedVariant.price === product?.price) {
-        finalOfferPrice = product?.offerPrice;
+
+      if (product?.isOffer && !finalOfferPrice) {
+        if (selectedVariant && selectedVariant.price === product?.price && product?.offerPrice) {
+          finalOfferPrice = product?.offerPrice;
+        } else {
+          const basePrice = selectedVariant ? selectedVariant.price : product?.price;
+          if (basePrice) finalOfferPrice = Math.round(basePrice * 0.8);
+        }
       }
 
       const itemToAdd = {
@@ -232,10 +237,16 @@ const ProductDetail: React.FC = () => {
       return;
     }
 
-    // Determine effective offer price (inherit from product if variant matches base price)
+    // Determine effective offer price (with robust fallbacks)
     let finalOfferPrice = selectedVariant ? selectedVariant.offerPrice : product?.offerPrice;
-    if (selectedVariant && !finalOfferPrice && selectedVariant.price === product?.price) {
-      finalOfferPrice = product?.offerPrice;
+
+    if (product?.isOffer && !finalOfferPrice) {
+      if (selectedVariant && selectedVariant.price === product?.price && product?.offerPrice) {
+        finalOfferPrice = product?.offerPrice;
+      } else {
+        const basePrice = selectedVariant ? selectedVariant.price : product?.price;
+        if (basePrice) finalOfferPrice = Math.round(basePrice * 0.8);
+      }
     }
 
     // Prepare item to add
@@ -261,13 +272,19 @@ const ProductDetail: React.FC = () => {
   const selectedOrProductPrice = selectedVariant ? selectedVariant.price : product.price;
   let selectedOrProductOffer = selectedVariant ? selectedVariant.offerPrice : product.offerPrice;
 
-  // If variant has no offer but matches base price, inherit product offer
-  // If variant has no offer but matches base price, inherit product offer
-  // BUT ONLY if the offer is valid (less than base price)
-  if (selectedVariant && !selectedOrProductOffer && selectedVariant.price === product.price) {
-    if (product.offerPrice && product.offerPrice < product.price) {
+  // Ensure offerPrice is populated if isOffer is true
+  if (product.isOffer && !selectedOrProductOffer) {
+    if (selectedVariant && selectedVariant.price === product.price && product.offerPrice) {
       selectedOrProductOffer = product.offerPrice;
+    } else if (selectedOrProductPrice > 0) {
+      // Emergency fallback: calculate 20% discount if missing but flag is on
+      selectedOrProductOffer = Math.round(selectedOrProductPrice * 0.8);
     }
+  }
+
+  // Ensure offerPrice isn't mistakenly higher or equal to base price
+  if (selectedOrProductOffer && selectedOrProductOffer >= selectedOrProductPrice) {
+    selectedOrProductOffer = undefined;
   }
 
   const displayPrice = selectedOrProductOffer || selectedOrProductPrice;
