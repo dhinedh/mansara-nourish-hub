@@ -1,5 +1,6 @@
 import React from 'react';
 import { useHeroContent, HeroConfig } from '@/hooks/useHeroContent';
+import ProgressiveImage from '@/components/ui/ProgressiveImage';
 
 interface PageHeroProps {
     pageKey: keyof Omit<HeroConfig, 'home' | 'homeSettings'>;
@@ -7,7 +8,7 @@ interface PageHeroProps {
     className?: string;
 }
 
-const PageHero: React.FC<PageHeroProps> = ({ pageKey, children, className = "py-24" }) => {
+const PageHero: React.FC<PageHeroProps> = ({ pageKey, children, className = "py-16 md:py-24" }) => {
     const { heroConfig } = useHeroContent();
     const content = heroConfig[pageKey];
 
@@ -17,12 +18,13 @@ const PageHero: React.FC<PageHeroProps> = ({ pageKey, children, className = "py-
         <section className={`relative overflow-hidden ${className}`}>
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
-                <img
+                <ProgressiveImage
                     src={content.image}
-                    alt={content.title}
+                    alt={content.title || 'Page Hero'}
                     className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+                {/* Lighter overlay for better readability of image-embedded text */}
+                <div className="absolute inset-0 bg-black/20" />
             </div>
 
             {/* Content */}
@@ -30,12 +32,16 @@ const PageHero: React.FC<PageHeroProps> = ({ pageKey, children, className = "py-
                 <div className="animate-fade-in-up">
                     {children}
 
-                    <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
-                        {content.title}
-                    </h1>
-                    <p className="text-zinc-200 text-lg max-w-2xl leading-relaxed font-medium">
-                        {content.subtitle}
-                    </p>
+                    {content.title && (
+                        <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
+                            {content.title}
+                        </h1>
+                    )}
+                    {content.subtitle && (
+                        <p className="text-zinc-200 text-lg max-w-2xl leading-relaxed font-medium">
+                            {content.subtitle}
+                        </p>
+                    )}
                 </div>
             </div>
         </section>
