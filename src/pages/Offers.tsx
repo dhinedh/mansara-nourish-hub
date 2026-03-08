@@ -33,11 +33,7 @@ const Offers: React.FC = () => {
   return (
     <Layout>
       {/* Hero Banner */}
-      <PageHero pageKey="offers">
-        <span className="inline-block bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-sm font-bold mb-6 shadow-md btn-shine">
-          Limited Time Deals
-        </span>
-      </PageHero>
+      <PageHero pageKey="offers" />
 
       {/* Products Grid */}
       <section className="py-12 bg-background">

@@ -58,8 +58,8 @@ export const heroConfig: HeroConfig = {
     },
     offers: {
         image: '/hero-womens-day-offer-final.png',
-        title: 'Special International Women\'s Day Offer',
-        subtitle: 'Celebrate health and wellness with a 20% discount on all Mansara products. Honoring women everywhere!'
+        title: '',
+        subtitle: ''
     },
     combos: {
         image: '/hero-combos-final.png',
