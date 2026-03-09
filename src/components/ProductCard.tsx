@@ -34,32 +34,37 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   // Use first variant for price display, or fallback to product
   const firstVariant = hasVariants ? product.variants[0] : null;
 
-  // SAFE FALLBACK LOGIC:
-  // If variant has no offer price (0 or undefined), but its price matches the main product price,
-  // we assume it should inherit the main product's offer price.
-  let offerPrice = firstVariant ? firstVariant.offerPrice : product.offerPrice;
-  const price = firstVariant ? firstVariant.price : product.price;
+  /**
+   * PRICING LOGIC ALIGNMENT (Backend Sync):
+   * 1. 'price' is the CURRENT SELLING PRICE (updated by 20% script)
+   * 2. 'originalPrice' is the MRP / OLD PRICE
+   * 3. 'offerPrice' is legacy/fallback
+   */
+  const currentSellingPrice = firstVariant ? firstVariant.price : product.price;
 
-  if (firstVariant && !offerPrice && firstVariant.price === product.price) {
-    if (product.offerPrice && product.offerPrice < product.price) {
-      offerPrice = product.offerPrice;
-    }
+  // Strikethrough price (originalPrice or legacy offerPrice logic)
+  let mrp = firstVariant ? (firstVariant as any).originalPrice : (product as any).originalPrice;
+
+  // Fallback: If no originalPrice but there is an offerPrice that's LESS than price,
+  // then price was likely the MRP and offerPrice was the selling price (Legacy data format)
+  // However, with latest updates, 'price' is always the selling price.
+  if (!mrp && product.offerPrice && product.offerPrice < product.price) {
+    mrp = product.price;
   }
 
-  // Calculate max discount percentage across all variants/product
+  // Calculate discount percentage
   let maxDiscountPercent = 0;
-
-  // Check main product/first variant
-  const currentHasDiscount = !!(offerPrice && offerPrice < price);
-  if (currentHasDiscount) {
-    maxDiscountPercent = Math.round(((price - offerPrice) / price) * 100);
+  if (mrp && mrp > currentSellingPrice) {
+    maxDiscountPercent = Math.round(((mrp - currentSellingPrice) / mrp) * 100);
   }
 
-  // Check all variants to see if any have a discount (for badge display)
+  // Check all variants for deeper discounts (for badge display)
   if (product.variants && product.variants.length > 0) {
     product.variants.forEach(v => {
-      if (v.offerPrice && v.offerPrice < v.price) {
-        const discount = Math.round(((v.price - v.offerPrice) / v.price) * 100);
+      const vPrice = v.price;
+      const vMrp = (v as any).originalPrice;
+      if (vMrp && vMrp > vPrice) {
+        const discount = Math.round(((vMrp - vPrice) / vMrp) * 100);
         if (discount > maxDiscountPercent) {
           maxDiscountPercent = discount;
         }
@@ -92,7 +97,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
       const cartItemStruture = {
         ...product,
         image: imageUrl,
-        offerPrice: offerPrice,
+        price: currentSellingPrice,
+        originalPrice: mrp,
       };
 
       // Cast to any because CartContext types are strict but runtime is compatible with this shape
@@ -120,15 +126,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
     const cartItemStruture = {
       ...product,
       image: imageUrl,
-      offerPrice: offerPrice,
+      price: currentSellingPrice,
+      originalPrice: mrp,
     };
 
     addToCart(cartItemStruture as any, 'product');
     navigate('/checkout');
   };
 
-  const displayPrice = offerPrice || price;
-  const hasDiscount = !!(offerPrice && offerPrice < price);
+  const displayPrice = currentSellingPrice;
+  const hasDiscount = !!(mrp && mrp > currentSellingPrice);
 
   // Use first variant weight if available
   const displayWeight = firstVariant ? firstVariant.weight : product.weight;
@@ -189,7 +196,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
             </span>
             {hasDiscount && (
               <span className="ml-2 text-sm text-muted-foreground line-through decoration-red-400/50">
-                ₹{price.toFixed(2)}
+                ₹{mrp.toFixed(2)}
               </span>
             )}
             {unitPrice && (

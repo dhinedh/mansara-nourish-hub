@@ -28,6 +28,7 @@ export interface Product {
     categoryId?: string; // For storing the actual ObjectId
     price: number;
     offerPrice?: number;
+    originalPrice?: number;
     image?: string;
     images?: string[];
     video?: string;
@@ -52,6 +53,7 @@ export interface Product {
         weight: string;
         price: number;
         offerPrice?: number;
+        originalPrice?: number;
         stock?: number;
         sku?: string;
     }[];
