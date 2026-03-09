@@ -7,16 +7,7 @@ import {
 } from '@/data/products';
 
 // ========================================
-// FULLY OPTIMIZED STORE CONTEXT - FIXED
-// ========================================
-// All improvements applied:
-// - Enhanced caching (10 min)
-// - Better error handling
-// - Request deduplication
-// - Retry logic
-// - Optimistic updates
-// - Background refresh
-// - FIXED: Proper category ID handling
+// REFACTORED STORE CONTEXT - API FIRST
 // ========================================
 
 export interface Product {
@@ -24,8 +15,8 @@ export interface Product {
     _id?: string;
     slug: string;
     name: string;
-    category: "porridge-mixes" | "oil-ghee" | "health-drink-mixes" | "idly-podi" | "rice-mixes";
-    categoryId?: string; // For storing the actual ObjectId
+    category: string;
+    categoryId?: string;
     price: number;
     offerPrice?: number;
     originalPrice?: number;
@@ -70,6 +61,7 @@ export interface Combo {
     images?: string[];
     description: string;
     isActive?: boolean;
+    stock?: number;
 }
 
 export interface Category {
@@ -121,583 +113,200 @@ const normalizeCategory = (item: any) => ({
     slug: item.slug || item.value || item.name.toLowerCase()
 });
 
-// Enhanced extractArray with better error handling
 const extractArray = (data: any, key: string): any[] => {
-    if (!data) {
-        console.warn(`[Store] No data received for ${key}`);
-        return [];
-    }
-
-    console.log(`[Store] Debug extract ${key}:`, { isArray: Array.isArray(data), keys: Object.keys(data) });
-
-    // Handle different response formats
-    if (Array.isArray(data)) {
-        console.log(`[Store] ✓ Extracted ${data.length} ${key} (array format)`);
-        return data;
-    }
-
-    if (data[key] && Array.isArray(data[key])) {
-        console.log(`[Store] ✓ Extracted ${data[key].length} ${key} (object format)`);
-        return data[key];
-    }
-
-    // Check for common response wrappers
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    if (data[key] && Array.isArray(data[key])) return data[key];
     const possibleKeys = [key, `${key}s`, 'data', 'items'];
-    for (const possibleKey of possibleKeys) {
-        if (data[possibleKey] && Array.isArray(data[possibleKey])) {
-            console.log(`[Store] ✓ Extracted ${data[possibleKey].length} ${key} (${possibleKey} key)`);
-            return data[possibleKey];
-        }
+    for (const k of possibleKeys) {
+        if (data[k] && Array.isArray(data[k])) return data[k];
     }
-
-    console.warn(`[Store] ⚠ Could not extract array for ${key}, returning empty array`);
     return [];
 };
 
-const getToken = () => {
-    return localStorage.getItem('mansara-token') || '';
-};
+const getToken = () => localStorage.getItem('mansara-token') || '';
 
-// ========================================
-// CACHE MANAGEMENT (10 MIN CACHE)
-// ========================================
-
-interface CacheEntry {
-    data: any;
-    timestamp: number;
-}
-
-const cache: { [key: string]: CacheEntry } = {};
-const CACHE_DURATION = 600000; // 10 minutes
-
-const getCachedData = (key: string): any | null => {
-    const entry = cache[key];
-    if (entry && Date.now() - entry.timestamp < CACHE_DURATION) {
-        console.log(`[Store] Cache hit: ${key}`);
-        return entry.data;
-    }
-    console.log(`[Store] Cache miss: ${key}`);
-    return null;
-};
-
-const setCachedData = (key: string, data: any) => {
-    cache[key] = {
-        data,
-        timestamp: Date.now()
-    };
-};
-
-const clearCache = () => {
-    Object.keys(cache).forEach(key => delete cache[key]);
-    console.log('[Store] Cache cleared');
-};
-
-// ========================================
-// RETRY LOGIC
-// ========================================
-
-const retryFetch = async <T,>(
-    fetchFn: () => Promise<T>,
-    retries = 3,
-    delay = 1000
-): Promise<T> => {
-    try {
-        return await fetchFn();
-    } catch (error) {
-        if (retries > 0) {
-            console.log(`[Store] Retry attempt, ${retries} left`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-            return retryFetch(fetchFn, retries - 1, delay * 2);
-        }
-        throw error;
-    }
-};
+const CACHE_KEY = 'mansara-store-cache-v3'; // Bumped version
 
 // ========================================
 // STORE PROVIDER
 // ========================================
 
-// Minify product for storage to save space (avoid quota limit)
-const minifyProduct = (p: Product) => ({
-    id: p.id,
-    _id: p._id,
-    name: p.name,
-    slug: p.slug,
-    price: p.price,
-    offerPrice: p.offerPrice,
-    originalPrice: (p as any).originalPrice,
-    isOffer: p.isOffer,
-    image: p.image,
-    category: p.category, // Normalized category string or ID
-    stock: p.stock,
-    isNewArrival: p.isNewArrival,
-    variants: p.variants?.map(v => ({
-        weight: v.weight,
-        price: v.price,
-        offerPrice: v.offerPrice,
-        originalPrice: v.originalPrice,
-        stock: v.stock
-    }))
-});
-
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // 1. INSTANT LOAD: Initialize with cached mini-data (Stale-While-Revalidate pattern)
-    const [products, setProducts] = useState<Product[]>(staticProducts as any);
-
+    const [products, setProducts] = useState<Product[]>([]);
     const [combos, setCombos] = useState<Combo[]>([]);
     const [categories, setCategories] = useState<Category[]>(staticCategories as any);
-
-    // If we have products, we are NOT loading initially from user perspective
-    const [isLoading, setIsLoading] = useState(() => {
-        try {
-            const saved = localStorage.getItem('mansara-mini-products-v2');
-            return !saved; // If saved data exists, not loading
-        } catch { return true; }
-    });
-
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // ========================================
-    // FETCH DATA WITH CACHING & RETRY
-    // ========================================
+    // Initial load from localStorage
+    useEffect(() => {
+        const saved = localStorage.getItem(CACHE_KEY);
+        if (saved) {
+            try {
+                const { products: p, combos: c, categories: cat } = JSON.parse(saved);
+                if (p) setProducts(p);
+                if (c) setCombos(c);
+                if (cat) setCategories(cat);
+                setIsLoading(false);
+            } catch (e) {
+                console.error('[Store] Failed to load cache:', e);
+            }
+        }
+    }, []);
 
     const fetchData = useCallback(async (forceRefresh = false) => {
-        // Only show spinner if we have absolutely no data
         if (products.length === 0) setIsLoading(true);
         setError(null);
 
         try {
-            console.log('[Store] Fetching data...');
+            console.log('[Store] Fetching fresh data...');
+            const [productsData, combosData, categoriesData] = await Promise.all([
+                fetchProducts(forceRefresh),
+                fetchCombos(forceRefresh),
+                getCategories(forceRefresh)
+            ]);
 
-            // OPTIMIZATION: Start all fetches in parallel, but handle products FIRST
-            const productsPromise = retryFetch(() => fetchProducts(forceRefresh));
-            const combosPromise = retryFetch(() => fetchCombos(forceRefresh));
-            const categoriesPromise = retryFetch(() => getCategories(forceRefresh));
+            const apiProducts = extractArray(productsData, 'products').map(normalizeId);
+            const apiCombos = extractArray(combosData, 'combos').map(normalizeId);
+            const apiCategories = extractArray(categoriesData, 'categories').map(normalizeCategory);
 
-            // 1. Wait for Products (Critical) and update UI immediately
-            console.log('[Store] Awaiting products...');
-            const [productsData, categoriesData] = await Promise.all([productsPromise, categoriesPromise]);
-            console.log('[Store] Data received.');
-
-            const productsArray = extractArray(productsData, 'products').map(normalizeId);
-            const categoriesArray = extractArray(categoriesData, 'categories').map(normalizeCategory);
-
-            // Update Categories UI - MERGE WITH STATIC DATA
-            const enhancedCategories = staticCategories.map(staticCat => {
-                const apiCat = categoriesArray.find(c =>
-                    c.slug.toLowerCase() === staticCat.slug.toLowerCase() ||
-                    c.value.toLowerCase() === staticCat.value.toLowerCase() ||
-                    c.name.toLowerCase() === staticCat.name.toLowerCase()
-                );
-                return {
-                    ...staticCat,
-                    _id: apiCat?._id || apiCat?.id || (staticCat as any)._id,
-                    id: apiCat?.id || apiCat?._id || staticCat.id
-                };
-            });
-
-            setCategories(enhancedCategories);
-            localStorage.setItem('mansara-categories', JSON.stringify(enhancedCategories));
-
-            // Create TWO lookup maps:
-            // 1. slug → id  (for sending to API)
-            // 2. id → slug  (for displaying/filtering in UI)
-            const categoryMap = new Map(
-                enhancedCategories.map(cat => [cat.slug || cat.value, cat.id])
-            );
-            const categoryIdToSlug = new Map(
-                enhancedCategories.map(cat => [cat.id, (cat as any)._id]) // Map both internal ID and _id to slug
-            );
-            // Add _id mapping if available
-            enhancedCategories.forEach(cat => {
-                if (cat._id) categoryIdToSlug.set(cat._id, cat.slug || cat.value);
-                categoryIdToSlug.set(cat.id, cat.slug || cat.value);
-            });
-
-            // Normalize and Update Products UI
-            // Normalize and Update Products UI - MERGE WITH STATIC DATA
-            const enhancedProducts = staticProducts.map(staticP => {
-                // Find matching product in API data (by slug)
-                const apiP = productsArray.find(p => p.slug === staticP.slug);
-
-                if (!apiP) {
-                    console.warn(`[Store] Product not found in backend: ${staticP.slug}`);
-                    return {
-                        ...staticP,
-                        isActive: false, // Default to inactive if not found in DB
-                        categoryId: getCategoryIdBySlug(staticP.category as string) || (staticP as any).categoryId
-                    } as any;
+            // 1. Categories Merge
+            const mergedCategories = [...staticCategories];
+            apiCategories.forEach(apiCat => {
+                const index = mergedCategories.findIndex(c => c.slug === apiCat.slug || c.id === apiCat.id);
+                if (index >= 0) {
+                    mergedCategories[index] = { ...mergedCategories[index], ...apiCat };
+                } else {
+                    mergedCategories.push(apiCat);
                 }
+            });
 
-                const rawCategory = apiP.category;
-                const resolvedSlug = categoryIdToSlug.get(rawCategory) || rawCategory || staticP.category;
-                const categoryId = categoryMap.get(resolvedSlug) || rawCategory;
+            // 2. Products Merge (API First)
+            const resolvedProducts = apiProducts.map(apiP => {
+                const staticP = staticProducts.find(p => p.slug === apiP.slug);
 
+                // Robust Pricing Normalization
+                const normalizePrice = (p: any) => {
+                    const price = p.price || 0;
+                    const offerPrice = p.offerPrice;
+                    const originalPrice = p.originalPrice;
+
+                    // Truth: If originalPrice exists and is higher than price, it's a discount
+                    // If offerPrice exists and is lower than price, it's a discount (legacy)
+                    const mrp = originalPrice || (offerPrice && offerPrice < price ? price : price);
+                    const selling = offerPrice || price;
+
+                    return {
+                        ...p,
+                        price: selling,
+                        offerPrice: selling < mrp ? selling : undefined,
+                        originalPrice: mrp
+                    };
+                };
+
+                const merged = {
+                    ...(staticP || {}),
+                    ...apiP,
+                    variants: (apiP.variants || staticP?.variants || []).map(normalizePrice)
+                };
+
+                return normalizePrice(merged);
+            });
+
+            // 3. Combos Merge
+            const resolvedCombos = apiCombos.map(apiC => {
+                const staticC = staticCombos.find(c => c.slug === apiC.slug);
                 return {
-                    ...staticP, // Use static details as base
-                    id: apiP.id || apiP._id || staticP.id,
-                    _id: apiP._id || apiP.id,
-                    price: apiP.price || staticP.price,
-                    // IMPORTANT: Prioritize API offer price if product exists in DB
-                    offerPrice: apiP.offerPrice !== undefined ? apiP.offerPrice : (apiP ? undefined : staticP.offerPrice),
-                    originalPrice: apiP.originalPrice || (apiP.offerPrice && apiP.offerPrice < apiP.price ? apiP.price : (apiP.price || staticP.price)),
-                    // Trust API for offer status
-                    isOffer: apiP.isOffer !== undefined ? apiP.isOffer : (apiP ? false : staticP.isOffer),
-                    stock: apiP.stock !== undefined ? apiP.stock : 0,
-                    variants: (apiP.variants || staticP.variants || []).map((v: any) => ({
-                        ...v,
-                        // Apply same robust logic to variants
-                        originalPrice: v.originalPrice || (v.offerPrice && v.offerPrice < v.price ? v.price : v.price),
-                        offerPrice: v.offerPrice !== undefined ? v.offerPrice : (v.originalPrice && v.originalPrice > v.price ? v.price : undefined)
-                    })),
-                    isActive: apiP.isActive !== undefined ? apiP.isActive : true,
-                    categoryId: categoryId,
-                    category: resolvedSlug
+                    ...(staticC || {}),
+                    ...apiC
                 };
             });
 
-            setProducts(enhancedProducts);
+            setProducts(resolvedProducts);
+            setCombos(resolvedCombos);
+            setCategories(mergedCategories);
 
-            // 2. INSTANT LOAD: Persist data for next visit (minified)
-            try {
-                const minified = enhancedProducts.map(minifyProduct);
-                localStorage.setItem('mansara-mini-products-v2', JSON.stringify(minified));
-            } catch (e) {
-                console.warn('[Store] LocalStorage quota exceeded, skipping cache');
-            }
+            // Persist
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                products: resolvedProducts,
+                combos: resolvedCombos,
+                categories: mergedCategories
+            }));
 
-            // Products are loaded, stop spinner!
             setIsLoading(false);
-
-            // 2. Handle Combos (Non-critical, can update later)
-            try {
-                const combosData = await combosPromise;
-                const combosArray = extractArray(combosData, 'combos').map(normalizeId);
-
-                // MERGE WITH STATIC DATA
-                const enhancedCombos = staticCombos.map(staticC => {
-                    const apiC = combosArray.find(c => c.slug === staticC.slug);
-                    if (!apiC) return staticC;
-                    return {
-                        ...staticC,
-                        id: apiC.id || apiC._id || staticC.id,
-                        _id: apiC._id || apiC.id,
-                        comboPrice: apiC.comboPrice || staticC.comboPrice,
-                        originalPrice: apiC.originalPrice || staticC.originalPrice,
-                        stock: apiC.stock !== undefined ? apiC.stock : 0
-                    };
-                });
-
-                setCombos(enhancedCombos);
-            } catch (e) {
-                console.warn('[Store] Failed to load combos (non-critical)');
-            }
-
-            console.log(`[Store] ✓ Loaded ${enhancedProducts.length} products`);
-
         } catch (err: any) {
-            console.error('[Store] Fatal fetch error:', err);
+            console.error('[Store] Fetch error:', err);
             setError(err.message);
             setIsLoading(false);
         }
-    }, []);
+    }, [products.length]);
 
-
-    // Initial fetch
     useEffect(() => {
         fetchData();
-
-        // Background refresh every 10 minutes
-        const interval = setInterval(() => {
-            console.log('[Store] Background refresh triggered');
-            fetchData(true);
-        }, CACHE_DURATION);
-
+        const interval = setInterval(() => fetchData(true), 600000);
         return () => clearInterval(interval);
     }, [fetchData]);
 
-    // ========================================
-    // HELPER: Get Category ID by Slug
-    // ========================================
-
-    const getCategoryIdBySlug = useCallback((slug: string): string | undefined => {
-        const category = categories.find(cat =>
-            cat.slug === slug || cat.value === slug
-        );
-        return category?.id;
+    const getCategoryIdBySlug = useCallback((slug: string) => {
+        return categories.find(c => c.slug === slug || c.value === slug)?.id;
     }, [categories]);
 
-    // ========================================
-    // PRODUCT OPERATIONS
-    // ========================================
-
-    const addProduct = useCallback(async (productData: Omit<Product, 'id'>) => {
-        try {
-            const token = getToken();
-            if (!token) throw new Error('Authentication required');
-
-            // Convert category slug to ID if needed
-            let categoryToSend = productData.category;
-            if (productData.category && !productData.category.match(/^[0-9a-fA-F]{24}$/)) {
-                // It's a slug, convert to ID
-                const categoryId = getCategoryIdBySlug(productData.category);
-                if (categoryId) {
-                    categoryToSend = categoryId as any;
-                }
-            }
-
-            const dataToSend = {
-                ...productData,
-                category: categoryToSend
-            };
-
-            const { createProduct } = await import('@/lib/api');
-            const newProduct = await createProduct(dataToSend, token);
-
-            const normalized = normalizeId(newProduct);
-
-            // OPTIMIZATION: Update state AND cache directly (Functional Update)
-            setProducts(prev => {
-                const newProducts = [...prev, normalized];
-                setCachedData('products', newProducts);
-                return newProducts;
-            });
-
-            console.log('[Store] ✓ Product added & cache updated');
-        } catch (err: any) {
-            console.error('[Store] ✗ Add product failed:', err.message);
-            throw err;
-        }
-    }, [getCategoryIdBySlug]);
-
-    const updateProduct = useCallback(async (id: string, updates: Partial<Product>) => {
-        // Capture original item for rollback
-        const originalProduct = products.find(p => p.id === id);
-
-        try {
-            // Optimistic update (Functional)
-            setProducts(prev => {
-                const optimisticProducts = prev.map(p =>
-                    p.id === id ? { ...p, ...updates } : p
-                );
-                setCachedData('products', optimisticProducts);
-                return optimisticProducts;
-            });
-
-            const token = getToken();
-            if (!token) throw new Error('Authentication required');
-
-            // Convert category slug to ID if needed
-            let updatesToSend = { ...updates };
-            if (updates.category) {
-                // Check if it's a slug (not an ObjectId)
-                if (!updates.category.match(/^[0-9a-fA-F]{24}$/)) {
-                    const categoryId = getCategoryIdBySlug(updates.category);
-                    if (categoryId) {
-                        updatesToSend.category = categoryId as any;
-                    }
-                } else if (updates.categoryId) {
-                    // Use categoryId if available
-                    updatesToSend.category = updates.categoryId as any;
-                }
-            }
-
-            // Remove categoryId from updates as it's not a backend field
-            delete updatesToSend.categoryId;
-
-            console.log('[Store] Updating product with:', updatesToSend);
-
-            const { updateProduct: apiUpdate } = await import('@/lib/api');
-            const updated = await apiUpdate(id, updatesToSend, token);
-
-            // Confirm update with server data (Functional)
-            setProducts(prev => {
-                const finalProducts = prev.map(p =>
-                    p.id === id ? normalizeId(updated) : p
-                );
-                setCachedData('products', finalProducts);
-                return finalProducts;
-            });
-
-            console.log('[Store] ✓ Product updated & cache synced');
-        } catch (err: any) {
-            console.error('[Store] ✗ Update product failed:', err.message);
-            // Rollback (Functional)
-            if (originalProduct) {
-                setProducts(prev => {
-                    const originalProducts = prev.map(p =>
-                        p.id === id ? originalProduct : p
-                    );
-                    setCachedData('products', originalProducts);
-                    return originalProducts;
-                });
-            }
-            throw err;
-        }
-    }, [products, getCategoryIdBySlug]);
-
-    const deleteProduct = useCallback(async (id: string) => {
-        // Capture original product for rollback (not entire list)
-        const originalProduct = products.find(p => p.id === id);
-
-        try {
-            // Optimistic delete (Functional)
-            setProducts(prev => {
-                const remainingProducts = prev.filter(p => p.id !== id);
-                setCachedData('products', remainingProducts);
-                return remainingProducts;
-            });
-
-            const token = getToken();
-            if (!token) throw new Error('Authentication required');
-
-            const { deleteProduct: apiDelete } = await import('@/lib/api');
-            await apiDelete(id, token);
-
-            console.log('[Store] ✓ Product deleted & cache updated');
-        } catch (err: any) {
-            console.error('[Store] ✗ Delete product failed:', err.message);
-            // Rollback (Functional)
-            if (originalProduct) {
-                setProducts(prev => {
-                    // Add it back
-                    const restored = [...prev, originalProduct];
-                    setCachedData('products', restored);
-                    return restored;
-                });
-            }
-            throw err;
-        }
-    }, [products]);
-
-    // ========================================
-    // LOCAL STOCK UPDATE (NO API)
-    // ========================================
-    const updateLocalStock = useCallback((id: string, newStock: number) => {
-        setProducts(prev => {
-            const updated = prev.map(p =>
-                p.id === id ? { ...p, stock: newStock } : p
-            );
-            setCachedData('products', updated);
-            return updated;
-        });
-        console.log(`[Store] Local stock update for ${id}: ${newStock}`);
-    }, []);
-
-    const getProduct = useCallback((identifier: string) => {
-        return products.find(p => p.id === identifier || p._id === identifier || p.slug === identifier);
-    }, [products]);
-
-    // ========================================
-    // COMBO OPERATIONS
-    // ========================================
-
-    const addCombo = useCallback(async (comboData: Omit<Combo, 'id'>) => {
-        try {
-            const token = getToken();
-            if (!token) throw new Error('Authentication required');
-
-            const { createCombo } = await import('@/lib/api');
-            const newCombo = await createCombo(comboData, token);
-
-            const normalized = normalizeId(newCombo);
-            setCombos(prev => [...prev, normalized]);
-            clearCache();
-
-            console.log('[Store] ✓ Combo added');
-        } catch (err: any) {
-            console.error('[Store] ✗ Add combo failed:', err.message);
-            throw err;
-        }
-    }, []);
-
-    const updateCombo = useCallback(async (id: string, updates: Partial<Combo>) => {
-        const originalCombos = [...combos];
-
-        try {
-            // Optimistic update
-            setCombos(prev => prev.map(c =>
-                c.id === id ? { ...c, ...updates } : c
-            ));
-
-            const token = getToken();
-            if (!token) throw new Error('Authentication required');
-
-            const { updateCombo: apiUpdate } = await import('@/lib/api');
-            const updated = await apiUpdate(id, updates, token);
-
-            setCombos(prev => prev.map(c =>
-                c.id === id ? normalizeId(updated) : c
-            ));
-            clearCache();
-
-            console.log('[Store] ✓ Combo updated');
-        } catch (err: any) {
-            console.error('[Store] ✗ Update combo failed:', err.message);
-            // Rollback
-            setCombos(originalCombos);
-            throw err;
-        }
-    }, [combos]);
-
-    const deleteCombo = useCallback(async (id: string) => {
-        const originalCombos = [...combos];
-
-        try {
-            // Optimistic delete
-            setCombos(prev => prev.filter(c => c.id !== id));
-
-            const token = getToken();
-            if (!token) throw new Error('Authentication required');
-
-            const { deleteCombo: apiDelete } = await import('@/lib/api');
-            await apiDelete(id, token);
-
-            clearCache();
-            console.log('[Store] ✓ Combo deleted');
-        } catch (err: any) {
-            console.error('[Store] ✗ Delete combo failed:', err.message);
-            // Rollback
-            setCombos(originalCombos);
-            throw err;
-        }
-    }, [combos]);
-
-    // ========================================
-    // CATEGORY OPERATIONS
-    // ========================================
-
-    const addCategory = useCallback((name: string) => {
-        const newCategory: Category = {
-            id: `temp-${Date.now()}`,
-            name,
-            value: name.toLowerCase().replace(/\s+/g, '-'),
-            slug: name.toLowerCase().replace(/\s+/g, '-')
-        };
-
-        setCategories(prev => [...prev, newCategory]);
-        clearCache();
-        console.log('[Store] ✓ Category added (temporary)');
-    }, []);
-
-    // ========================================
-    // REFETCH
-    // ========================================
-
-    const refetch = useCallback(async () => {
-        clearCache();
+    const addProduct = async (productData: any) => {
+        const token = getToken();
+        const { createProduct } = await import('@/lib/api');
+        const res = await createProduct(productData, token);
         await fetchData(true);
-    }, [fetchData]);
+    };
 
-    // ========================================
-    // CONTEXT VALUE
-    const getCombo = useCallback((identifier: string) => {
-        return combos.find(c => c.id === identifier || c.slug === identifier);
-    }, [combos]);
+    const updateProduct = async (id: string, updates: any) => {
+        const token = getToken();
+        // Optimistic update
+        setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
 
-    // ========================================
+        const { updateProduct: apiUpdate } = await import('@/lib/api');
+        await apiUpdate(id, updates, token);
+        await fetchData(true);
+    };
 
-    const value: StoreContextType = {
+    const deleteProduct = async (id: string) => {
+        const token = getToken();
+        setProducts(prev => prev.filter(p => p.id !== id));
+        const { deleteProduct: apiDelete } = await import('@/lib/api');
+        await apiDelete(id, token);
+        await fetchData(true);
+    };
+
+    const getProduct = (id: string) => products.find(p => p.id === id || p._id === id || p.slug === id);
+
+    const addCombo = async (data: any) => {
+        const token = getToken();
+        const { createCombo } = await import('@/lib/api');
+        await createCombo(data, token);
+        await fetchData(true);
+    };
+
+    const updateCombo = async (id: string, updates: any) => {
+        const token = getToken();
+        const { updateCombo: apiUpdate } = await import('@/lib/api');
+        await apiUpdate(id, updates, token);
+        await fetchData(true);
+    };
+
+    const deleteCombo = async (id: string) => {
+        const token = getToken();
+        const { deleteCombo: apiDelete } = await import('@/lib/api');
+        await apiDelete(id, token);
+        await fetchData(true);
+    };
+
+    const getCombo = (id: string) => combos.find(c => c.id === id || c.slug === id);
+
+    const updateLocalStock = (id: string, newStock: number) => {
+        setProducts(prev => prev.map(p => p.id === id ? { ...p, stock: newStock } : p));
+    };
+
+    const value = {
         products,
         combos,
         categories,
@@ -710,29 +319,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addCombo,
         updateCombo,
         deleteCombo,
-        addCategory,
-        refetch,
-
+        addCategory: (name: string) => { }, // Not implemented
+        refetch: () => fetchData(true),
         getCategoryIdBySlug,
         updateLocalStock,
         getCombo
     };
 
-    return (
-        <StoreContext.Provider value={value}>
-            {children}
-        </StoreContext.Provider>
-    );
+    return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 };
-
-// ========================================
-// HOOK
-// ========================================
 
 export const useStore = () => {
     const context = useContext(StoreContext);
-    if (!context) {
-        throw new Error('useStore must be used within a StoreProvider');
-    }
+    if (!context) throw new Error('useStore must be used within a StoreProvider');
     return context;
 };

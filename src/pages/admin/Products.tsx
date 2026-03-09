@@ -250,33 +250,14 @@ const AdminProducts = () => {
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell className="capitalize">{product.category}</TableCell>
                     <TableCell>
-                      {(() => {
-                        const basePrice = product.price;
-                        const baseOffer = product.offerPrice;
-                        const baseOriginal = (product as any).originalPrice;
-
-                        let displayPrice = basePrice;
-                        let mrp = baseOriginal || (baseOffer && baseOffer < basePrice ? basePrice : null);
-
-                        if (baseOffer && baseOffer < basePrice) {
-                          displayPrice = baseOffer;
-                          mrp = basePrice;
-                        } else if (baseOriginal && baseOriginal > basePrice) {
-                          displayPrice = basePrice;
-                          mrp = baseOriginal;
-                        }
-
-                        return (
-                          <div>
-                            <span className="font-semibold">₹{displayPrice}</span>
-                            {mrp && mrp > displayPrice && (
-                              <span className="text-xs text-muted-foreground ml-2 line-through opacity-70">
-                                ₹{mrp}
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })()}
+                      <div className="flex flex-col">
+                        <span className="font-semibold">₹{product.price}</span>
+                        {(product as any).originalPrice && (product as any).originalPrice > product.price && (
+                          <span className="text-xs text-muted-foreground line-through opacity-70">
+                            ₹{(product as any).originalPrice}
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <span

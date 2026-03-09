@@ -183,20 +183,8 @@ const ProductDetail: React.FC = () => {
   const handleAddToCart = async () => {
     setAdding(true);
     try {
-      const vPrice = selectedVariant ? selectedVariant.price : product?.price;
-      const vOffer = selectedVariant ? selectedVariant.offerPrice : product?.offerPrice;
-      const vOriginal = selectedVariant ? (selectedVariant as any).originalPrice : (product as any)?.originalPrice;
-
-      let finalSellingPrice = vPrice;
-      let finalMrp = vOriginal;
-
-      if (vOffer && vOffer < vPrice) {
-        finalSellingPrice = vOffer;
-        finalMrp = vPrice;
-      } else if (vOriginal && vOriginal > vPrice) {
-        finalSellingPrice = vPrice;
-        finalMrp = vOriginal;
-      }
+      const finalSellingPrice = selectedVariant ? selectedVariant.price : product.price;
+      const finalMrp = selectedVariant ? (selectedVariant as any).originalPrice : (product as any).originalPrice;
 
       const itemToAdd = {
         ...product,
@@ -239,20 +227,8 @@ const ProductDetail: React.FC = () => {
       return;
     }
 
-    const vPrice = selectedVariant ? selectedVariant.price : product?.price;
-    const vOffer = selectedVariant ? selectedVariant.offerPrice : product?.offerPrice;
-    const vOriginal = selectedVariant ? (selectedVariant as any).originalPrice : (product as any)?.originalPrice;
-
-    let finalSellingPrice = vPrice;
-    let finalMrp = vOriginal;
-
-    if (vOffer && vOffer < vPrice) {
-      finalSellingPrice = vOffer;
-      finalMrp = vPrice;
-    } else if (vOriginal && vOriginal > vPrice) {
-      finalSellingPrice = vPrice;
-      finalMrp = vOriginal;
-    }
+    const finalSellingPrice = selectedVariant ? selectedVariant.price : product.price;
+    const finalMrp = selectedVariant ? (selectedVariant as any).originalPrice : (product as any).originalPrice;
 
     const itemToAdd = {
       ...product,
@@ -271,20 +247,8 @@ const ProductDetail: React.FC = () => {
   };
 
   /* Safe Fallback Logic for Price Display */
-  const basePrice = selectedVariant ? selectedVariant.price : product.price;
-  const baseOffer = selectedVariant ? selectedVariant.offerPrice : product.offerPrice;
-  const baseOriginal = selectedVariant ? (selectedVariant as any).originalPrice : (product as any).originalPrice;
-
-  let displayPrice = basePrice;
-  let mrp = baseOriginal || (baseOffer && baseOffer < basePrice ? basePrice : null);
-
-  if (baseOffer && baseOffer < basePrice) {
-    displayPrice = baseOffer;
-    mrp = basePrice;
-  } else if (baseOriginal && baseOriginal > basePrice) {
-    displayPrice = basePrice;
-    mrp = baseOriginal;
-  }
+  const displayPrice = selectedVariant ? selectedVariant.price : product.price;
+  const mrp = selectedVariant ? (selectedVariant as any).originalPrice : (product as any).originalPrice;
 
   const hasDiscount = !!(mrp && mrp > displayPrice);
 

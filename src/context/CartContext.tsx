@@ -137,18 +137,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const liveProduct = products.find(p => p.id === item.id || p._id === item.id);
           if (liveProduct) {
             let livePrice = liveProduct.price;
-            if (liveProduct.offerPrice && liveProduct.offerPrice < liveProduct.price) {
-              livePrice = liveProduct.offerPrice;
-            }
 
             // Handle variants
             if (item.weight && liveProduct.variants && liveProduct.variants.length > 0) {
               const variant = liveProduct.variants.find(v => v.weight === item.weight);
               if (variant) {
                 livePrice = variant.price;
-                if (variant.offerPrice && variant.offerPrice < variant.price) {
-                  livePrice = variant.offerPrice;
-                }
               }
             }
 
@@ -274,15 +268,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const liveProduct = products.find(lp => lp.id === p.id || lp._id === p.id);
 
           if (liveProduct) {
-            price = liveProduct.offerPrice || liveProduct.price;
+            price = liveProduct.price;
             if (weight && liveProduct.variants && liveProduct.variants.length > 0) {
               const variant = liveProduct.variants.find(v => v.weight === weight);
               if (variant) {
-                price = variant.offerPrice || variant.price;
+                price = variant.price;
               }
             }
           } else {
-            price = p.offerPrice || p.price;
+            price = p.price;
           }
         } else {
           price = (item as Combo).comboPrice;
