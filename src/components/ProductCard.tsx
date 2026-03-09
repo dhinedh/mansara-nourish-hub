@@ -30,36 +30,33 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const stock = product.stock;
 
   const hasVariants = product.variants && product.variants.length > 0;
+
+  // Use first variant for price display, or fallback to product
   const firstVariant = hasVariants ? product.variants[0] : null;
 
-  // Helper to extract pricing info from any product/variant-like object
-  const getPricing = (data: any) => {
-    // Priority 1: offerPrice is meant to be the discounted price if present
-    const basePrice = data.price || 0;
-    const offPrice = data.offerPrice;
-    const mrpPrice = data.originalPrice;
+  /**
+   * ROBUST PRICING LOGIC:
+   * Handles two data conventions:
+   * 1. price = MRP, offerPrice = Selling Price (Legacy)
+   * 2. originalPrice = MRP, price = Selling Price (New)
+   */
+  const basePrice = firstVariant ? firstVariant.price : product.price;
+  const baseOfferPrice = firstVariant ? firstVariant.offerPrice : (product as any).offerPrice;
+  const baseOriginalPrice = firstVariant ? (firstVariant as any).originalPrice : (product as any).originalPrice;
 
-    let selling = basePrice;
-    let mrp = mrpPrice || basePrice;
+  let currentSellingPrice = basePrice;
+  let mrp = baseOriginalPrice || (baseOfferPrice && baseOfferPrice < basePrice ? basePrice : null);
 
-    if (offPrice && offPrice > 0 && offPrice < basePrice) {
-      // Logic: price is MRP, offerPrice is selling
-      selling = offPrice;
-      mrp = basePrice;
-    } else if (mrpPrice && mrpPrice > basePrice) {
-      // Logic: originalPrice is MRP, price is selling
-      selling = basePrice;
-      mrp = mrpPrice;
-    }
-
-    return { selling, mrp };
-  };
-
-  const productPrices = getPricing(product);
-  const variantPrices = firstVariant ? getPricing(firstVariant) : null;
-
-  const currentSellingPrice = variantPrices ? variantPrices.selling : productPrices.selling;
-  const mrp = variantPrices ? variantPrices.mrp : productPrices.mrp;
+  // If offerPrice exists and is less than price, it's definitely the selling price (Legacy)
+  if (baseOfferPrice && baseOfferPrice < basePrice) {
+    currentSellingPrice = baseOfferPrice;
+    mrp = basePrice;
+  }
+  // Else if originalPrice exists and is greater than price, price is the selling price (New)
+  else if (baseOriginalPrice && baseOriginalPrice > basePrice) {
+    currentSellingPrice = basePrice;
+    mrp = baseOriginalPrice;
+  }
 
   // Calculate discount percentage
   let maxDiscountPercent = 0;
@@ -70,7 +67,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   // Check all variants for deeper discounts (for badge display)
   if (product.variants && product.variants.length > 0) {
     product.variants.forEach(v => {
-      const { selling: vSelling, mrp: vMrp } = getPricing(v);
+      const vPrice = v.price;
+      const vOfferPrice = v.offerPrice;
+      const vOriginalPrice = (v as any).originalPrice;
+
+      let vSelling = vPrice;
+      let vMrp = vOriginalPrice;
+
+      if (vOfferPrice && vOfferPrice < vPrice) {
+        vSelling = vOfferPrice;
+        vMrp = vPrice;
+      } else if (vOriginalPrice && vOriginalPrice > vPrice) {
+        vSelling = vPrice;
+        vMrp = vOriginalPrice;
+      }
+
       if (vMrp && vMrp > vSelling) {
         const discount = Math.round(((vMrp - vSelling) / vMrp) * 100);
         if (discount > maxDiscountPercent) {
@@ -83,8 +94,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const isNewArrival = product.isNewArrival;
 
   // Final check for badge display: either the current view has a discount,
-  // OR the product is explicitly marked as 'isOffer' and WE ACTUALLY HAVE a discount > 0
-  const showDiscountBadge = maxDiscountPercent > 0;
+  // OR the product is explicitly marked as 'isOffer' and we found a discount percent
+  const showDiscountBadge = maxDiscountPercent > 0 || product.isOffer;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();

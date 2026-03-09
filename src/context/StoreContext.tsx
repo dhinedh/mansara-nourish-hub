@@ -334,13 +334,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     price: apiP.price || staticP.price,
                     // IMPORTANT: Prioritize API offer price if product exists in DB
                     offerPrice: apiP.offerPrice !== undefined ? apiP.offerPrice : (apiP ? undefined : staticP.offerPrice),
-                    originalPrice: apiP.originalPrice || apiP.price || staticP.price,
+                    originalPrice: apiP.originalPrice || (apiP.offerPrice && apiP.offerPrice < apiP.price ? apiP.price : (apiP.price || staticP.price)),
                     // Trust API for offer status
                     isOffer: apiP.isOffer !== undefined ? apiP.isOffer : (apiP ? false : staticP.isOffer),
                     stock: apiP.stock !== undefined ? apiP.stock : 0,
-                    // NOTE: Backend variants use 'price' for MRP and 'offerPrice' for Selling,
-                    // while top-level uses 'originalPrice' for MRP and 'price' for Selling.
-                    // UI handling is in ProductCard.tsx
                     variants: apiP.variants || staticP.variants,
                     isActive: apiP.isActive !== undefined ? apiP.isActive : true,
                     categoryId: categoryId,

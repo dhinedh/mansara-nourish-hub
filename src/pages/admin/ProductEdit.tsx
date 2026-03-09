@@ -47,6 +47,7 @@ const AdminProductEdit = () => {
     nutrition: "",
     compliance: "",
     // Legacy fields handled by optional mapping/compat
+    originalPrice: 0,
     short_description: "",
     how_to_use: "",
     storage_instructions: "",
@@ -75,6 +76,7 @@ const AdminProductEdit = () => {
           howToUse: product.howToUse || (product as any).how_to_use || "",
           storage: product.storage || (product as any).storage_instructions || "",
           offerPrice: product.offerPrice || (product as any).offer_price || 0,
+          originalPrice: product.originalPrice || 0,
           images: product.images || (product.image ? [product.image] : []),
           video: product.video || "",
         });
@@ -110,7 +112,7 @@ const AdminProductEdit = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === "price" || name === "stock" || name === "offerPrice" ? parseFloat(value) || 0 : value,
+      [name]: ["price", "stock", "offerPrice", "originalPrice"].includes(name) ? parseFloat(value) || 0 : value,
     }));
   };
 
@@ -245,6 +247,16 @@ const AdminProductEdit = () => {
                       placeholder="Optional"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Original/MRP (₹)</label>
+                    <Input
+                      name="originalPrice"
+                      type="number"
+                      value={formData.originalPrice || ""}
+                      onChange={handleChange}
+                      placeholder="Strikethrough price"
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -346,6 +358,19 @@ const AdminProductEdit = () => {
                           }}
                         />
                       </div>
+                      <div>
+                        <label className="text-xs font-medium">Original/MRP</label>
+                        <Input
+                          type="number"
+                          placeholder="MRP"
+                          value={variant.originalPrice}
+                          onChange={(e) => {
+                            const newVariants = [...(formData.variants || [])];
+                            newVariants[index] = { ...variant, originalPrice: parseFloat(e.target.value) || 0 };
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -355,7 +380,7 @@ const AdminProductEdit = () => {
                   onClick={() => {
                     setFormData(prev => ({
                       ...prev,
-                      variants: [...(prev.variants || []), { weight: "", price: 0, stock: 0, offerPrice: 0 }]
+                      variants: [...(prev.variants || []), { weight: "", price: 0, stock: 0, offerPrice: 0, originalPrice: 0 }]
                     }));
                   }}
                 >

@@ -183,19 +183,27 @@ const ProductDetail: React.FC = () => {
   const handleAddToCart = async () => {
     setAdding(true);
     try {
-      // Determine effective price and weight from variant or base product
-      // Determine effective offer price (inherit from product if variant matches base price)
-      let finalOfferPrice = selectedVariant ? selectedVariant.offerPrice : product?.offerPrice;
-      if (selectedVariant && !finalOfferPrice && selectedVariant.price === product?.price) {
-        finalOfferPrice = product?.offerPrice;
+      const vPrice = selectedVariant ? selectedVariant.price : product?.price;
+      const vOffer = selectedVariant ? selectedVariant.offerPrice : product?.offerPrice;
+      const vOriginal = selectedVariant ? (selectedVariant as any).originalPrice : (product as any)?.originalPrice;
+
+      let finalSellingPrice = vPrice;
+      let finalMrp = vOriginal;
+
+      if (vOffer && vOffer < vPrice) {
+        finalSellingPrice = vOffer;
+        finalMrp = vPrice;
+      } else if (vOriginal && vOriginal > vPrice) {
+        finalSellingPrice = vPrice;
+        finalMrp = vOriginal;
       }
 
       const itemToAdd = {
         ...product,
-        price: selectedVariant ? selectedVariant.price : product?.price,
-        offerPrice: finalOfferPrice,
+        price: finalSellingPrice,
+        originalPrice: finalMrp,
         weight: selectedVariant ? selectedVariant.weight : product?.weight,
-        image: product?.image, // Keep main image for now
+        image: product?.image,
         variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
       };
 
@@ -218,7 +226,6 @@ const ProductDetail: React.FC = () => {
   const handleBuyNow = async () => {
     if (!product) return;
 
-    // Determine stock from variant or base product
     const currentStock = selectedVariant && selectedVariant.stock !== undefined
       ? selectedVariant.stock
       : product.stock;
@@ -232,52 +239,57 @@ const ProductDetail: React.FC = () => {
       return;
     }
 
-    // Determine effective offer price (inherit from product if variant matches base price)
-    let finalOfferPrice = selectedVariant ? selectedVariant.offerPrice : product?.offerPrice;
-    if (selectedVariant && !finalOfferPrice && selectedVariant.price === product?.price) {
-      finalOfferPrice = product?.offerPrice;
+    const vPrice = selectedVariant ? selectedVariant.price : product?.price;
+    const vOffer = selectedVariant ? selectedVariant.offerPrice : product?.offerPrice;
+    const vOriginal = selectedVariant ? (selectedVariant as any).originalPrice : (product as any)?.originalPrice;
+
+    let finalSellingPrice = vPrice;
+    let finalMrp = vOriginal;
+
+    if (vOffer && vOffer < vPrice) {
+      finalSellingPrice = vOffer;
+      finalMrp = vPrice;
+    } else if (vOriginal && vOriginal > vPrice) {
+      finalSellingPrice = vPrice;
+      finalMrp = vOriginal;
     }
 
-    // Prepare item to add
     const itemToAdd = {
       ...product,
-      price: selectedVariant ? selectedVariant.price : product?.price,
-      offerPrice: finalOfferPrice,
+      price: finalSellingPrice,
+      originalPrice: finalMrp,
       weight: selectedVariant ? selectedVariant.weight : product?.weight,
       image: product?.image,
       variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
     };
 
-    // Add to cart
     for (let i = 0; i < quantity; i++) {
       addToCart(itemToAdd as any, 'product');
     }
 
-    // Redirect to checkout
     navigate('/checkout');
   };
 
   /* Safe Fallback Logic for Price Display */
-  const selectedOrProductPrice = selectedVariant ? selectedVariant.price : product.price;
-  let selectedOrProductOffer = selectedVariant ? selectedVariant.offerPrice : product.offerPrice;
+  const basePrice = selectedVariant ? selectedVariant.price : product.price;
+  const baseOffer = selectedVariant ? selectedVariant.offerPrice : product.offerPrice;
+  const baseOriginal = selectedVariant ? (selectedVariant as any).originalPrice : (product as any).originalPrice;
 
-  // If variant has no offer but matches base price, inherit product offer
-  // If variant has no offer but matches base price, inherit product offer
-  // BUT ONLY if the offer is valid (less than base price)
-  if (selectedVariant && !selectedOrProductOffer && selectedVariant.price === product.price) {
-    if (product.offerPrice && product.offerPrice < product.price) {
-      selectedOrProductOffer = product.offerPrice;
-    }
+  let displayPrice = basePrice;
+  let mrp = baseOriginal || (baseOffer && baseOffer < basePrice ? basePrice : null);
+
+  if (baseOffer && baseOffer < basePrice) {
+    displayPrice = baseOffer;
+    mrp = basePrice;
+  } else if (baseOriginal && baseOriginal > basePrice) {
+    displayPrice = basePrice;
+    mrp = baseOriginal;
   }
 
-  const displayPrice = selectedOrProductOffer || selectedOrProductPrice;
-
-  const originalPrice = selectedOrProductPrice;
-
-  const hasDiscount = !!(selectedOrProductOffer && selectedOrProductOffer < selectedOrProductPrice);
+  const hasDiscount = !!(mrp && mrp > displayPrice);
 
   const discountPercent = hasDiscount
-    ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100)
+    ? Math.round(((mrp - displayPrice) / mrp) * 100)
     : 0;
 
   // Use variant weight if available, otherwise product weight
@@ -359,7 +371,7 @@ const ProductDetail: React.FC = () => {
                     {hasDiscount && (
                       <>
                         <span className="text-xl text-gray-500 line-through">
-                          ₹{originalPrice.toFixed(2)}
+                          ₹{mrp.toFixed(2)}
                         </span>
                         <span
                           className="px-2 py-1 text-sm font-bold rounded"

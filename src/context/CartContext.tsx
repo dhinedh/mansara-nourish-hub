@@ -136,13 +136,19 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (item.type === 'product') {
           const liveProduct = products.find(p => p.id === item.id || p._id === item.id);
           if (liveProduct) {
-            let livePrice = liveProduct.offerPrice || liveProduct.price;
+            let livePrice = liveProduct.price;
+            if (liveProduct.offerPrice && liveProduct.offerPrice < liveProduct.price) {
+              livePrice = liveProduct.offerPrice;
+            }
 
             // Handle variants
             if (item.weight && liveProduct.variants && liveProduct.variants.length > 0) {
               const variant = liveProduct.variants.find(v => v.weight === item.weight);
               if (variant) {
-                livePrice = variant.offerPrice || variant.price;
+                livePrice = variant.price;
+                if (variant.offerPrice && variant.offerPrice < variant.price) {
+                  livePrice = variant.offerPrice;
+                }
               }
             }
 
