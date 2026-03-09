@@ -196,7 +196,7 @@ const AdminProductEdit = () => {
                     <label className="block text-sm font-medium mb-2">Category</label>
                     <Select
                       value={formData.category}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, category: value as any }))}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select Category" />
