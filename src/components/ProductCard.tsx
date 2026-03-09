@@ -31,27 +31,47 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
 
   const hasVariants = product.variants && product.variants.length > 0;
 
-  // Intelligent Variant Selection for Listing View:
-  // Instead of always picking the first variant, we look for one that has an active offer.
-  const discountedVariant = product.variants?.find(v => v.offerPrice && v.offerPrice < v.price);
-  const firstVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
-
-  // Prioritize the discounted variant for the card display
-  const displayVariant = discountedVariant || firstVariant;
+  // Use first variant for price display, or fallback to product
+  const firstVariant = hasVariants ? product.variants[0] : null;
 
   // SAFE FALLBACK LOGIC:
   // If variant has no offer price (0 or undefined), but its price matches the main product price,
   // we assume it should inherit the main product's offer price.
-  let offerPrice = displayVariant ? displayVariant.offerPrice : product.offerPrice;
-  const price = displayVariant ? displayVariant.price : product.price;
+  let offerPrice = firstVariant ? firstVariant.offerPrice : product.offerPrice;
+  const price = firstVariant ? firstVariant.price : product.price;
 
-  if (displayVariant && !offerPrice && displayVariant.price === product.price) {
+  if (firstVariant && !offerPrice && firstVariant.price === product.price) {
     if (product.offerPrice && product.offerPrice < product.price) {
       offerPrice = product.offerPrice;
     }
   }
 
+  // Calculate max discount percentage across all variants/product
+  let maxDiscountPercent = 0;
+
+  // Check main product/first variant
+  const currentHasDiscount = !!(offerPrice && offerPrice < price);
+  if (currentHasDiscount) {
+    maxDiscountPercent = Math.round(((price - offerPrice) / price) * 100);
+  }
+
+  // Check all variants to see if any have a discount (for badge display)
+  if (product.variants && product.variants.length > 0) {
+    product.variants.forEach(v => {
+      if (v.offerPrice && v.offerPrice < v.price) {
+        const discount = Math.round(((v.price - v.offerPrice) / v.price) * 100);
+        if (discount > maxDiscountPercent) {
+          maxDiscountPercent = discount;
+        }
+      }
+    });
+  }
+
   const isNewArrival = product.isNewArrival;
+
+  // Final check for badge display: either the current view has a discount,
+  // OR the product is explicitly marked as 'isOffer' and we found a discount percent
+  const showDiscountBadge = maxDiscountPercent > 0 || product.isOffer;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -108,13 +128,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   };
 
   const displayPrice = offerPrice || price;
-  const hasDiscount = offerPrice && offerPrice < price;
-  const discountPercent = hasDiscount
-    ? Math.round(((price - offerPrice) / price) * 100)
-    : 0;
+  const hasDiscount = !!(offerPrice && offerPrice < price);
 
-  // Use the selected display variant weight if available
-  const displayWeight = displayVariant ? displayVariant.weight : product.weight;
+  // Use first variant weight if available
+  const displayWeight = firstVariant ? firstVariant.weight : product.weight;
   const unitPrice = calculateUnitPrice(displayPrice, displayWeight);
 
   return (
@@ -139,12 +156,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
                 NEW
               </span>
             )}
-            {hasDiscount && (
+            {showDiscountBadge && (
               <span
                 className="absolute top-4 left-4 px-3 py-1 text-xs font-bold rounded-full shadow-sm"
                 style={{ backgroundColor: '#FDB913', color: '#1a1a1a' }}
               >
-                {discountPercent}% OFF
+                {maxDiscountPercent}% OFF
               </span>
             )}
           </>

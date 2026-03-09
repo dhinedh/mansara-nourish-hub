@@ -228,7 +228,8 @@ const minifyProduct = (p: Product) => ({
     image: p.image,
     category: p.category, // Normalized category string or ID
     stock: p.stock,
-    isNewArrival: p.isNewArrival
+    isNewArrival: p.isNewArrival,
+    variants: p.variants
 });
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -324,10 +325,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 const resolvedSlug = categoryIdToSlug.get(rawCategory) || rawCategory || staticP.category;
                 const categoryId = categoryMap.get(resolvedSlug) || rawCategory;
 
-                // Determine if this product or ANY of its variants has an offer
-                const hasOfferInVariants = apiP.variants && apiP.variants.some((v: any) => v.offerPrice && v.offerPrice < v.price);
-                const isOffer = apiP.isOffer || (apiP.offerPrice && apiP.offerPrice < apiP.price) || hasOfferInVariants;
-
                 return {
                     ...staticP, // Use static details as base
                     id: apiP.id || apiP._id || staticP.id,
@@ -336,8 +333,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     // IMPORTANT: Prioritize API offer price if product exists in DB
                     offerPrice: apiP.offerPrice !== undefined ? apiP.offerPrice : (apiP ? undefined : staticP.offerPrice),
                     originalPrice: apiP.originalPrice || apiP.price || staticP.price,
-                    // Trust API for offer status, but also check variants for "Offer" page visibility
-                    isOffer: isOffer !== undefined ? isOffer : (apiP ? false : staticP.isOffer),
+                    // Trust API for offer status
+                    isOffer: apiP.isOffer !== undefined ? apiP.isOffer : (apiP ? false : staticP.isOffer),
                     stock: apiP.stock !== undefined ? apiP.stock : 0,
                     variants: apiP.variants || staticP.variants,
                     isActive: apiP.isActive !== undefined ? apiP.isActive : true,
