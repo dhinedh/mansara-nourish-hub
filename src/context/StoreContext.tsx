@@ -231,7 +231,13 @@ const minifyProduct = (p: Product) => ({
     category: p.category, // Normalized category string or ID
     stock: p.stock,
     isNewArrival: p.isNewArrival,
-    variants: p.variants
+    variants: p.variants?.map(v => ({
+        weight: v.weight,
+        price: v.price,
+        offerPrice: v.offerPrice,
+        originalPrice: v.originalPrice,
+        stock: v.stock
+    }))
 });
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -244,7 +250,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // If we have products, we are NOT loading initially from user perspective
     const [isLoading, setIsLoading] = useState(() => {
         try {
-            const saved = localStorage.getItem('mansara-mini-products');
+            const saved = localStorage.getItem('mansara-mini-products-v2');
             return !saved; // If saved data exists, not loading
         } catch { return true; }
     });
@@ -338,7 +344,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     // Trust API for offer status
                     isOffer: apiP.isOffer !== undefined ? apiP.isOffer : (apiP ? false : staticP.isOffer),
                     stock: apiP.stock !== undefined ? apiP.stock : 0,
-                    variants: apiP.variants || staticP.variants,
+                    variants: (apiP.variants || staticP.variants || []).map((v: any) => ({
+                        ...v,
+                        // Apply same robust logic to variants
+                        originalPrice: v.originalPrice || (v.offerPrice && v.offerPrice < v.price ? v.price : v.price),
+                        offerPrice: v.offerPrice !== undefined ? v.offerPrice : (v.originalPrice && v.originalPrice > v.price ? v.price : undefined)
+                    })),
                     isActive: apiP.isActive !== undefined ? apiP.isActive : true,
                     categoryId: categoryId,
                     category: resolvedSlug
@@ -350,7 +361,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             // 2. INSTANT LOAD: Persist data for next visit (minified)
             try {
                 const minified = enhancedProducts.map(minifyProduct);
-                localStorage.setItem('mansara-mini-products', JSON.stringify(minified));
+                localStorage.setItem('mansara-mini-products-v2', JSON.stringify(minified));
             } catch (e) {
                 console.warn('[Store] LocalStorage quota exceeded, skipping cache');
             }
