@@ -253,20 +253,47 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, [categories]);
 
     const addProduct = async (productData: any) => {
-        const token = getToken();
-        const { createProduct } = await import('@/lib/api');
-        const res = await createProduct(productData, token);
-        await fetchData(true);
+        try {
+            const token = getToken();
+            const { createProduct } = await import('@/lib/api');
+
+            // Convert category slug to ID if needed
+            let categoryToSend = productData.category;
+            if (productData.category && !productData.category.match(/^[0-9a-fA-F]{24}$/)) {
+                const categoryId = getCategoryIdBySlug(productData.category);
+                if (categoryId) categoryToSend = categoryId;
+            }
+
+            const dataWithId = { ...productData, category: categoryToSend };
+            await createProduct(dataWithId, token);
+            await fetchData(true);
+        } catch (err: any) {
+            console.error('[Store] Add product failed:', err);
+            throw err;
+        }
     };
 
     const updateProduct = async (id: string, updates: any) => {
-        const token = getToken();
-        // Optimistic update
-        setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+        try {
+            const token = getToken();
+            const { updateProduct: apiUpdate } = await import('@/lib/api');
 
-        const { updateProduct: apiUpdate } = await import('@/lib/api');
-        await apiUpdate(id, updates, token);
-        await fetchData(true);
+            // Convert category slug to ID if needed
+            let updatesToSend = { ...updates };
+            if (updates.category && !updates.category.match(/^[0-9a-fA-F]{24}$/)) {
+                const categoryId = getCategoryIdBySlug(updates.category);
+                if (categoryId) updatesToSend.category = categoryId;
+            }
+
+            // Optimistic update
+            setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+
+            await apiUpdate(id, updatesToSend, token);
+            await fetchData(true);
+        } catch (err: any) {
+            console.error('[Store] Update product failed:', err);
+            throw err;
+        }
     };
 
     const deleteProduct = async (id: string) => {
