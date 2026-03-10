@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, MessageCircle, Loader2, Package, Truck, CheckCircle, XCircle, Star, Send, Trash2 } from "lucide-react";
 import api from '@/lib/api';
+import AdminChatView from "@/components/admin/AdminChatView";
 
 interface Order {
   _id: string;
@@ -83,6 +84,9 @@ const AdminOrders = () => {
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
+  const [chatDialogOpen, setChatDialogOpen] = useState(false);
+  const [chatPhone, setChatPhone] = useState("");
+  const [chatName, setChatName] = useState("");
 
   const statusOptions = [
     { value: 'Ordered', label: 'Ordered', icon: Package },
@@ -511,274 +515,290 @@ const AdminOrders = () => {
           </DialogHeader>
 
           {selectedOrder && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-slate-50 p-4 rounded-lg border">
-                  <h3 className="font-semibold text-sm mb-3 text-slate-700">Order Information</h3>
-                  <div className="text-sm space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Order ID:</span>
-                      <span className="font-mono font-medium">{selectedOrder.orderId}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Date:</span>
-                      <span>{new Date(selectedOrder.createdAt).toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Payment Method:</span>
-                      <span>{selectedOrder.paymentMethod}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600">Payment Status:</span>
-                      <Badge variant={getPaymentBadge(selectedOrder.paymentStatus)}>
-                        {selectedOrder.paymentStatus}
-                      </Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600">Order Status:</span>
-                      <Badge variant={getStatusBadge(selectedOrder.orderStatus)}>
-                        {selectedOrder.orderStatus}
-                      </Badge>
-                    </div>
-                    {selectedOrder.estimatedDeliveryDate && (
+            <>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-slate-50 p-4 rounded-lg border">
+                    <h3 className="font-semibold text-sm mb-3 text-slate-700">Order Information</h3>
+                    <div className="text-sm space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-slate-600">Est. Delivery:</span>
-                        <span className="font-medium">
-                          {new Date(selectedOrder.estimatedDeliveryDate).toLocaleDateString('en-IN', {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </span>
+                        <span className="text-slate-600">Order ID:</span>
+                        <span className="font-mono font-medium">{selectedOrder.orderId}</span>
                       </div>
-                    )}
-                    {(selectedOrder as any).trackingNumber && (
-                      <>
-                        <div className="flex justify-between border-t pt-2 mt-2">
-                          <span className="text-slate-600">Tracking #:</span>
-                          <span className="font-mono font-medium">{(selectedOrder as any).trackingNumber}</span>
-                        </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Date:</span>
+                        <span>{new Date(selectedOrder.createdAt).toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Payment Method:</span>
+                        <span>{selectedOrder.paymentMethod}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600">Payment Status:</span>
+                        <Badge variant={getPaymentBadge(selectedOrder.paymentStatus)}>
+                          {selectedOrder.paymentStatus}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600">Order Status:</span>
+                        <Badge variant={getStatusBadge(selectedOrder.orderStatus)}>
+                          {selectedOrder.orderStatus}
+                        </Badge>
+                      </div>
+                      {selectedOrder.estimatedDeliveryDate && (
                         <div className="flex justify-between">
-                          <span className="text-slate-600">Courier:</span>
-                          <span>{(selectedOrder as any).courier || 'iCarry'}</span>
+                          <span className="text-slate-600">Est. Delivery:</span>
+                          <span className="font-medium">
+                            {new Date(selectedOrder.estimatedDeliveryDate).toLocaleDateString('en-IN', {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </span>
                         </div>
-                      </>
-                    )}
+                      )}
+                      {(selectedOrder as any).trackingNumber && (
+                        <>
+                          <div className="flex justify-between border-t pt-2 mt-2">
+                            <span className="text-slate-600">Tracking #:</span>
+                            <span className="font-mono font-medium">{(selectedOrder as any).trackingNumber}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Courier:</span>
+                            <span>{(selectedOrder as any).courier || 'iCarry'}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div className="bg-slate-50 p-4 rounded-lg border">
-                  <h3 className="font-semibold text-sm mb-3 text-slate-700">Customer Information</h3>
-                  <div className="text-sm space-y-2">
-                    <div>
-                      <span className="text-slate-600">Name:</span>
-                      <p className="font-medium">{selectedOrder.user?.name || selectedOrder.deliveryAddress.firstName}</p>
-                    </div>
-                    <div>
-                      <span className="text-slate-600">Email:</span>
-                      <p>{selectedOrder.user?.email}</p>
-                    </div>
-                    <div>
-                      <span className="text-slate-600">Phone:</span>
-                      <p>{selectedOrder.deliveryAddress.phone || selectedOrder.user?.phone}</p>
-                    </div>
-                    {(selectedOrder.deliveryAddress.whatsapp || selectedOrder.user?.whatsapp) && (
+                  <div className="bg-slate-50 p-4 rounded-lg border">
+                    <h3 className="font-semibold text-sm mb-3 text-slate-700">Customer Information</h3>
+                    <div className="text-sm space-y-2">
                       <div>
-                        <span className="text-slate-600">WhatsApp:</span>
-                        <p className="text-green-600 font-medium">
-                          {selectedOrder.deliveryAddress.whatsapp || selectedOrder.user?.whatsapp}
-                        </p>
+                        <span className="text-slate-600">Name:</span>
+                        <p className="font-medium">{selectedOrder.user?.name || selectedOrder.deliveryAddress.firstName}</p>
                       </div>
-                    )}
+                      <div>
+                        <span className="text-slate-600">Email:</span>
+                        <p>{selectedOrder.user?.email}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-600">Phone:</span>
+                        <p>{selectedOrder.deliveryAddress.phone || selectedOrder.user?.phone}</p>
+                      </div>
+                      {(selectedOrder.deliveryAddress.whatsapp || selectedOrder.user?.whatsapp) && (
+                        <div>
+                          <span className="text-slate-600">WhatsApp:</span>
+                          <p className="text-green-600 font-medium">
+                            {selectedOrder.deliveryAddress.whatsapp || selectedOrder.user?.whatsapp}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h3 className="font-semibold text-sm mb-2 text-blue-900">Delivery Address</h3>
-                <p className="text-sm text-blue-800">
-                  {selectedOrder.deliveryAddress.firstName} {selectedOrder.deliveryAddress.lastName}<br />
-                  {selectedOrder.deliveryAddress.street}<br />
-                  {selectedOrder.deliveryAddress.city}, {selectedOrder.deliveryAddress.state} - {selectedOrder.deliveryAddress.zip}
-                </p>
-              </div>
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h3 className="font-semibold text-sm mb-2 text-blue-900">Delivery Address</h3>
+                  <p className="text-sm text-blue-800">
+                    {selectedOrder.deliveryAddress.firstName} {selectedOrder.deliveryAddress.lastName}<br />
+                    {selectedOrder.deliveryAddress.street}<br />
+                    {selectedOrder.deliveryAddress.city}, {selectedOrder.deliveryAddress.state} - {selectedOrder.deliveryAddress.zip}
+                  </p>
+                </div>
 
-              <div>
-                <h3 className="font-semibold text-sm mb-3">Order Items</h3>
-                <div className="border rounded-lg overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-slate-50">
-                        <TableHead>Product</TableHead>
-                        <TableHead className="text-center">Qty</TableHead>
-                        <TableHead className="text-right">Price</TableHead>
-                        <TableHead className="text-right">Total</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {selectedOrder.items.map((item, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">{item.name}</TableCell>
-                          <TableCell className="text-center">{item.quantity}</TableCell>
-                          <TableCell className="text-right">₹{item.price}</TableCell>
-                          <TableCell className="text-right font-semibold">
-                            ₹{item.price * item.quantity}
-                          </TableCell>
+                <div>
+                  <h3 className="font-semibold text-sm mb-3">Order Items</h3>
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-slate-50">
+                          <TableHead>Product</TableHead>
+                          <TableHead className="text-center">Qty</TableHead>
+                          <TableHead className="text-right">Price</TableHead>
+                          <TableHead className="text-right">Total</TableHead>
                         </TableRow>
-                      ))}
-                      <TableRow className="bg-slate-50 font-bold">
-                        <TableCell colSpan={3} className="text-right">Grand Total:</TableCell>
-                        <TableCell className="text-right text-lg">₹{selectedOrder.total}</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {selectedOrder.items.map((item, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium">{item.name}</TableCell>
+                            <TableCell className="text-center">{item.quantity}</TableCell>
+                            <TableCell className="text-right">₹{item.price}</TableCell>
+                            <TableCell className="text-right font-semibold">
+                              ₹{item.price * item.quantity}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        <TableRow className="bg-slate-50 font-bold">
+                          <TableCell colSpan={3} className="text-right">Grand Total:</TableCell>
+                          <TableCell className="text-right text-lg">₹{selectedOrder.total}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
-              </div>
 
-              <div className="bg-slate-50 p-4 rounded-lg border">
-                <h3 className="font-semibold text-sm mb-3">Update Order Status</h3>
-                <PermissionGate
-                  module="orders"
-                  requiredLevel="limited"
-                  fallback={
-                    <div className="bg-slate-100 p-2 rounded border border-slate-200 text-slate-500 text-sm">
-                      Status updates are restricted
-                    </div>
-                  }
-                >
-                  <Select
-                    value={selectedOrder.orderStatus}
-                    onValueChange={(newStatus) => handleUpdateStatus(selectedOrder._id, newStatus)}
-                    disabled={updatingStatusId === selectedOrder._id}
-                  >
-                    <SelectTrigger className="bg-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statusOptions.map((status) => {
-                        const statusOrder = ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
-                        const currentIndex = statusOrder.indexOf(selectedOrder.orderStatus);
-                        const optionIndex = statusOrder.indexOf(status.value);
-                        let isDisabled = false;
-
-                        if (selectedOrder.orderStatus === 'Cancelled') isDisabled = true;
-                        else if (selectedOrder.orderStatus === 'Delivered') isDisabled = true;
-                        else if (status.value === 'Cancelled') isDisabled = false;
-                        else if (optionIndex < currentIndex) isDisabled = true;
-
-                        return (
-                          <SelectItem key={status.value} value={status.value} disabled={isDisabled}>
-                            <div className="flex items-center gap-2">
-                              <status.icon size={16} />
-                              {status.label}
-                            </div>
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                </PermissionGate>
-                <p className="text-xs text-slate-500 mt-2">
-                  Customer will be automatically notified via WhatsApp when status changes
-                </p>
-              </div>
-
-              {(selectedOrder.orderStatus === 'Delivered' || selectedOrder.orderStatus === 'Closed') && (
                 <div className="bg-slate-50 p-4 rounded-lg border">
-                  <h3 className="font-semibold text-sm mb-3">Feedback Status</h3>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-slate-600">Current Status:</span>
-                      <Badge variant={
-                        selectedOrder.feedbackStatus === 'Received' ? 'default' :
-                          selectedOrder.feedbackStatus === 'Not Received' ? 'destructive' : 'secondary'
-                      }>
-                        {selectedOrder.feedbackStatus || 'Pending'}
-                      </Badge>
-                    </div>
-
-                    {selectedOrder.feedbackStatus !== 'Received' && (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-green-600 text-green-600 hover:bg-green-50"
-                          onClick={() => handleUpdateFeedback(selectedOrder._id, 'Received')}
-                        >
-                          <CheckCircle className="w-4 h-4 mr-1" /> Received
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-red-600 text-red-600 hover:bg-red-50"
-                          onClick={() => handleUpdateFeedback(selectedOrder._id, 'Not Received')}
-                        >
-                          <XCircle className="w-4 h-4 mr-1" /> Not Received
-                        </Button>
+                  <h3 className="font-semibold text-sm mb-3">Update Order Status</h3>
+                  <PermissionGate
+                    module="orders"
+                    requiredLevel="limited"
+                    fallback={
+                      <div className="bg-slate-100 p-2 rounded border border-slate-200 text-slate-500 text-sm">
+                        Status updates are restricted
                       </div>
+                    }
+                  >
+                    <Select
+                      value={selectedOrder.orderStatus}
+                      onValueChange={(newStatus) => handleUpdateStatus(selectedOrder._id, newStatus)}
+                      disabled={updatingStatusId === selectedOrder._id}
+                    >
+                      <SelectTrigger className="bg-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statusOptions.map((status) => {
+                          const statusOrder = ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
+                          const currentIndex = statusOrder.indexOf(selectedOrder.orderStatus);
+                          const optionIndex = statusOrder.indexOf(status.value);
+                          let isDisabled = false;
+
+                          if (selectedOrder.orderStatus === 'Cancelled') isDisabled = true;
+                          else if (selectedOrder.orderStatus === 'Delivered') isDisabled = true;
+                          else if (status.value === 'Cancelled') isDisabled = false;
+                          else if (optionIndex < currentIndex) isDisabled = true;
+
+                          return (
+                            <SelectItem key={status.value} value={status.value} disabled={isDisabled}>
+                              <div className="flex items-center gap-2">
+                                <status.icon size={16} />
+                                {status.label}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </PermissionGate>
+                  <p className="text-xs text-slate-500 mt-2">
+                    Customer will be automatically notified via WhatsApp when status changes
+                  </p>
+                </div>
+
+                {(selectedOrder.orderStatus === 'Delivered' || selectedOrder.orderStatus === 'Closed') && (
+                  <div className="bg-slate-50 p-4 rounded-lg border">
+                    <h3 className="font-semibold text-sm mb-3">Feedback Status</h3>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-slate-600">Current Status:</span>
+                        <Badge variant={
+                          selectedOrder.feedbackStatus === 'Received' ? 'default' :
+                            selectedOrder.feedbackStatus === 'Not Received' ? 'destructive' : 'secondary'
+                        }>
+                          {selectedOrder.feedbackStatus || 'Pending'}
+                        </Badge>
+                      </div>
+
+                      {selectedOrder.feedbackStatus !== 'Received' && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-green-600 text-green-600 hover:bg-green-50"
+                            onClick={() => handleUpdateFeedback(selectedOrder._id, 'Received')}
+                          >
+                            <CheckCircle className="w-4 h-4 mr-1" /> Received
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-red-600 text-red-600 hover:bg-red-50"
+                            onClick={() => handleUpdateFeedback(selectedOrder._id, 'Not Received')}
+                          >
+                            <XCircle className="w-4 h-4 mr-1" /> Not Received
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    {selectedOrder.feedbackStatus === 'Received' && (
+                      <p className="text-xs text-green-600 mt-2 flex items-center">
+                        <CheckCircle className="w-3 h-3 mr-1" /> Order automatically closed
+                      </p>
                     )}
                   </div>
-                  {selectedOrder.feedbackStatus === 'Received' && (
-                    <p className="text-xs text-green-600 mt-2 flex items-center">
-                      <CheckCircle className="w-3 h-3 mr-1" /> Order automatically closed
-                    </p>
-                  )}
-                </div>
-              )}
+                )}
 
-              <div className="flex flex-col gap-3 pt-4 border-t">
-                <div className="flex gap-3">
-                  <PermissionGate module="orders" requiredLevel="limited">
-                    {selectedOrder.orderStatus === 'Ordered' && (
-                      <Button
-                        onClick={() => handleConfirmOrder(selectedOrder)}
-                        disabled={confirmingOrderId === selectedOrder._id}
-                        className="flex-1 bg-green-600 hover:bg-green-700"
-                      >
-                        {confirmingOrderId === selectedOrder._id ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            Confirming...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Confirm Order & Notify
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </PermissionGate>
+                <div className="flex flex-col gap-3 pt-4 border-t">
+                  <div className="flex gap-3">
+                    <PermissionGate module="orders" requiredLevel="limited">
+                      {selectedOrder.orderStatus === 'Ordered' && (
+                        <Button
+                          onClick={() => handleConfirmOrder(selectedOrder)}
+                          disabled={confirmingOrderId === selectedOrder._id}
+                          className="flex-1 bg-green-600 hover:bg-green-700"
+                        >
+                          {confirmingOrderId === selectedOrder._id ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              Confirming...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Confirm Order & Notify
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </PermissionGate>
 
-                  <PermissionGate module="orders" requiredLevel="limited">
-                    {selectedOrder.orderStatus === 'Processing' && (
-                      <Button
-                        onClick={() => handleShipOrder(selectedOrder)}
-                        disabled={shippingOrderId === selectedOrder._id}
-                        className="flex-1 bg-purple-600 hover:bg-purple-700"
-                      >
-                        {shippingOrderId === selectedOrder._id ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            Shipping...
-                          </>
-                        ) : (
-                          <>
-                            <Truck className="h-4 w-4 mr-2" />
-                            Ship with iCarry
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </PermissionGate>
+                    <PermissionGate module="orders" requiredLevel="limited">
+                      {selectedOrder.orderStatus === 'Processing' && (
+                        <Button
+                          onClick={() => handleShipOrder(selectedOrder)}
+                          disabled={shippingOrderId === selectedOrder._id}
+                          className="flex-1 bg-purple-600 hover:bg-purple-700"
+                        >
+                          {shippingOrderId === selectedOrder._id ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              Shipping...
+                            </>
+                          ) : (
+                            <>
+                              <Truck className="h-4 w-4 mr-2" />
+                              Ship with iCarry
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </PermissionGate>
+
+                    <Button
+                      onClick={() => handleManualWhatsApp(selectedOrder)}
+                      variant="outline"
+                      className="flex-1 border-green-600 text-green-600 hover:bg-green-50"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      WhatsApp (Manual)
+                    </Button>
+                  </div>
 
                   <Button
-                    onClick={() => handleManualWhatsApp(selectedOrder)}
+                    onClick={() => {
+                      const phone = selectedOrder.deliveryAddress.whatsapp || selectedOrder.user.whatsapp || selectedOrder.deliveryAddress.phone || selectedOrder.user.phone;
+                      setChatPhone(phone);
+                      setChatName(selectedOrder.user?.name || selectedOrder.deliveryAddress.firstName);
+                      setChatDialogOpen(true);
+                    }}
                     variant="outline"
                     className="flex-1 border-green-600 text-green-600 hover:bg-green-50"
                   >
                     <MessageCircle className="h-4 w-4 mr-2" />
-                    WhatsApp (Manual)
+                    Chat History
                   </Button>
                 </div>
 
@@ -817,7 +837,7 @@ const AdminOrders = () => {
                   </Button>
                 </PermissionGate>
               </div>
-            </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
@@ -897,7 +917,12 @@ const AdminOrders = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+      <Dialog open={chatDialogOpen} onOpenChange={setChatDialogOpen}>
+        <DialogContent className="max-w-md p-0">
+          <AdminChatView phone={chatPhone} customerName={chatName} />
+        </DialogContent>
+      </Dialog>
+    </AdminLayout >
   );
 };
 

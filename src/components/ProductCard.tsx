@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Zap } from 'lucide-react';
 import { calculateUnitPrice, optimizeImage } from '@/lib/utils';
 import ProgressiveImage from '@/components/ui/ProgressiveImage';
+import WhatsAppBuyButton from './WhatsAppBuyButton';
 import { Product as DataProduct } from '@/data/products';
 import { Product as StoreProduct } from '@/context/StoreContext';
 import { useCart } from '@/context/CartContext';
@@ -210,6 +211,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           <Zap size={16} className="fill-current" />
           Buy Now
         </button>
+        {stock > 0 && (
+          <WhatsAppBuyButton
+            product={product}
+            className="w-full mt-2"
+          />
+        )}
         {stock > 0 && stock < 10 && (
           <p className="text-xs text-orange-600 font-medium mt-3">Only {stock} left!</p>
         )}

@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { fetchProductReviews, checkReviewEligibility, createReview, notifyMe, deleteReview } from '@/lib/api';
 import { calculateUnitPrice } from '@/lib/utils';
 import ProgressiveImage from '@/components/ui/ProgressiveImage';
+import WhatsAppBuyButton from '@/components/WhatsAppBuyButton';
 import {
   Dialog,
   DialogContent,
@@ -436,6 +437,12 @@ const ProductDetail: React.FC = () => {
                             <Zap className="w-5 h-5 fill-current" />
                             Buy Now
                           </button>
+
+                          <WhatsAppBuyButton
+                            product={product}
+                            variant={selectedVariant}
+                            className="w-full"
+                          />
                         </>
                       ) : (
                         <button

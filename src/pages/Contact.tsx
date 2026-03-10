@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Mail, Phone, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -28,7 +28,7 @@ const Contact: React.FC = () => {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        subject: `Start a Conversation: ${formData.name}`,
+        subject: `Start a Conversation: ${formData.name} `,
         message: formData.message
       });
 
@@ -93,7 +93,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="font-heading text-lg font-bold text-foreground mb-2">Email Us</h4>
-                    <a href={`mailto:${getContent('contact', 'email', 'contact@mansarafoods.com')}`} className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
+                    <a href={`mailto:${getContent('contact', 'email', 'contact@mansarafoods.com')} `} className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
                       {getContent('contact', 'email', 'contact@mansarafoods.com')}
                     </a>
                   </div>
@@ -105,13 +105,24 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="font-heading text-lg font-bold text-foreground mb-2">Call / WhatsApp</h4>
-                    <a href={`tel:${getContent('contact', 'phone', '+91 88388 87064')}`} className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
-                      {getContent('contact', 'phone', '+91 88388 87064')}
-                    </a>
+                    <div className="flex flex-col gap-2">
+                      <a href={`tel:${getContent('contact', 'phone', '+91 88388 87064')} `} className="text-accent hover:text-accent/80 hover:underline text-lg font-medium transition-colors">
+                        {getContent('contact', 'phone', '+91 88388 87064')}
+                      </a>
+                      <a
+                        href={`https://wa.me/${import.meta.env.VITE_BOTBIZ_PHONE_NUMBER || '918838887064'}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 text-[#25D366] hover:text-[#128C7E] font-medium transition-colors"
+                      >
+                        <MessageCircle size={18} fill="currentColor" />
+                        Chat on WhatsApp
+                      </a >
+                    </div >
                     <p className="text-muted-foreground text-sm mt-1">(Available during business hours)</p>
-                  </div>
-                </div>
-              </div>
+                  </div >
+                </div >
+              </div >
 
               <div className="mt-12 p-8 bg-secondary/50 rounded-2xl border border-border/50 backdrop-blur-sm">
                 <h4 className="font-heading font-semibold text-foreground mb-4 text-lg">Get in Touch For:</h4>
@@ -124,10 +135,10 @@ const Contact: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </div>
+            </div >
 
             {/* Contact Form */}
-            <div className="bg-card rounded-3xl p-8 sm:p-10 shadow-card border border-border/50 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            < div className="bg-card rounded-3xl p-8 sm:p-10 shadow-card border border-border/50 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
               <h2 className="font-heading text-2xl font-bold text-foreground mb-8">
                 Send us a Message
               </h2>
@@ -205,19 +216,19 @@ const Contact: React.FC = () => {
                   </Button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      </section>
+            </div >
+          </div >
+        </div >
+      </section >
 
       {/* Commitment */}
-      <section className="py-12 bg-secondary">
+      < section className="py-12 bg-secondary" >
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto text-center">
           <p className="text-muted-foreground whitespace-pre-line">
             {getContent('contact', 'commitment', '🌿 Our Commitment: Every message matters to us. We respond with the same care, honesty, and responsibility that define MANSARA.')}
           </p>
         </div>
-      </section>
+      </section >
     </Layout >
   );
 };
