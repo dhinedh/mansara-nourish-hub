@@ -9,11 +9,19 @@ const HeroSlider: React.FC = () => {
     const { heroConfig } = useHeroContent();
     const [currentSlide, setCurrentSlide] = useState(0);
 
+    const [isMobile, setIsMobile] = useState(false);
     const [touchStart, setTouchStart] = useState<number | null>(null);
     const [touchEnd, setTouchEnd] = useState<number | null>(null);
-
-    // Minimum swipe distance (in px)
     const minSwipeDistance = 50;
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         const interval = heroConfig.homeSettings?.interval || 5000;
@@ -58,7 +66,7 @@ const HeroSlider: React.FC = () => {
 
     return (
         <section
-            className="relative w-full overflow-hidden bg-black aspect-[16/9] md:aspect-[21/9] max-h-[700px]"
+            className={`relative w-full overflow-hidden bg-black ${isMobile ? 'aspect-[4/5] min-h-[450px]' : 'aspect-[16/9] md:aspect-[21/9] max-h-[700px]'}`}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -73,9 +81,9 @@ const HeroSlider: React.FC = () => {
                     {slide.ctaLink ? (
                         <Link to={slide.ctaLink} className="absolute inset-0 cursor-pointer block">
                             <ProgressiveImage
-                                src={slide.image}
+                                src={isMobile && slide.mobileImage ? slide.mobileImage : slide.image}
                                 alt={slide.title}
-                                className="w-full h-full object-fill md:object-cover"
+                                className="w-full h-full object-cover"
                                 placeholder="/placeholder.svg"
                             />
                             <div className="absolute inset-0 bg-black/10" />
@@ -83,9 +91,9 @@ const HeroSlider: React.FC = () => {
                     ) : (
                         <div className="absolute inset-0">
                             <ProgressiveImage
-                                src={slide.image}
+                                src={isMobile && slide.mobileImage ? slide.mobileImage : slide.image}
                                 alt={slide.title}
-                                className="w-full h-full object-fill md:object-cover"
+                                className="w-full h-full object-cover"
                                 placeholder="/placeholder.svg"
                             />
                             <div className="absolute inset-0 bg-black/10" />

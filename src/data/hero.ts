@@ -1,6 +1,7 @@
 export interface HeroSlide {
     id: string;
     image: string;
+    mobileImage?: string;
     title: string;
     subtitle: string;
     ctaText?: string;
@@ -10,6 +11,7 @@ export interface HeroSlide {
 
 export interface PageHero {
     image: string;
+    mobileImage?: string;
     title: string;
     subtitle: string;
     alignment?: 'left' | 'center' | 'right';
@@ -36,19 +38,12 @@ export const heroConfig: HeroConfig = {
     home: [
         {
             id: '1',
-            image: '/hero-womens-day-home-v2.png',
+            image: '/hero-desktop.png',
+            mobileImage: '/hero-mobile.png',
             title: '',
             subtitle: '',
-            ctaText: '',
+            ctaText: 'Shop Now',
             ctaLink: '/products'
-        },
-        {
-            id: '2',
-            image: '/hero-womens-day-home-v1.png',
-            title: '',
-            subtitle: '',
-            ctaText: '',
-            ctaLink: '/offers'
         }
     ],
     newArrivals: {
