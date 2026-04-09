@@ -184,7 +184,8 @@ const AdminOrders = () => {
 
     } catch (error: any) {
       console.error('Failed to ship order:', error);
-      toast.error(error.response?.data?.message || 'Failed to create shipment');
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || 'Failed to create shipment';
+      toast.error(errorMsg);
     } finally {
       setShippingOrderId(null);
     }
