@@ -44,6 +44,15 @@ export const heroConfig: HeroConfig = {
             subtitle: '',
             ctaText: 'Shop Now',
             ctaLink: '/products'
+        },
+        {
+            id: '2',
+            image: '/hero-desktop-2.png',
+            mobileImage: '/hero-desktop.png',
+            title: '',
+            subtitle: '',
+            ctaText: 'View Combos',
+            ctaLink: '/combos'
         }
     ],
     newArrivals: {
