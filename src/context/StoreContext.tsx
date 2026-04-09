@@ -133,10 +133,10 @@ const CACHE_KEY = 'mansara-store-cache-v3'; // Bumped version
 // ========================================
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [combos, setCombos] = useState<Combo[]>([]);
+    const [products, setProducts] = useState<Product[]>(staticProducts as any);
+    const [combos, setCombos] = useState<Combo[]>(staticCombos as any);
     const [categories, setCategories] = useState<Category[]>(staticCategories as any);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Initial load from localStorage
