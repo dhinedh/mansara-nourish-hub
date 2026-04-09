@@ -513,6 +513,7 @@ const AdminOrders = () => {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Order Details - {selectedOrder?.orderId}</DialogTitle>
+            <div className="sr-only">Detailed information about order {selectedOrder?.orderId}</div>
           </DialogHeader>
 
           {selectedOrder && (
