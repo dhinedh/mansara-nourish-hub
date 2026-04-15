@@ -811,7 +811,14 @@ const Checkout: React.FC = () => {
                           </div>
                           <div>
                             <p className="font-medium line-clamp-1 text-base">{item.name}</p>
-                            <p className="text-sm text-muted-foreground mt-1">Qty: {item.quantity}</p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Qty: {item.quantity}
+                              {item.weight && (
+                                <span className="ml-2 px-1.5 py-0.5 bg-blue-50 text-brand-blue border border-blue-100 rounded text-[10px] font-bold">
+                                  {item.weight}
+                                </span>
+                              )}
+                            </p>
                             <div className="mt-2 text-sm flex items-center flex-wrap gap-x-2">
                               <span className="font-medium text-slate-900">
                                 Delivery by {formattedDate}

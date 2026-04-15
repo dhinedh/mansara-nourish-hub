@@ -168,9 +168,16 @@ const Cart: React.FC = () => {
                           <h3 className="font-heading font-semibold text-foreground">
                             {item.name}
                           </h3>
-                          <p className="text-sm text-muted-foreground capitalize">
-                            {item.type}
-                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <p className="text-xs text-muted-foreground capitalize bg-secondary px-2 py-0.5 rounded-full">
+                              {item.type}
+                            </p>
+                            {item.weight && (
+                              <p className="text-xs font-bold text-brand-blue bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                                {item.weight}
+                              </p>
+                            )}
+                          </div>
                         </div>
                         <button
                           onClick={() => handleRemove(item.id)}
