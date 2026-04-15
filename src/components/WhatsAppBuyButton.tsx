@@ -6,10 +6,15 @@ interface WhatsAppBuyButtonProps {
     product: any;
     variant?: any;
     className?: string;
+    onClick?: (e: React.MouseEvent) => void;
 }
 
-const WhatsAppBuyButton: React.FC<WhatsAppBuyButtonProps> = ({ product, variant, className = "" }) => {
+const WhatsAppBuyButton: React.FC<WhatsAppBuyButtonProps> = ({ product, variant, className = "", onClick }) => {
     const handleWhatsAppOrder = async (e: React.MouseEvent) => {
+        if (onClick) {
+            onClick(e);
+            return;
+        }
         e.preventDefault();
         e.stopPropagation();
 

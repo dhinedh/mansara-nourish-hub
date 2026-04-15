@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Zap } from 'lucide-react';
+import { ShoppingCart, Zap, Check } from 'lucide-react';
 import { calculateUnitPrice, optimizeImage } from '@/lib/utils';
 import ProgressiveImage from '@/components/ui/ProgressiveImage';
 import WhatsAppBuyButton from './WhatsAppBuyButton';
@@ -8,6 +8,15 @@ import { Product as DataProduct } from '@/data/products';
 import { Product as StoreProduct } from '@/context/StoreContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
 
 // Define a union type for the prop
 type Product = DataProduct | StoreProduct;
@@ -22,13 +31,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const { toast } = useToast();
   const navigate = useNavigate();
   const [adding, setAdding] = useState(false);
+  const [showVariantModal, setShowVariantModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'cart' | 'buy' | 'whatsapp' | null>(null);
 
   // Normalize product data common fields
   const rawImage = product.image || (product as any).image_url || '';
   const imageUrl = optimizeImage(rawImage, 400);
-
-  // Determine effective stock
-  const stock = product.stock;
 
   const hasVariants = product.variants && product.variants.length > 0;
   const [selectedVariant, setSelectedVariant] = useState(hasVariants ? product.variants![0] : null);
@@ -67,10 +75,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const isNewArrival = product.isNewArrival;
   const showDiscountBadge = maxDiscountPercent > 0 || product.isOffer;
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const executeAction = (action: 'cart' | 'buy' | 'whatsapp', variant = selectedVariant) => {
+    if (action === 'cart') {
+      performAddToCart(variant);
+    } else if (action === 'buy') {
+      performBuyNow(variant);
+    }
+    // WhatsApp is handled by the button component usually,
+    // but we can trigger it or just let the user click it from modal.
+  };
 
+  const performAddToCart = async (variant = selectedVariant) => {
     if (stock === 0) {
       toast({
         title: "Out of stock",
@@ -82,23 +97,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
 
     setAdding(true);
     try {
-      // If it's a StoreProduct, we need to adapt it for CartContext which expects DataProduct-like structure
-      // specifically matching properties used in addToCart
       const cartItemStruture = {
         ...product,
         image: imageUrl,
-        price: displayPrice,
-        originalPrice: mrp,
-        weight: selectedVariant ? selectedVariant.weight : product.weight,
-        variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
+        price: variant ? variant.price : product.price,
+        originalPrice: variant ? (variant as any).originalPrice : (product as any).originalPrice,
+        weight: variant ? variant.weight : product.weight,
+        variant: variant ? { weight: variant.weight } : undefined
       };
 
-      // Cast to any because CartContext types are strict but runtime is compatible with this shape
       addToCart(cartItemStruture as any, 'product');
 
       toast({
         title: "Added to cart!",
-        description: `${product.name} (${selectedVariant ? selectedVariant.weight : product.weight}) has been added to your cart.`,
+        description: `${product.name} (${variant ? variant.weight : product.weight}) added.`,
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -111,23 +123,47 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
     setAdding(false);
   };
 
-  const handleBuyNow = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const performBuyNow = async (variant = selectedVariant) => {
     if (stock === 0) return;
 
     const cartItemStruture = {
       ...product,
       image: imageUrl,
-      price: displayPrice,
-      originalPrice: mrp,
-      weight: selectedVariant ? selectedVariant.weight : product.weight,
-      variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
+      price: variant ? variant.price : product.price,
+      originalPrice: variant ? (variant as any).originalPrice : (product as any).originalPrice,
+      weight: variant ? variant.weight : product.weight,
+      variant: variant ? { weight: variant.weight } : undefined
     };
 
     addToCart(cartItemStruture as any, 'product');
     navigate('/checkout');
   };
+
+  const handleAddToCartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (hasVariants) {
+      setPendingAction('cart');
+      setShowVariantModal(true);
+    } else {
+      performAddToCart();
+    }
+  };
+
+  const handleBuyNowClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (hasVariants) {
+      setPendingAction('buy');
+      setShowVariantModal(true);
+    } else {
+      performBuyNow();
+    }
+  };
+
+  const weightVarieties = product.variants && product.variants.length > 0
+    ? product.variants.map(v => v.weight).join(', ')
+    : product.weight;
 
   return (
     <div className="group bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 border border-transparent hover:border-black/5 flex flex-col h-full">
@@ -181,32 +217,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           </p>
         )}
 
-        {/* Variant Selector */}
-        {hasVariants && (
-          <div className="mb-4">
-            <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1.5 px-0.5">Select Variety</p>
-            <div className="flex flex-wrap gap-1.5">
-              {product.variants!.map((v, idx) => (
-                <button
-                  key={idx}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setSelectedVariant(v);
-                  }}
-                  className={`px-2.5 py-1 text-xs font-bold rounded-md border transition-all ${
-                    selectedVariant?.weight === v.weight
-                      ? 'bg-[#1F2A7C] border-[#1F2A7C] text-white shadow-sm'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-[#1F2A7C]/30 hover:bg-slate-50'
-                  }`}
-                >
-                  {v.weight}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         <div className="mt-auto">
           <div className="flex items-center justify-between mb-3">
             <div className="flex flex-col">
@@ -220,14 +230,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
                   </span>
                 )}
               </div>
-              {!hasVariants && product.weight && (
-                <p className="text-xs text-muted-foreground font-medium mt-1">
-                  {product.weight}
-                </p>
-              )}
+              <p className="text-xs text-muted-foreground font-medium mt-1">
+                {hasVariants ? `Available in: ${weightVarieties}` : product.weight}
+              </p>
             </div>
             <button
-              onClick={handleAddToCart}
+              onClick={handleAddToCartClick}
               disabled={adding || stock === 0}
               className="p-3 rounded-xl transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground hover:scale-110 active:scale-95 btn-shine relative overflow-hidden group/btn"
               style={{
@@ -241,9 +249,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           </div>
           
           <button
-            onClick={handleBuyNow}
+            onClick={handleBuyNowClick}
             disabled={stock === 0}
-            className="w-full py-2 px-4 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2.5 px-4 bg-black text-white rounded-lg font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-xs tracking-wider"
           >
             <Zap size={16} className="fill-current" />
             Buy Now
@@ -254,6 +262,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
               product={product}
               variant={selectedVariant}
               className="w-full mt-2"
+              onClick={hasVariants ? (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setPendingAction('whatsapp');
+                setShowVariantModal(true);
+              } : undefined}
             />
           )}
           
@@ -262,6 +276,93 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           )}
         </div>
       </div>
+
+      {/* Variant Selection Modal */}
+      <Dialog open={showVariantModal} onOpenChange={setShowVariantModal}>
+        <DialogContent className="sm:max-w-md bg-white p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+          <div className="p-6">
+            <DialogHeader className="mb-6">
+              <DialogTitle className="text-2xl font-bold font-heading text-[#1F2A7C]">Choose Variety</DialogTitle>
+              <DialogDescription className="text-slate-500 text-base">
+                Select your preferred size for <span className="font-semibold text-slate-800">{product.name}</span>
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 mb-8">
+              <div className="grid grid-cols-1 gap-3">
+                {product.variants?.map((v, idx) => {
+                   const isSelected = selectedVariant?.weight === v.weight;
+                   const vMrp = (v as any).originalPrice;
+                   const vPrice = v.price;
+                   const vDisc = vMrp && vMrp > vPrice ? Math.round(((vMrp - vPrice)/vMrp)*100) : 0;
+
+                   return (
+                     <button
+                       key={idx}
+                       onClick={() => setSelectedVariant(v)}
+                       className={`relative flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-300 ${
+                         isSelected 
+                           ? 'border-[#1F2A7C] bg-blue-50/50 shadow-md ring-1 ring-[#1F2A7C]/20' 
+                           : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50'
+                       }`}
+                     >
+                       <div className="flex items-center gap-3">
+                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                           isSelected ? 'border-[#1F2A7C] bg-[#1F2A7C]' : 'border-slate-300 bg-white'
+                         }`}>
+                           {isSelected && <Check className="w-3 h-3 text-white" />}
+                         </div>
+                         <div className="text-left">
+                           <p className={`font-bold text-lg ${isSelected ? 'text-[#1F2A7C]' : 'text-slate-700'}`}>{v.weight}</p>
+                           {vDisc > 0 && (
+                             <span className="text-[10px] font-bold text-green-600 uppercase">Save {vDisc}%</span>
+                           )}
+                         </div>
+                       </div>
+                       
+                       <div className="text-right">
+                         <p className="font-bold text-xl text-slate-900">₹{vPrice.toFixed(0)}</p>
+                         {vMrp > vPrice && (
+                           <p className="text-sm text-slate-400 line-through">₹{vMrp.toFixed(0)}</p>
+                         )}
+                       </div>
+                     </button>
+                   );
+                })}
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1 h-12 rounded-xl font-bold text-slate-500 border-slate-200 hover:bg-slate-50"
+                onClick={() => setShowVariantModal(false)}
+              >
+                Cancel
+              </Button>
+              {pendingAction === 'whatsapp' ? (
+                <div className="flex-1">
+                  <WhatsAppBuyButton
+                    product={product}
+                    variant={selectedVariant}
+                    className="w-full h-12 !rounded-xl"
+                  />
+                </div>
+              ) : (
+                <Button 
+                  className="flex-1 h-12 rounded-xl font-bold bg-[#FDB913] text-black hover:bg-[#eeb012] shadow-sm transform transition-all active:scale-95"
+                  onClick={() => {
+                    executeAction(pendingAction as 'cart' | 'buy');
+                    setShowVariantModal(false);
+                  }}
+                >
+                  Confirm Choice
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
