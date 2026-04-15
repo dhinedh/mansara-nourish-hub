@@ -4,18 +4,11 @@ import { ShoppingCart, Zap, Check } from 'lucide-react';
 import { calculateUnitPrice, optimizeImage } from '@/lib/utils';
 import ProgressiveImage from '@/components/ui/ProgressiveImage';
 import WhatsAppBuyButton from './WhatsAppBuyButton';
+import VariantSelectionModal from './VariantSelectionModal';
 import { Product as DataProduct } from '@/data/products';
 import { Product as StoreProduct } from '@/context/StoreContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 
 // Define a union type for the prop
@@ -74,16 +67,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
 
   const isNewArrival = product.isNewArrival;
   const showDiscountBadge = maxDiscountPercent > 0 || product.isOffer;
-
-  const executeAction = (action: 'cart' | 'buy' | 'whatsapp', variant = selectedVariant) => {
-    if (action === 'cart') {
-      performAddToCart(variant);
-    } else if (action === 'buy') {
-      performBuyNow(variant);
-    }
-    // WhatsApp is handled by the button component usually,
-    // but we can trigger it or just let the user click it from modal.
-  };
 
   const performAddToCart = async (variant = selectedVariant) => {
     if (stock === 0) {
@@ -277,92 +260,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
         </div>
       </div>
 
-      {/* Variant Selection Modal */}
-      <Dialog open={showVariantModal} onOpenChange={setShowVariantModal}>
-        <DialogContent className="sm:max-w-md bg-white p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-          <div className="p-6">
-            <DialogHeader className="mb-6">
-              <DialogTitle className="text-2xl font-bold font-heading text-[#1F2A7C]">Choose Variety</DialogTitle>
-              <DialogDescription className="text-slate-500 text-base">
-                Select your preferred size for <span className="font-semibold text-slate-800">{product.name}</span>
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4 mb-8">
-              <div className="grid grid-cols-1 gap-3">
-                {product.variants?.map((v, idx) => {
-                   const isSelected = selectedVariant?.weight === v.weight;
-                   const vMrp = (v as any).originalPrice;
-                   const vPrice = v.price;
-                   const vDisc = vMrp && vMrp > vPrice ? Math.round(((vMrp - vPrice)/vMrp)*100) : 0;
-
-                   return (
-                     <button
-                       key={idx}
-                       onClick={() => setSelectedVariant(v)}
-                       className={`relative flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-300 ${
-                         isSelected 
-                           ? 'border-[#1F2A7C] bg-blue-50/50 shadow-md ring-1 ring-[#1F2A7C]/20' 
-                           : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50'
-                       }`}
-                     >
-                       <div className="flex items-center gap-3">
-                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                           isSelected ? 'border-[#1F2A7C] bg-[#1F2A7C]' : 'border-slate-300 bg-white'
-                         }`}>
-                           {isSelected && <Check className="w-3 h-3 text-white" />}
-                         </div>
-                         <div className="text-left">
-                           <p className={`font-bold text-lg ${isSelected ? 'text-[#1F2A7C]' : 'text-slate-700'}`}>{v.weight}</p>
-                           {vDisc > 0 && (
-                             <span className="text-[10px] font-bold text-green-600 uppercase">Save {vDisc}%</span>
-                           )}
-                         </div>
-                       </div>
-                       
-                       <div className="text-right">
-                         <p className="font-bold text-xl text-slate-900">₹{vPrice.toFixed(0)}</p>
-                         {vMrp > vPrice && (
-                           <p className="text-sm text-slate-400 line-through">₹{vMrp.toFixed(0)}</p>
-                         )}
-                       </div>
-                     </button>
-                   );
-                })}
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                className="flex-1 h-12 rounded-xl font-bold text-slate-500 border-slate-200 hover:bg-slate-50"
-                onClick={() => setShowVariantModal(false)}
-              >
-                Cancel
-              </Button>
-              {pendingAction === 'whatsapp' ? (
-                <div className="flex-1">
-                  <WhatsAppBuyButton
-                    product={product}
-                    variant={selectedVariant}
-                    className="w-full h-12 !rounded-xl"
-                  />
-                </div>
-              ) : (
-                <Button 
-                  className="flex-1 h-12 rounded-xl font-bold bg-[#FDB913] text-black hover:bg-[#eeb012] shadow-sm transform transition-all active:scale-95"
-                  onClick={() => {
-                    executeAction(pendingAction as 'cart' | 'buy');
-                    setShowVariantModal(false);
-                  }}
-                >
-                  Confirm Choice
-                </Button>
-              )}
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <VariantSelectionModal
+        isOpen={showVariantModal}
+        onOpenChange={setShowVariantModal}
+        product={product}
+        actionType={pendingAction}
+        onConfirm={(variant) => {
+          setSelectedVariant(variant);
+          if (pendingAction === 'cart') performAddToCart(variant);
+          if (pendingAction === 'buy') performBuyNow(variant);
+        }}
+      />
     </div>
   );
 };

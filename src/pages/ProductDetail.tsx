@@ -332,56 +332,24 @@ const ProductDetail: React.FC = () => {
                     </p>
                   )}
 
-                  <div className="flex items-baseline gap-3 mb-6 min-h-[3rem]">
-                    <span className="text-4xl font-bold" style={{ color: '#1F2A7C' }}>
-                      ₹{displayPrice.toFixed(2)}
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="text-3xl font-bold font-heading" style={{ color: '#1F2A7C' }}>
+                      ₹{displayPrice.toFixed(0)}
                     </span>
                     {hasDiscount && (
                       <>
-                        <span className="text-xl text-gray-500 line-through">
-                          ₹{mrp.toFixed(2)}
-                        </span>
-                        <span
-                          className="px-2 py-1 text-sm font-bold rounded"
-                          style={{ backgroundColor: '#FFF2CC', color: '#1F2A7C' }}
-                        >
+                        <span className="text-xl text-gray-400 line-through">₹{mrp.toFixed(0)}</span>
+                        <span className="px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded">
                           {discountPercent}% OFF
                         </span>
                       </>
                     )}
                     {weightVarieties && (
                       <span className="text-sm text-gray-500 font-medium ml-2">
-                        {product.variants && product.variants.length > 1 ? '(Available in: ' : '('}{weightVarieties})
+                        {hasVariants ? `(Available in: ${weightVarieties})` : `(${product.weight})`}
                       </span>
                     )}
                   </div>
-
-                  {/* Variant Selection */}
-                  {product.variants && product.variants.length > 0 ? (
-                    <div className="mb-6">
-                      <p className="text-sm font-semibold mb-3" style={{ color: '#1F2A7C' }}>Select Weight:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {product.variants.map((variant: any, idx: number) => (
-                          <button
-                            key={idx}
-                            onClick={() => setSelectedVariant(variant)}
-                            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${selectedVariant && selectedVariant.weight === variant.weight
-                              ? 'border-[#1F2A7C] bg-[#1F2A7C] text-white'
-                              : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                              }`}
-                          >
-                            {variant.weight}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    product.weight && (
-                      <p className="text-gray-600 mb-4">
-                        <span className="font-semibold" style={{ color: '#1F2A7C' }}>Weight:</span> {product.weight}
-                      </p>
-                    )
-                  )}
 
                   {currentStock > 0 && (
                     <p className="text-sm text-gray-500 mb-4">
@@ -389,7 +357,6 @@ const ProductDetail: React.FC = () => {
                     </p>
                   )}
 
-                  {/* Quantity & Add to Cart */}
                   <div className="flex items-center gap-4 mb-6">
                     <div className="flex items-center border-2 border-gray-200 rounded-lg">
                       <button
@@ -421,7 +388,7 @@ const ProductDetail: React.FC = () => {
                             {addSuccess ? (
                               <>
                                 <Check className="w-5 h-5" />
-                                Added to Cart!
+                                Added!
                               </>
                             ) : (
                               <>
@@ -444,14 +411,20 @@ const ProductDetail: React.FC = () => {
                           <WhatsAppBuyButton
                             product={product}
                             variant={selectedVariant}
-                            className="w-full"
+                            className="w-full h-12"
+                            onClick={hasVariants ? (e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setPendingAction('whatsapp');
+                              setShowVariantModal(true);
+                            } : undefined}
                           />
                         </>
                       ) : (
                         <button
                           onClick={() => setIsNotifyModalOpen(true)}
                           className="w-full py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-md text-white hover:bg-green-700 animate-pulse"
-                          style={{ backgroundColor: '#25D366' }} // WhatsApp Green
+                          style={{ backgroundColor: '#25D366' }}
                         >
                           <MessageCircle className="w-5 h-5" />
                           Notify Me When Available
