@@ -112,9 +112,9 @@ export const products: Product[] = [
     "name": "Urad Health Mix – Classic",
     "category": "urad-porridge-mix",
     "categoryId": "69620cf57f9c4b0e78ddb918",
-    "price": 44,
-    "offerPrice": 44,
-    "originalPrice": 55,
+    "price": 75,
+    "offerPrice": 75,
+    "originalPrice": 75,
     "image": "/products/urad-classic-front.jpg",
     "images": [
       "/products/urad-classic-front.jpg",
@@ -126,7 +126,7 @@ export const products: Product[] = [
     "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
     "storage": "Store in a cool, dry place.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": false,
     "isFeatured": false,
     "isActive": true,
@@ -143,14 +143,14 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 44,
-        "offerPrice": 44,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 50
       },
       {
         "weight": "250g",
-        "price": 112,
-        "offerPrice": 112,
+        "price": 165,
+        "offerPrice": 165,
         "stock": 50
       }
     ]
@@ -162,9 +162,9 @@ export const products: Product[] = [
     "name": "Urad Health Mix – Salt n Pepper",
     "category": "urad-porridge-mix",
     "categoryId": "69620cf57f9c4b0e78ddb918",
-    "price": 44,
-    "offerPrice": 44,
-    "originalPrice": 55,
+    "price": 75,
+    "offerPrice": 75,
+    "originalPrice": 75,
     "image": "/products/urad-salt-pepper-front.jpg",
     "images": [
       "/products/urad-salt-pepper-front.jpg",
@@ -176,7 +176,7 @@ export const products: Product[] = [
     "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously to avoid lumps, and serve warm.",
     "storage": "Store in a cool, dry place.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": false,
     "isFeatured": false,
     "isActive": true,
@@ -193,14 +193,14 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 53,
-        "offerPrice": 44,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 50
       },
       {
         "weight": "250g",
-        "price": 140,
-        "offerPrice": 112,
+        "price": 165,
+        "offerPrice": 165,
         "stock": 50
       }
     ]
@@ -212,9 +212,9 @@ export const products: Product[] = [
     "name": "Urad Health Mix – Millet Magic",
     "category": "urad-porridge-mix",
     "categoryId": "69620cf57f9c4b0e78ddb918",
-    "price": 47,
-    "offerPrice": 47,
-    "originalPrice": 60,
+    "price": 75,
+    "offerPrice": 75,
+    "originalPrice": 75,
     "image": "/products/urad-millet-magic-back.jpg",
     "images": [
       "/products/urad-millet-magic-front.jpg",
@@ -226,7 +226,7 @@ export const products: Product[] = [
     "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
     "storage": "Store in a cool, dry place.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": false,
     "isFeatured": false,
     "isActive": true,
@@ -243,14 +243,14 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 48,
-        "offerPrice": 48,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 50
       },
       {
         "weight": "250g",
-        "price": 120,
-        "offerPrice": 120,
+        "price": 165,
+        "offerPrice": 165,
         "stock": 50
       }
     ]
@@ -262,9 +262,9 @@ export const products: Product[] = [
     "name": "Urad Health Mix – Premium",
     "category": "urad-porridge-mix",
     "categoryId": "69620cf57f9c4b0e78ddb918",
-    "price": 65,
-    "offerPrice": 51,
-    "originalPrice": 65,
+    "price": 75,
+    "offerPrice": 75,
+    "originalPrice": 75,
     "image": "/products/urad-premium-front.jpg",
     "images": [
       "/products/urad-premium-front.jpg",
@@ -276,7 +276,7 @@ export const products: Product[] = [
     "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
     "storage": "Store in a cool, dry place.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": true,
     "isFeatured": false,
     "isActive": true,
@@ -294,14 +294,14 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 65,
-        "offerPrice": 52,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 49
       },
       {
         "weight": "250g",
-        "price": 160,
-        "offerPrice": 128,
+        "price": 165,
+        "offerPrice": 165,
         "stock": 50
       }
     ]
@@ -313,9 +313,9 @@ export const products: Product[] = [
     "name": "Health Mix – Black Rice Delight",
     "category": "black-rice-mix",
     "categoryId": "69620cf57f9c4b0e78ddb919",
-    "price": 70,
-    "offerPrice": 56,
-    "originalPrice": 70,
+    "price": 75,
+    "offerPrice": 75,
+    "originalPrice": 75,
     "image": "/products/black-rice-delight-front.jpg",
     "images": [
       "/products/black-rice-delight-front.jpg",
@@ -327,7 +327,7 @@ export const products: Product[] = [
     "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
     "storage": "Store in a cool, dry place.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": true,
     "isFeatured": false,
     "isActive": true,
@@ -345,14 +345,14 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 70,
-        "offerPrice": 57,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 50
       },
       {
         "weight": "250g",
-        "price": 180,
-        "offerPrice": 145,
+        "price": 165,
+        "offerPrice": 165,
         "stock": 50
       }
     ]
@@ -364,8 +364,8 @@ export const products: Product[] = [
     "name": "Idly Podi – Millet Fusion",
     "category": "idly-podi",
     "categoryId": "69a83fe41c2c00db0a9ba528",
-    "price": 74,
-    "offerPrice": 60,
+    "price": 75,
+    "offerPrice": 75,
     "originalPrice": 75,
     "image": "/products/MilletFusionIdlyPodi.PNG",
     "images": [
@@ -377,7 +377,7 @@ export const products: Product[] = [
     "howToUse": "Mix with gingelly oil or ghee and serve with idly, dosa, chapati, or poori.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": false,
     "isFeatured": false,
     "isActive": true,
@@ -395,7 +395,7 @@ export const products: Product[] = [
       {
         "weight": "100g",
         "price": 75,
-        "offerPrice": 58,
+        "offerPrice": 75,
         "stock": 100
       }
     ]
@@ -435,7 +435,7 @@ export const products: Product[] = [
     "name": "Ragi Choco Malt",
     "category": "",
     "price": 250,
-    "offerPrice": 200,
+    "offerPrice": 250,
     "originalPrice": 250,
     "image": "/products/RagiChocoMalt.PNG",
     "images": [
@@ -464,8 +464,8 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "250g",
-        "price": 199,
-        "offerPrice": 199,
+        "price": 250,
+        "offerPrice": 250,
         "stock": 100
       }
     ]
@@ -477,7 +477,7 @@ export const products: Product[] = [
     "name": "Nutriminix – Multi Grain Health Mix",
     "category": "",
     "price": 200,
-    "offerPrice": 0,
+    "offerPrice": 200,
     "originalPrice": 200,
     "image": "/products/NutriMix.PNG",
     "images": [
@@ -489,7 +489,7 @@ export const products: Product[] = [
     "howToUse": "Mix 2 tbsp with water, cook on low flame with stirring till thick. Add milk/salt/jaggery as preferred. Serve warm.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
     "weight": "250g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": true,
     "isFeatured": true,
     "isActive": true,
@@ -507,7 +507,7 @@ export const products: Product[] = [
       {
         "weight": "250g",
         "price": 200,
-        "offerPrice": 160,
+        "offerPrice": 200,
         "stock": 100
       }
     ]
@@ -519,8 +519,8 @@ export const products: Product[] = [
     "name": "Idly Podi – Traditional",
     "category": "idly-podi",
     "categoryId": "69a83fe41c2c00db0a9ba528",
-    "price": 60,
-    "offerPrice": 59,
+    "price": 75,
+    "offerPrice": 75,
     "originalPrice": 75,
     "image": "/products/TraditionalIdlyPodi.PNG",
     "images": [
@@ -532,7 +532,7 @@ export const products: Product[] = [
     "howToUse": "Mix required quantity with gingelly oil or ghee. Best served with idly, dosa, uthappam, or chapati.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": true,
     "isFeatured": false,
     "isActive": true,
@@ -549,8 +549,8 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 60,
-        "offerPrice": 60,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 100
       }
     ]
@@ -562,9 +562,9 @@ export const products: Product[] = [
     "name": "Rice Podi Mix",
     "category": "rice-mixes",
     "categoryId": "69a83fe41c2c00db0a9ba529",
-    "price": 68,
-    "offerPrice": 68,
-    "originalPrice": 85,
+    "price": 75,
+    "offerPrice": 75,
+    "originalPrice": 75,
     "image": "/products/HomeStyleParuppu.PNG",
     "images": [
       "/products/HomeStyleParuppu.PNG",
@@ -575,7 +575,7 @@ export const products: Product[] = [
     "howToUse": "Mix 1–2 tsp with hot rice and ghee or gingelly oil. Also pairs with idly and dosa.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": true,
     "isFeatured": false,
     "isActive": true,
@@ -592,8 +592,8 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 68,
-        "offerPrice": 68,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 100
       }
     ]
@@ -605,9 +605,9 @@ export const products: Product[] = [
     "name": "Curry Leaves Rice Podi Mix",
     "category": "rice-mixes",
     "categoryId": "69a83fe41c2c00db0a9ba529",
-    "price": 68,
-    "offerPrice": 68,
-    "originalPrice": 85,
+    "price": 75,
+    "offerPrice": 75,
+    "originalPrice": 75,
     "image": "/products/KaruveppillaiSpecial.PNG",
     "images": [
       "/products/KaruveppillaiSpecial.PNG",
@@ -618,7 +618,7 @@ export const products: Product[] = [
     "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": true,
     "isFeatured": false,
     "isActive": true,
@@ -635,8 +635,8 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 68,
-        "offerPrice": 68,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 100
       }
     ]
@@ -648,9 +648,9 @@ export const products: Product[] = [
     "name": "Coriander Rice Podi Mix",
     "category": "rice-mixes",
     "categoryId": "69a83fe41c2c00db0a9ba529",
-    "price": 68,
-    "offerPrice": 68,
-    "originalPrice": 85,
+    "price": 75,
+    "offerPrice": 75,
+    "originalPrice": 75,
     "image": "/products/KothamalliAroma.PNG",
     "images": [
       "/products/KothamalliAroma.PNG",
@@ -661,7 +661,7 @@ export const products: Product[] = [
     "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": false,
     "isFeatured": false,
     "isActive": true,
@@ -678,8 +678,8 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 68,
-        "offerPrice": 68,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 100
       }
     ]
@@ -691,9 +691,9 @@ export const products: Product[] = [
     "name": "Moringa Rice Podi Mix",
     "category": "rice-mixes",
     "categoryId": "69a83fe41c2c00db0a9ba529",
-    "price": 68,
-    "offerPrice": 0,
-    "originalPrice": 68,
+    "price": 75,
+    "offerPrice": 75,
+    "originalPrice": 75,
     "image": "/products/MurungaiVital.PNG",
     "images": [
       "/products/MurungaiVital.PNG",
@@ -704,7 +704,7 @@ export const products: Product[] = [
     "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": true,
     "isFeatured": false,
     "isActive": true,
@@ -721,8 +721,8 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 68,
-        "offerPrice": 68,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 100
       }
     ]
@@ -734,9 +734,9 @@ export const products: Product[] = [
     "name": "Pirandai Rice Podi Mix",
     "category": "rice-mixes",
     "categoryId": "69a83fe41c2c00db0a9ba529",
-    "price": 68,
-    "offerPrice": 68,
-    "originalPrice": 85,
+    "price": 75,
+    "offerPrice": 75,
+    "originalPrice": 75,
     "image": "/products/PirandaiPower.PNG",
     "images": [
       "/products/PirandaiPower.PNG",
@@ -747,7 +747,7 @@ export const products: Product[] = [
     "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
     "weight": "100g",
-    "isOffer": true,
+    "isOffer": false,
     "isNewArrival": true,
     "isFeatured": false,
     "isActive": true,
@@ -764,8 +764,8 @@ export const products: Product[] = [
     "variants": [
       {
         "weight": "100g",
-        "price": 68,
-        "offerPrice": 68,
+        "price": 75,
+        "offerPrice": 75,
         "stock": 100
       }
     ]
