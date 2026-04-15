@@ -124,7 +124,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
 
   // Use first variant weight if available
   const displayWeight = firstVariant ? firstVariant.weight : product.weight;
-  const unitPrice = calculateUnitPrice(displayPrice, displayWeight);
+  // Get available weight varieties
+  const weightVarieties = product.variants && product.variants.length > 0
+    ? product.variants.map(v => v.weight).join(', ')
+    : product.weight;
 
   return (
     <Link
@@ -184,9 +187,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
                 ₹{mrp.toFixed(2)}
               </span>
             )}
-            {unitPrice && (
+            {weightVarieties && (
               <p className="text-xs text-muted-foreground font-medium mt-1">
-                ({unitPrice})
+                {product.variants && product.variants.length > 1 ? 'Available in: ' : ''}{weightVarieties}
               </p>
             )}
           </div>

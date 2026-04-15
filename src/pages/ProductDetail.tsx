@@ -259,7 +259,10 @@ const ProductDetail: React.FC = () => {
 
   // Use variant weight if available, otherwise product weight
   const displayWeight = selectedVariant ? selectedVariant.weight : product.weight;
-  const unitPrice = calculateUnitPrice(displayPrice, displayWeight);
+  // Get available weight varieties
+  const weightVarieties = product.variants && product.variants.length > 0
+    ? product.variants.map(v => v.weight).join(', ')
+    : product.weight;
 
   // Determine current stock for display
   const currentStock = selectedVariant && selectedVariant.stock !== undefined
@@ -346,9 +349,9 @@ const ProductDetail: React.FC = () => {
                         </span>
                       </>
                     )}
-                    {unitPrice && (
+                    {weightVarieties && (
                       <span className="text-sm text-gray-500 font-medium ml-2">
-                        ({unitPrice})
+                        {product.variants && product.variants.length > 1 ? '(Available in: ' : '('}{weightVarieties})
                       </span>
                     )}
                   </div>
