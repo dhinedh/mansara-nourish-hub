@@ -12,6 +12,7 @@ import { fetchProductReviews, checkReviewEligibility, createReview, notifyMe, de
 import { calculateUnitPrice } from '@/lib/utils';
 import ProgressiveImage from '@/components/ui/ProgressiveImage';
 import WhatsAppBuyButton from '@/components/WhatsAppBuyButton';
+import VariantSelectionModal from '@/components/VariantSelectionModal';
 import {
   Dialog,
   DialogContent,
@@ -146,8 +147,12 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  /* State for selected variant */
+  /* State for selected variant and modals */
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [showVariantModal, setShowVariantModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'cart' | 'buy' | 'whatsapp' | null>(null);
+
+  const hasVariants = !!(product?.variants && product.variants.length > 0);
 
   /* Reset variant when product changes (e.g. navigation) */
   React.useEffect(() => {
@@ -157,9 +162,6 @@ const ProductDetail: React.FC = () => {
   /* Effect to set initial variant */
   React.useEffect(() => {
     if (product?.variants?.length) {
-      // Always default to first variant if effectively "loading" into new product
-      // OR if we just reset it to null above.
-      // We use a small timeout or just check if it's currently null
       if (!selectedVariant) {
         setSelectedVariant(product.variants[0]);
       }
@@ -181,19 +183,19 @@ const ProductDetail: React.FC = () => {
     );
   }
 
-  const handleAddToCart = async () => {
+  const performAddToCart = async (variant = selectedVariant) => {
     setAdding(true);
     try {
-      const finalSellingPrice = selectedVariant ? selectedVariant.price : product.price;
-      const finalMrp = selectedVariant ? (selectedVariant as any).originalPrice : (product as any).originalPrice;
+      const finalSellingPrice = variant ? variant.price : product.price;
+      const finalMrp = variant ? (variant as any).originalPrice : (product as any).originalPrice;
 
       const itemToAdd = {
         ...product,
         price: finalSellingPrice,
         originalPrice: finalMrp,
-        weight: selectedVariant ? selectedVariant.weight : product?.weight,
+        weight: variant ? variant.weight : product?.weight,
         image: product?.image,
-        variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
+        variant: variant ? { weight: variant.weight } : undefined
       };
 
       for (let i = 0; i < quantity; i++) {
@@ -204,7 +206,7 @@ const ProductDetail: React.FC = () => {
       setTimeout(() => setAddSuccess(false), 3000);
       toast({
         title: "Added to cart!",
-        description: `${quantity}x ${product?.name} (${selectedVariant ? selectedVariant.weight : product?.weight}) added to cart.`,
+        description: `${quantity}x ${product?.name} (${variant ? variant.weight : product?.weight}) added to cart.`,
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -212,11 +214,11 @@ const ProductDetail: React.FC = () => {
     setAdding(false);
   };
 
-  const handleBuyNow = async () => {
+  const performBuyNow = async (variant = selectedVariant) => {
     if (!product) return;
 
-    const currentStock = selectedVariant && selectedVariant.stock !== undefined
-      ? selectedVariant.stock
+    const currentStock = variant && variant.stock !== undefined
+      ? variant.stock
       : product.stock;
 
     if (currentStock <= 0) {
@@ -228,16 +230,16 @@ const ProductDetail: React.FC = () => {
       return;
     }
 
-    const finalSellingPrice = selectedVariant ? selectedVariant.price : product.price;
-    const finalMrp = selectedVariant ? (selectedVariant as any).originalPrice : (product as any).originalPrice;
+    const finalSellingPrice = variant ? variant.price : product.price;
+    const finalMrp = variant ? (variant as any).originalPrice : (product as any).originalPrice;
 
     const itemToAdd = {
       ...product,
       price: finalSellingPrice,
       originalPrice: finalMrp,
-      weight: selectedVariant ? selectedVariant.weight : product?.weight,
+      weight: variant ? variant.weight : product?.weight,
       image: product?.image,
-      variant: selectedVariant ? { weight: selectedVariant.weight } : undefined
+      variant: variant ? { weight: variant.weight } : undefined
     };
 
     for (let i = 0; i < quantity; i++) {
@@ -245,6 +247,24 @@ const ProductDetail: React.FC = () => {
     }
 
     navigate('/checkout');
+  };
+
+  const handleAddToCart = () => {
+    if (hasVariants) {
+      setPendingAction('cart');
+      setShowVariantModal(true);
+    } else {
+      performAddToCart();
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (hasVariants) {
+      setPendingAction('buy');
+      setShowVariantModal(true);
+    } else {
+      performBuyNow();
+    }
   };
 
   /* Safe Fallback Logic for Price Display */
@@ -719,6 +739,18 @@ const ProductDetail: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <VariantSelectionModal
+        isOpen={showVariantModal}
+        onOpenChange={setShowVariantModal}
+        product={product}
+        actionType={pendingAction}
+        onConfirm={(variant) => {
+          setSelectedVariant(variant);
+          if (pendingAction === 'cart') performAddToCart(variant);
+          if (pendingAction === 'buy') performBuyNow(variant);
+        }}
+      />
     </Layout>
   );
 };
