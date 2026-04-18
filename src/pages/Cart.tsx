@@ -246,14 +246,14 @@ const Cart: React.FC = () => {
                     </div>
                     <div className="flex justify-between text-foreground">
                       <span>Shipping</span>
-                      <span className={localTotal < 1000 ? "text-slate-900" : "text-green-600 font-medium"}>
-                        {localTotal < 1000 ? "₹50" : "Free"}
+                      <span className={localTotal < 750 ? "text-slate-900" : "text-green-600 font-medium"}>
+                        {localTotal < 750 ? "₹50" : "Free"}
                       </span>
                     </div>
                     <div className="border-t border-border pt-3 flex justify-between font-heading font-bold text-lg">
                       <span>Total</span>
                       <span className="text-brand-blue">
-                        ₹{(localTotal + (localTotal < 1000 ? 50 : 0)).toLocaleString('en-IN')}
+                        ₹{(localTotal + (localTotal < 750 ? 50 : 0)).toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>

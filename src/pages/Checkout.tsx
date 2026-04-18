@@ -268,7 +268,7 @@ const Checkout: React.FC = () => {
       }
 
       const cartTotal = getCartTotal();
-      const shippingCharge = cartTotal < 1000 ? 50 : 0; // ₹50 shipping for orders below ₹1000
+      const shippingCharge = cartTotal < 750 ? 50 : 0; // ₹50 shipping for orders below ₹750
       const totalAmount = cartTotal + shippingCharge;
 
       // ==========================================
