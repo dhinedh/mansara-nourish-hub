@@ -407,9 +407,9 @@ export const products: Product[] = [
     "name": "Ultimate Wellness Combo (5 Mixes)",
     "category": "combos",
     "categoryId": "6967d5e7c88a08abbf51f09a",
-    "price": 260,
-    "offerPrice": 260,
-    "originalPrice": 260,
+    "price": 330,
+    "offerPrice": 330,
+    "originalPrice": 350,
     "image": "/product-combo-5mixes.jpg",
     "images": [],
     "description": "Experience the complete range of Mansara Foods premium porridge mixes. This pack contains all 5 of our signature blends- Urad Porridge Mix (Classic, Premium, Salt & Pepper, Millet Magic) and Black Rice Delight.",
@@ -784,8 +784,8 @@ export const combos: Combo[] = [
       "69620f7f7f9c4b0e78ddbc50",
       "69620f7f7f9c4b0e78ddbc51"
     ],
-    "originalPrice": 260,
-    "comboPrice": 260,
+    "originalPrice": 350,
+    "comboPrice": 330,
     "image": "/product-combo-5mixes.jpg",
     "description": "Experience the complete range of Mansara Foods premium porridge mixes. This pack contains all 5 of our signature blends- Urad Porridge Mix (Classic, Premium, Salt & Pepper, Millet Magic) and Black Rice Delight."
   }
