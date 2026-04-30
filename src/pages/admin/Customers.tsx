@@ -22,6 +22,7 @@ interface UserData {
 const Customers: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
   const [users, setUsers] = useState<UserData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,11 +43,20 @@ const Customers: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter(user =>
-    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.phone?.includes(searchTerm)
-  );
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.phone?.includes(searchTerm);
+    
+    let matchesFilter = true;
+    if (filterType === 'ordered') {
+      matchesFilter = user.totalOrders > 0;
+    } else if (filterType === 'unordered') {
+      matchesFilter = !user.totalOrders || user.totalOrders === 0;
+    }
+
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <AdminLayout>
@@ -61,8 +71,8 @@ const Customers: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-lg border shadow-sm">
-          <div className="p-4 border-b flex items-center gap-4">
-            <div className="relative flex-1 max-w-sm">
+          <div className="p-4 border-b flex flex-col sm:flex-row items-center gap-4">
+            <div className="relative flex-1 w-full sm:max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search customers..."
@@ -70,6 +80,17 @@ const Customers: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+            </div>
+            <div className="w-full sm:w-auto">
+              <select 
+                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+              >
+                <option value="all">All Customers</option>
+                <option value="ordered">Ordered Customers</option>
+                <option value="unordered">Unordered Customers</option>
+              </select>
             </div>
           </div>
 
