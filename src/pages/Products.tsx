@@ -5,6 +5,7 @@ import ProductCard from '@/components/ProductCard';
 import { useStore } from '@/context/StoreContext';
 import PageHero from '@/components/layout/PageHero';
 import { useContent } from '@/context/ContentContext';
+import SEO from '@/components/SEO';
 
 const Products: React.FC = () => {
   const { products, isLoading, categories: storeCategories } = useStore();
@@ -76,6 +77,11 @@ const Products: React.FC = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="Our Products | Best Health Mixes & Porridge Mixes"
+        description="Browse our full range of traditional health mixes, urad dal porridge mixes, and authentic idly podis. Handcrafted in Chennai with pure, natural ingredients."
+        keywords="buy health mix online, urad porridge mix Chennai, organic idly podi Tamil Nadu, traditional breakfast mixes India"
+      />
       <div className="min-h-screen bg-background">
         {/* Hero Banner */}
         <PageHero pageKey="products" className="py-24 md:py-36" />

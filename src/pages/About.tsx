@@ -5,10 +5,16 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import TrustStrip from '@/components/TrustStrip';
 import PageHero from '@/components/layout/PageHero';
+import SEO from '@/components/SEO';
 
 const About: React.FC = () => {
   return (
     <Layout>
+      <SEO 
+        title="About Us | Pure & Traditional Food Brand in Chennai"
+        description="Learn about Mansara Foods, founded by Deepika Harikrishnan. Our story is rooted in Chennai, bringing traditional health mixes and pure oils to your home. Discover our mission for honest nourishment."
+        keywords="Mansara Foods story, health mix brand Chennai, Deepika Harikrishnan, traditional food mission, pure health mix India"
+      />
       {/* Hero */}
       <PageHero pageKey="about">
         <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md text-white px-6 py-2 rounded-full text-sm font-semibold mb-6 border border-white/30 animate-fade-in-up">

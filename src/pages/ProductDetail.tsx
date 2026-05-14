@@ -24,6 +24,7 @@ import {
 import ImageUpload from "@/components/admin/ImageUpload";
 import VideoUpload from "@/components/admin/VideoUpload";
 import { MessageCircle } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -291,6 +292,37 @@ const ProductDetail: React.FC = () => {
 
   return (
     <Layout>
+      <SEO 
+        title={`${product.name} - Buy Healthy Mix in Chennai`}
+        description={product.short_description || product.description}
+        image={product.image}
+        url={`https://www.mansarafoods.com/product/${product.slug}`}
+        type="product"
+        schema={{
+          "@context": "https://schema.org/",
+          "@type": "Product",
+          "name": product.name,
+          "image": `https://www.mansarafoods.com${product.image}`,
+          "description": product.description,
+          "brand": {
+            "@type": "Brand",
+            "name": "Mansara Foods"
+          },
+          "offers": {
+            "@type": "Offer",
+            "url": `https://www.mansarafoods.com/product/${product.slug}`,
+            "priceCurrency": "INR",
+            "price": displayPrice,
+            "availability": currentStock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "itemCondition": "https://schema.org/NewCondition"
+          },
+          "aggregateRating": product.numReviews > 0 ? {
+            "@type": "AggregateRating",
+            "ratingValue": product.rating,
+            "reviewCount": product.numReviews
+          } : undefined
+        }}
+      />
       <div className="min-h-screen" style={{ backgroundColor: '#FFFDF7' }}>
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="bg-white rounded-2xl shadow-sm">

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import PageHero from '@/components/layout/PageHero';
 import { useContent } from '@/context/ContentContext';
+import SEO from '@/components/SEO';
 
 const Contact: React.FC = () => {
   const { toast } = useToast();
@@ -56,6 +57,11 @@ const Contact: React.FC = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="Contact Us | Mansara Foods Chennai"
+        description="Have questions about our health mixes? Get in touch with Mansara Foods Chennai. We're here to help with orders, product info, and healthy eating tips. Call or WhatsApp us today."
+        keywords="contact Mansara Foods, health mix Chennai customer care, buy health mix online Tamil Nadu help, traditional food enquiry"
+      />
       {/* Hero */}
       <PageHero pageKey="contact">
         <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/30">

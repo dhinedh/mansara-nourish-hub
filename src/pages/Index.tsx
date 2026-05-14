@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/ProductCard';
 import TrustStrip from '@/components/TrustStrip';
 import HeroSlider from '@/components/home/HeroSlider';
+import SEO from '@/components/SEO';
 import { useStore } from '@/context/StoreContext';
 import { useContent } from '@/context/ContentContext';
 
@@ -42,6 +43,11 @@ const Index: React.FC = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="Mansara Foods | Best Health Mix & Porridge Mix in Chennai, Tamil Nadu"
+        description="Discover Mansara Foods - Chennai's favorite health mix and porridge mix brand. We offer traditional Urad Dal mix, Black Rice mix, and healthy Idly Podis made with pure ingredients. Best health food in Tamil Nadu."
+        keywords="best health mix in Chennai, healthy porridge mix Tamil Nadu, Mansara Foods products, traditional idly podi Chennai, black rice mix online India, wholesome breakfast Chennai"
+      />
       <HeroSlider />
 
       {/* New Arrivals Section */}
