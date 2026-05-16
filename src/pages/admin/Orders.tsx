@@ -67,6 +67,15 @@ interface Order {
   feedbackStatus?: 'Pending' | 'Received' | 'Not Received';
   trackingNumber?: string;
   courier?: string;
+  shipping?: {
+    srOrderId?: string;
+    shipmentId?: string;
+    awb?: string;
+    courierName?: string;
+    labelUrl?: string;
+    status?: string;
+    trackingUrl?: string;
+  };
 }
 
 const AdminOrders = () => {
@@ -173,7 +182,7 @@ const AdminOrders = () => {
       await api.post(`/orders/${order._id}/ship`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success("Shipment created with iCarry!");
+      toast.success("Shipment created with Shiprocket!");
 
       // Refresh
       await fetchOrders();
@@ -571,6 +580,27 @@ const AdminOrders = () => {
                           </div>
                         </>
                       )}
+                      {selectedOrder.shipping && selectedOrder.shipping.awb && (
+                        <>
+                          <div className="flex justify-between border-t pt-2 mt-2">
+                            <span className="text-slate-600">Shiprocket AWB:</span>
+                            <span className="font-mono font-medium">{selectedOrder.shipping.awb}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">SR Status:</span>
+                            <Badge variant="outline" className="capitalize">{selectedOrder.shipping.status}</Badge>
+                          </div>
+                          {selectedOrder.shipping.labelUrl && (
+                            <div className="mt-2">
+                              <Button asChild variant="outline" size="sm" className="w-full h-8 text-xs">
+                                <a href={selectedOrder.shipping.labelUrl} target="_blank" rel="noopener noreferrer">
+                                  Download Shipping Label
+                                </a>
+                              </Button>
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -758,21 +788,21 @@ const AdminOrders = () => {
                     </PermissionGate>
 
                     <PermissionGate module="orders" requiredLevel="limited">
-                      {selectedOrder.orderStatus === 'Processing' && (
+                      {selectedOrder.orderStatus === 'Processing' && !selectedOrder.shipping?.awb && (
                         <Button
                           onClick={() => handleShipOrder(selectedOrder)}
                           disabled={shippingOrderId === selectedOrder._id}
-                          className="flex-1 bg-purple-600 hover:bg-purple-700"
+                          className="flex-1 bg-indigo-600 hover:bg-indigo-700"
                         >
                           {shippingOrderId === selectedOrder._id ? (
                             <>
                               <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                              Shipping...
+                              Processing SR...
                             </>
                           ) : (
                             <>
                               <Truck className="h-4 w-4 mr-2" />
-                              Ship with iCarry
+                              Ship with Shiprocket
                             </>
                           )}
                         </Button>

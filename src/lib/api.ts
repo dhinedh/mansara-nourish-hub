@@ -540,6 +540,17 @@ export const getOrderById = async (orderId: string, token: string) => {
     }
 };
 
+export const trackOrder = async (orderId: string, token: string) => {
+    try {
+        const response = await api.get(`/orders/${orderId}/track`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to track order');
+    }
+};
+
 export const confirmOrder = async (orderId: string, estimatedDeliveryDate?: string) => {
     try {
         const token = localStorage.getItem('mansara-token');

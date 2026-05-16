@@ -96,10 +96,15 @@ const OrderTracking: React.FC = () => {
                             <p className="text-muted-foreground text-sm">Payment Method</p>
                             <p className="font-bold">{order.paymentMethod}</p>
                         </div>
-                        {order.trackingNumber && (
+                        {(order.trackingNumber || (order.shipping && order.shipping.awb)) && (
                             <div>
                                 <p className="text-muted-foreground text-sm">Tracking Number</p>
-                                <p className="font-bold">{order.trackingNumber} <span className="text-xs text-muted-foreground">({order.courier || 'Courier'})</span></p>
+                                <p className="font-bold">
+                                    {order.shipping?.awb || order.trackingNumber}{' '}
+                                    <span className="text-xs text-muted-foreground">
+                                        ({order.shipping?.courierName || order.courier || 'Courier'})
+                                    </span>
+                                </p>
                             </div>
                         )}
                     </div>
@@ -160,10 +165,17 @@ const OrderTracking: React.FC = () => {
                         <div className="bg-blue-100 p-2 rounded-full text-blue-600 dark:bg-blue-800 dark:text-blue-200">
                             <Truck className="h-5 w-5" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                             <p className="font-bold text-sm">Estimated Delivery</p>
                             <p className="text-xs text-muted-foreground">Today by 7:00 PM</p>
                         </div>
+                        {order.shipping?.awb && (
+                            <Button asChild size="sm" variant="outline" className="h-8 text-xs bg-white">
+                                <a href={`https://shiprocket.co/tracking/${order.shipping.awb}`} target="_blank" rel="noopener noreferrer">
+                                    Track Live
+                                </a>
+                            </Button>
+                        )}
                     </div>
                     <div className="bg-green-50 p-4 rounded-lg flex items-center gap-4 border border-green-100 cursor-pointer hover:bg-green-100 dark:bg-green-900/20 dark:border-green-800">
                         <div className="bg-green-100 p-2 rounded-full text-green-600 dark:bg-green-800 dark:text-green-200">
