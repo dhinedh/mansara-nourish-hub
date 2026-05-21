@@ -73,6 +73,7 @@ interface Order {
     awb?: string;
     courierName?: string;
     labelUrl?: string;
+    invoiceUrl?: string;
     status?: string;
     trackingUrl?: string;
   };
@@ -591,12 +592,19 @@ const AdminOrders = () => {
                             <Badge variant="outline" className="capitalize">{selectedOrder.shipping.status}</Badge>
                           </div>
                           {selectedOrder.shipping.labelUrl && (
-                            <div className="mt-2">
-                              <Button asChild variant="outline" size="sm" className="w-full h-8 text-xs">
+                            <div className="mt-2 flex gap-2">
+                              <Button asChild variant="outline" size="sm" className="flex-1 h-8 text-xs">
                                 <a href={selectedOrder.shipping.labelUrl} target="_blank" rel="noopener noreferrer">
-                                  Download Shipping Label
+                                  Shipping Label
                                 </a>
                               </Button>
+                              {selectedOrder.shipping.invoiceUrl && (
+                                <Button asChild variant="outline" size="sm" className="flex-1 h-8 text-xs">
+                                  <a href={selectedOrder.shipping.invoiceUrl} target="_blank" rel="noopener noreferrer">
+                                    Invoice
+                                  </a>
+                                </Button>
+                              )}
                             </div>
                           )}
                         </>
