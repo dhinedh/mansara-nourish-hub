@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, MessageCircle, Loader2, Package, Truck, CheckCircle, XCircle, Star, Send, Trash2 } from "lucide-react";
@@ -97,6 +98,90 @@ const AdminOrders = () => {
   const [chatDialogOpen, setChatDialogOpen] = useState(false);
   const [chatPhone, setChatPhone] = useState("");
   const [chatName, setChatName] = useState("");
+  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedOrderIds(new Set(orders.map(o => o._id)));
+    } else {
+      setSelectedOrderIds(new Set());
+    }
+  };
+
+  const handleSelectOrder = (orderId: string, checked: boolean) => {
+    const newSet = new Set(selectedOrderIds);
+    if (checked) {
+      newSet.add(orderId);
+    } else {
+      newSet.delete(orderId);
+    }
+    setSelectedOrderIds(newSet);
+  };
+
+  const handleExportShiprocket = () => {
+    if (selectedOrderIds.size === 0) {
+      toast.error("Please select at least one order to export");
+      return;
+    }
+
+    const selectedOrders = orders.filter(o => selectedOrderIds.has(o._id));
+    
+    const headers = [
+      "Order ID", "Order Date", "Channel", "Payment Method", "Customer Name", 
+      "Customer Email", "Customer Mobile", "Shipping Address Line 1", 
+      "Shipping Address Line 2", "Shipping Address City", "Shipping Address State", 
+      "Shipping Address Pincode", "Shipping Address Country", "Master SKU", 
+      "Product Name", "Product Quantity", "Product Selling Price", "Order Total", 
+      "Length", "Breadth", "Height", "Weight", "Pickup Location"
+    ];
+
+    let csvContent = headers.join(",") + "\n";
+
+    selectedOrders.forEach(order => {
+      order.items.forEach(item => {
+        const customerName = order.user?.name || order.deliveryAddress.firstName + " " + (order.deliveryAddress.lastName || "");
+        const email = order.user?.email || "contact@mansarafoods.com";
+        const phone = order.deliveryAddress.phone || order.user?.phone || "";
+        const row = [
+          order.orderId,
+          new Date(order.createdAt).toISOString().split('T')[0],
+          "Custom",
+          order.paymentMethod === "Cash on Delivery" ? "COD" : "Prepaid",
+          `"${customerName.replace(/"/g, '""')}"`,
+          email,
+          phone,
+          `"${order.deliveryAddress.street.replace(/"/g, '""')}"`,
+          "",
+          order.deliveryAddress.city,
+          order.deliveryAddress.state,
+          order.deliveryAddress.zip,
+          "India",
+          item.product,
+          `"${item.name.replace(/"/g, '""')}"`,
+          item.quantity,
+          item.price,
+          order.total,
+          10,
+          10,
+          10,
+          0.5,
+          "work"
+        ];
+        csvContent += row.join(",") + "\n";
+      });
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `shiprocket_bulk_orders_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`${selectedOrders.length} orders exported successfully!`);
+  };
 
   const statusOptions = [
     { value: 'Ordered', label: 'Ordered', icon: Package },
@@ -430,16 +515,34 @@ const AdminOrders = () => {
             <h1 className="text-3xl font-bold text-slate-900">Orders Management</h1>
             <p className="text-slate-600 mt-1">View and manage customer orders</p>
           </div>
-          <Button onClick={fetchOrders} variant="outline" disabled={loading}>
-            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Refresh
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleExportShiprocket} 
+              variant="outline" 
+              className="bg-slate-50"
+              disabled={selectedOrderIds.size === 0}
+            >
+              <Package className="h-4 w-4 mr-2" />
+              Export to Shiprocket ({selectedOrderIds.size})
+            </Button>
+            <Button onClick={fetchOrders} variant="outline" disabled={loading}>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Refresh
+            </Button>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[50px]">
+                  <Checkbox 
+                    checked={orders.length > 0 && selectedOrderIds.size === orders.length}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead>Order ID</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Phone</TableHead>
@@ -453,14 +556,14 @@ const AdminOrders = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={9} className="text-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                     <p className="mt-2 text-sm text-slate-500">Loading orders...</p>
                   </TableCell>
                 </TableRow>
               ) : orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={9} className="text-center py-8">
                     <Package className="h-12 w-12 text-slate-300 mx-auto mb-2" />
                     <p className="text-slate-600">No orders found</p>
                   </TableCell>
@@ -468,6 +571,13 @@ const AdminOrders = () => {
               ) : (
                 orders.map((order) => (
                   <TableRow key={order._id}>
+                    <TableCell>
+                      <Checkbox 
+                        checked={selectedOrderIds.has(order._id)}
+                        onCheckedChange={(checked) => handleSelectOrder(order._id, checked as boolean)}
+                        aria-label={`Select order ${order.orderId}`}
+                      />
+                    </TableCell>
                     <TableCell className="font-mono text-sm font-medium">
                       {order.orderId}
                     </TableCell>
