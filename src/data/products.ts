@@ -215,7 +215,7 @@ export const products: Product[] = [
     "price": 75,
     "offerPrice": 70,
     "originalPrice": 75,
-    "image": "/products/urad-millet-magic-back.jpg",
+    "image": "/products/urad-millet-magic-front.jpg",
     "images": [
       "/products/urad-millet-magic-front.jpg",
       "/products/urad-millet-magic-back.jpg",
