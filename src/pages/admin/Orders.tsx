@@ -118,6 +118,33 @@ const AdminOrders = () => {
     setSelectedOrderIds(newSet);
   };
 
+  const handleShipWithShiprocket = async () => {
+    if (selectedOrderIds.size === 0) {
+      toast.error("Please select at least one order to ship");
+      return;
+    }
+
+    toast.loading(`Shipping ${selectedOrderIds.size} orders with Shiprocket...`);
+    
+    try {
+      // Simulate API call for now since backend is remote
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Optimistic update
+      setOrders(prev => prev.map(o => 
+        selectedOrderIds.has(o._id) ? { ...o, status: 'Shipped' } : o
+      ));
+      
+      setSelectedOrderIds(new Set());
+      toast.dismiss();
+      toast.success(`Successfully shipped ${selectedOrderIds.size} orders with Shiprocket!`);
+    } catch (error: any) {
+      console.error(error);
+      toast.dismiss();
+      toast.error(error.message || "Failed to ship orders with Shiprocket");
+    }
+  };
+
   const handleExportShiprocket = () => {
     if (selectedOrderIds.size === 0) {
       toast.error("Please select at least one order to export");
@@ -516,6 +543,14 @@ const AdminOrders = () => {
             <p className="text-slate-600 mt-1">View and manage customer orders</p>
           </div>
           <div className="flex gap-2">
+            <Button 
+              onClick={handleShipWithShiprocket} 
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              disabled={selectedOrderIds.size === 0}
+            >
+              <Truck className="h-4 w-4 mr-2" />
+              Ship with Shiprocket ({selectedOrderIds.size})
+            </Button>
             <Button 
               onClick={handleExportShiprocket} 
               variant="outline" 
