@@ -41,27 +41,9 @@ const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const Account = lazy(() => import("./pages/Account"));
 
-// Admin Pages
-const AdminLogin = lazy(() => import("./pages/admin/Login"));
-const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
-const AdminProducts = lazy(() => import("./pages/admin/Products"));
-const AdminProductEdit = lazy(() => import("./pages/admin/ProductEdit"));
-const AdminOrders = lazy(() => import("./pages/admin/Orders"));
-const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
-const AdminOffers = lazy(() => import("./pages/admin/Offers"));
-const AdminCombos = lazy(() => import("./pages/admin/Combos"));
-const AdminContent = lazy(() => import("./pages/admin/Content"));
-const AdminBanners = lazy(() => import("./pages/admin/Banners"));
-const AdminSettings = lazy(() => import("./pages/admin/Settings"));
-const AdminCategories = lazy(() => import("./pages/admin/Categories"));
-const AdminHeroManagement = lazy(() => import("./pages/admin/HeroManagement"));
-const AdminCustomerHistory = lazy(() => import("./pages/admin/CustomerHistory"));
-const AdminStock = lazy(() => import("./pages/admin/Stock"));
-const AdminBlog = lazy(() => import("./pages/admin/Blog"));
-const AdminPress = lazy(() => import("./pages/admin/Press"));
-const AdminCareers = lazy(() => import("./pages/admin/Careers"));
-const AdminReviews = lazy(() => import("./pages/admin/Reviews"));
-const AdminAnalytics = lazy(() => import("./pages/admin/Analytics"));
+// Admin access is handled by the CRM Portal — https://crm.mansarafoods.com
+// All /admin/* routes redirect there.
+const AdminRedirect = lazy(() => import("./pages/admin/AdminRedirect"));
 
 // Policy Pages
 const TermsAndConditions = lazy(() => import("./pages/policies/TermsAndConditions"));
@@ -175,108 +157,9 @@ const App = () => {
                           </ProtectedRoute>
                         } />
 
-                        {/* Admin Routes */}
-                        <Route path="/admin/login" element={<AdminLogin />} />
-                        <Route path="/admin/dashboard" element={
-                          <ProtectedRoute adminOnly module="orders" level="view">
-                            <AdminDashboard />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/analytics" element={
-                          <ProtectedRoute adminOnly module="orders" level="view">
-                            <AdminAnalytics />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/categories" element={
-                          <ProtectedRoute adminOnly module="categories" level="view">
-                            <AdminCategories />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/products" element={
-                          <ProtectedRoute adminOnly module="products" level="view">
-                            <AdminProducts />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/products/:id/edit" element={
-                          <ProtectedRoute adminOnly module="products" level="limited">
-                            <AdminProductEdit />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/products/new" element={
-                          <ProtectedRoute adminOnly module="products" level="limited">
-                            <AdminProductEdit />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/orders" element={
-                          <ProtectedRoute adminOnly module="orders" level="view">
-                            <AdminOrders />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/customers" element={
-                          <ProtectedRoute adminOnly module="customers" level="view">
-                            <AdminCustomers />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/customers/:id" element={
-                          <ProtectedRoute adminOnly module="customers" level="view">
-                            <AdminCustomerHistory />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/offers" element={
-                          <ProtectedRoute adminOnly module="offers" level="view">
-                            <AdminOffers />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/combos" element={
-                          <ProtectedRoute adminOnly module="combos" level="view">
-                            <AdminCombos />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/content" element={
-                          <ProtectedRoute adminOnly module="content" level="view">
-                            <AdminContent />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/blog" element={
-                          <ProtectedRoute adminOnly module="blog" level="view">
-                            <AdminBlog />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/press" element={
-                          <ProtectedRoute adminOnly module="press" level="view">
-                            <AdminPress />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/careers" element={
-                          <ProtectedRoute adminOnly module="careers" level="view">
-                            <AdminCareers />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/reviews" element={
-                          <ProtectedRoute adminOnly module="products" level="view">
-                            <AdminReviews />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/banners" element={
-                          <ProtectedRoute adminOnly module="banners" level="view">
-                            <AdminBanners />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/hero" element={
-                          <ProtectedRoute adminOnly module="banners" level="view">
-                            <AdminHeroManagement />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/stock" element={
-                          <ProtectedRoute adminOnly module="stocks" level="view">
-                            <AdminStock />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/admin/settings" element={
-                          <ProtectedRoute adminOnly module="settings" level="view">
-                            <AdminSettings />
-                          </ProtectedRoute>
-                        } />
+                        {/* Admin Routes — Redirects to CRM Portal */}
+                        {/* All admin/dealer users must login at https://crm.mansarafoods.com */}
+                        <Route path="/admin/*" element={<AdminRedirect />} />
 
                         {/* Policy Pages */}
                         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
