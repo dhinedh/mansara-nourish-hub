@@ -126,7 +126,7 @@ const extractArray = (data: any, key: string): any[] => {
 
 const getToken = () => localStorage.getItem('mansara-token') || '';
 
-const CACHE_KEY = 'mansara-store-cache-v3'; // Bumped version
+const CACHE_KEY = 'mansara-store-cache-v4'; // Bumped version
 
 // ========================================
 // STORE PROVIDER
@@ -186,6 +186,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const resolvedProducts = apiProducts.map(apiP => {
                 const staticP = staticProducts.find(p => p.slug === apiP.slug);
 
+                // Exclude pricing fields from static fallback to prevent stale leaks
+                const cleanStaticP: any = staticP ? { ...staticP } : {};
+                delete cleanStaticP.price;
+                delete cleanStaticP.offerPrice;
+                delete cleanStaticP.originalPrice;
+
                 // Robust Pricing Normalization
                 const normalizePrice = (p: any) => {
                     const price = p.price || 0;
@@ -206,7 +212,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 };
 
                 const merged = {
-                    ...(staticP || {}),
+                    ...cleanStaticP,
                     ...apiP,
                     variants: (apiP.variants || staticP?.variants || []).map(normalizePrice)
                 };

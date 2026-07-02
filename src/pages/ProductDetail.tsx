@@ -160,11 +160,22 @@ const ProductDetail: React.FC = () => {
     setSelectedVariant(null);
   }, [slug]);
 
-  /* Effect to set initial variant */
+  /* Effect to set initial variant or update stale variant */
   React.useEffect(() => {
     if (product?.variants?.length) {
       if (!selectedVariant) {
         setSelectedVariant(product.variants[0]);
+      } else {
+        const updated = product.variants.find((v: any) => v.weight === selectedVariant.weight);
+        if (updated && (
+          updated.price !== selectedVariant.price ||
+          updated.offerPrice !== selectedVariant.offerPrice ||
+          updated.originalPrice !== selectedVariant.originalPrice ||
+          updated.stock !== selectedVariant.stock ||
+          (updated as any)._id !== (selectedVariant as any)._id
+        )) {
+          setSelectedVariant(updated);
+        }
       }
     }
   }, [product, selectedVariant]);

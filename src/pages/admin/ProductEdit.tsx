@@ -318,6 +318,20 @@ const AdminProductEdit = () => {
                         />
                       </div>
                       <div>
+                        <label className="text-xs font-medium">SKU</label>
+                        <Input
+                          placeholder="e.g. MNS-250G"
+                          value={variant.sku || ""}
+                          onChange={(e) => {
+                            const newVariants = [...(formData.variants || [])];
+                            newVariants[index] = { ...variant, sku: e.target.value };
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
                         <label className="text-xs font-medium">Stock</label>
                         <Input
                           type="number"
@@ -330,8 +344,6 @@ const AdminProductEdit = () => {
                           }}
                         />
                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="text-xs font-medium">Price</label>
                         <Input
@@ -380,7 +392,7 @@ const AdminProductEdit = () => {
                   onClick={() => {
                     setFormData(prev => ({
                       ...prev,
-                      variants: [...(prev.variants || []), { weight: "", price: 0, stock: 0, offerPrice: 0, originalPrice: 0 }]
+                      variants: [...(prev.variants || []), { weight: "", sku: "", price: 0, stock: 0, offerPrice: 0, originalPrice: 0 }]
                     }));
                   }}
                 >
