@@ -7,6 +7,28 @@
   <title>Mansara Foods | Healthy Porridge Mixes, Health Mix &amp; Idly Podi | Chennai</title>
   <meta name="description" content="Pure, traditional health mixes, porridge mixes, and idly podis from Mansara Foods, Chennai. Nutritious food for all ages, made the traditional way." />
 
+  <!-- Preconnect to Google Fonts domains for faster DNS + TLS handshake -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!--
+    Non-render-blocking font load:
+    media="print" means the browser fetches it without blocking render;
+    onload switches to media="all" once the stylesheet is ready.
+    The <noscript> fallback covers JS-disabled environments.
+  -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+    media="print"
+    onload="this.media='all'"
+  />
+  <noscript>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+    />
+  </noscript>
 </head>
 
 <body>
@@ -14,4 +36,4 @@
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
-</html>
+</html>
