@@ -44,9 +44,9 @@ const Index: React.FC = () => {
   return (
     <Layout>
       <SEO 
-        title="Mansara Foods | Best Health Mix & Porridge Mix in Chennai, Tamil Nadu"
-        description="Discover Mansara Foods - Chennai's favorite health mix and porridge mix brand. We offer traditional Urad Dal mix, Black Rice mix, and healthy Idly Podis made with pure ingredients. Best health food in Tamil Nadu."
-        keywords="best health mix in Chennai, healthy porridge mix Tamil Nadu, Mansara Foods products, traditional idly podi Chennai, black rice mix online India, wholesome breakfast Chennai"
+        title="Mansara Foods | Healthy Porridge Mixes, Health Mix & Idly Podi | Chennai"
+        description="Pure, traditional health mixes, porridge mixes, and idly podis from Mansara Foods, Chennai. Nutritious food for all ages, made the traditional way."
+        keywords="health mix, porridge mix, urad dal health mix, black rice mix, idly podi, traditional food, healthy breakfast, Mansara Foods, Chennai, Tamil Nadu, organic food India"
       />
       <HeroSlider />
 
