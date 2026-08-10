@@ -78,6 +78,7 @@ const HeroSlider: React.FC = () => {
                         }`}
                 >
                     {/* Background Image - Clickable if link exists */}
+                    {/* First slide: eager + high-priority for LCP; rest: lazy */}
                     {slide.ctaLink ? (
                         <Link to={slide.ctaLink} className="absolute inset-0 cursor-pointer block">
                             <ProgressiveImage
@@ -85,6 +86,10 @@ const HeroSlider: React.FC = () => {
                                 alt={slide.title}
                                 className="w-full h-full object-cover"
                                 placeholder="/placeholder.svg"
+                                loading={index === 0 ? 'eager' : 'lazy'}
+                                fetchpriority={index === 0 ? 'high' : 'auto'}
+                                width={1920}
+                                height={700}
                             />
                             <div className="absolute inset-0 bg-black/10" />
                         </Link>
@@ -95,6 +100,10 @@ const HeroSlider: React.FC = () => {
                                 alt={slide.title}
                                 className="w-full h-full object-cover"
                                 placeholder="/placeholder.svg"
+                                loading={index === 0 ? 'eager' : 'lazy'}
+                                fetchpriority={index === 0 ? 'high' : 'auto'}
+                                width={1920}
+                                height={700}
                             />
                             <div className="absolute inset-0 bg-black/10" />
                         </div>

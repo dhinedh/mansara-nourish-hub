@@ -117,7 +117,8 @@ const Header: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="hidden sm:flex text-foreground hover:bg-black/5 transition-all duration-300 hover:scale-110 hover:rotate-12"
+              aria-label="Search products"
+              className="hidden sm:flex text-foreground hover:bg-black/5 transition-all duration-300 hover:scale-110 hover:rotate-12 min-h-[48px] min-w-[48px]"
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="h-5 w-5" />
@@ -128,7 +129,8 @@ const Header: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="text-foreground hover:bg-black/5 transition-all duration-300 hover:scale-110"
+              aria-label={isAuthenticated ? `Account (${user?.name || 'My Account'})` : 'Login'}
+              className="text-foreground hover:bg-black/5 transition-all duration-300 hover:scale-110 min-h-[48px] min-w-[48px]"
             >
               <User className={`h-5 w-5 transition-all duration-300 ${isAuthenticated ? 'text-primary' : ''}`} />
             </Button>
@@ -138,7 +140,8 @@ const Header: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="relative text-foreground hover:bg-black/5 transition-all duration-300 hover:scale-110"
+              aria-label={`Shopping cart${getCartCount() > 0 ? `, ${getCartCount()} items` : ''}`}
+              className="relative text-foreground hover:bg-black/5 transition-all duration-300 hover:scale-110 min-h-[48px] min-w-[48px]"
             >
               <ShoppingCart className="h-5 w-5 transition-transform duration-300 hover:rotate-12" />
               {getCartCount() > 0 && (
@@ -156,7 +159,10 @@ const Header: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden text-foreground hover:bg-black/5 transition-all duration-300"
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-nav"
+            className="lg:hidden text-foreground hover:bg-black/5 transition-all duration-300 min-h-[48px] min-w-[48px]"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <div className="relative w-5 h-5">
@@ -175,6 +181,7 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu */}
       <div
+        id="mobile-nav"
         className={`lg:hidden absolute top-full left-0 right-0 shadow-lg border-t overflow-hidden transition-all duration-500 ease-in-out ${isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
           }`}
         style={{

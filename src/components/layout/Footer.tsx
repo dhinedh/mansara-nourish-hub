@@ -43,13 +43,31 @@ const Footer: React.FC = () => {
             <div className="mb-8">
               <h3 className="font-heading font-semibold text-lg text-brand-yellow mb-4">Connect with Us</h3>
               <div className="flex gap-4">
-                <a href={settings?.facebook_url || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300">
+                <a
+                  href={settings?.facebook_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Facebook"
+                  className="w-12 h-12 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300"
+                >
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href={settings?.twitter_url || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300">
+                <a
+                  href={settings?.twitter_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Twitter"
+                  className="w-12 h-12 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300"
+                >
                   <Twitter className="h-5 w-5" />
                 </a>
-                <a href={settings?.instagram_url || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300">
+                <a
+                  href={settings?.instagram_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Instagram"
+                  className="w-12 h-12 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300"
+                >
                   <Instagram className="h-5 w-5" />
                 </a>
               </div>

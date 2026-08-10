@@ -159,6 +159,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           placeholder="/placeholder.svg"
+          loading="lazy"
+          width={400}
+          height={400}
         />
         {showBadge && (
           <>

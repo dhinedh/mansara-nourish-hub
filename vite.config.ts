@@ -15,4 +15,39 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Raise the warning threshold so we don't see noise for vendor chunks
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // Core React runtime — cached independently from all other code
+          if (id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/react-router-dom/') ||
+              id.includes('node_modules/react-router/') ||
+              id.includes('node_modules/scheduler/')) {
+            return 'vendor-react';
+          }
+          // Radix UI primitives + Lucide icons — large but stable
+          if (id.includes('node_modules/@radix-ui/') ||
+              id.includes('node_modules/lucide-react/')) {
+            return 'vendor-ui';
+          }
+          // React Helmet for SSR/SEO
+          if (id.includes('node_modules/react-helmet-async/')) {
+            return 'vendor-helmet';
+          }
+          // Networking & toast — rarely changes
+          if (id.includes('node_modules/axios/') ||
+              id.includes('node_modules/sonner/') ||
+              id.includes('node_modules/clsx/') ||
+              id.includes('node_modules/class-variance-authority/') ||
+              id.includes('node_modules/tailwind-merge/')) {
+            return 'vendor-misc';
+          }
+        },
+      },
+    },
+  },
 }));
