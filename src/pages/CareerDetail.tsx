@@ -5,6 +5,7 @@ import { fetchCareerById } from '@/lib/api';
 import { ArrowLeft, Loader2, MapPin, Clock, Briefcase, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import SEO from '@/components/SEO';
 
 interface Job {
     _id: string;
@@ -60,6 +61,38 @@ const CareerDetail = () => {
 
     return (
         <Layout>
+            <SEO 
+                title={`${job.title} - Careers | Mansara Foods`}
+                description={job.description ? job.description.slice(0, 160) : `Join Mansara Foods as ${job.title} in ${job.location}`}
+                url={`https://www.mansarafoods.com/careers/${job._id}`}
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "JobPosting",
+                    "title": job.title,
+                    "description": job.description,
+                    "identifier": {
+                        "@type": "PropertyValue",
+                        "name": "Mansara Foods",
+                        "value": job._id
+                    },
+                    "datePosted": job.createdAt || new Date().toISOString(),
+                    "employmentType": job.type || "FULL_TIME",
+                    "hiringOrganization": {
+                        "@type": "Organization",
+                        "name": "Mansara Foods",
+                        "sameAs": "https://www.mansarafoods.com"
+                    },
+                    "jobLocation": {
+                        "@type": "Place",
+                        "address": {
+                            "@type": "PostalAddress",
+                            "addressLocality": job.location || "Chennai",
+                            "addressRegion": "TN",
+                            "addressCountry": "IN"
+                        }
+                    }
+                }}
+            />
             <div className="pt-32 pb-16 bg-gradient-to-br from-secondary/30 to-background border-b border-border">
                 <div className="container mx-auto px-4 max-w-4xl">
                     <Link

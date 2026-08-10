@@ -1,10 +1,16 @@
 import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import SEO from '@/components/SEO';
 
 const DeliveryShippingPolicy = () => {
     return (
         <div className="min-h-screen flex flex-col bg-white">
+            <SEO 
+                title="Delivery & Shipping Policy | Mansara Foods"
+                description="Delivery and shipping information for domestic and international orders from Mansara Foods."
+                url="https://www.mansarafoods.com/delivery-shipping-policy"
+            />
             <Header />
             <main className="flex-grow container mx-auto px-4 py-12 max-w-4xl">
                 <h1 className="text-3xl font-bold mb-8 text-center text-brand-blue">DELIVERY & SHIPPING POLICY</h1>

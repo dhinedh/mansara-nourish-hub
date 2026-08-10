@@ -1,10 +1,16 @@
 import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import SEO from '@/components/SEO';
 
 const PrivacyPolicy = () => {
     return (
         <div className="min-h-screen flex flex-col bg-white">
+            <SEO 
+                title="Privacy Policy | Mansara Foods"
+                description="Privacy policy of Mansara Foods explaining how we handle customer data, privacy, and security."
+                url="https://www.mansarafoods.com/privacy-policy"
+            />
             <Header />
             <main className="flex-grow container mx-auto px-4 py-12 max-w-4xl">
                 <h1 className="text-3xl font-bold mb-8 text-center text-brand-blue">PRIVACY POLICY</h1>

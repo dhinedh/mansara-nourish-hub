@@ -5,6 +5,7 @@ import PageHero from '@/components/layout/PageHero';
 import { fetchPressReleases } from '@/lib/api';
 import { Calendar, ArrowRight, Loader2, FileText, Download } from 'lucide-react';
 import { useContent } from '@/context/ContentContext';
+import SEO from '@/components/SEO';
 
 interface PressRelease {
     _id: string;
@@ -38,6 +39,12 @@ const Press = () => {
 
     return (
         <Layout>
+            <SEO 
+                title="Press Releases & Newsroom | Mansara Foods"
+                description="Official press releases, media kits, and brand newsroom updates from Mansara Foods. Stay informed on our latest company developments in Chennai."
+                keywords="Mansara Foods press, newsroom health mix, brand announcements Chennai, media contact Mansara Foods"
+                url="https://www.mansarafoods.com/press"
+            />
             <PageHero pageKey="press">
                 <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/30">
                     {getContent('press', 'tagline', 'Newsroom & Updates')}

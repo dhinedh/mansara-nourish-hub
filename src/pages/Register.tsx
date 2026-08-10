@@ -8,6 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2, MessageSquare } from 'lucide-react';
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 import logo from '@/assets/logo.png';
+import SEO from '@/components/SEO';
 
 // ========================================
 // OPTIMIZED REGISTER COMPONENT
@@ -122,6 +123,7 @@ const Register: React.FC = () => {
 
     return (
         <div className="min-h-[80vh] flex items-center justify-center bg-background px-4 py-12">
+            <SEO title="Register | Mansara Foods" noindex url="https://www.mansarafoods.com/register" />
             <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-xl shadow-lg border border-border">
                 {/* Header */}
                 <div className="text-center">

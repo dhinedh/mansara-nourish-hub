@@ -1,10 +1,16 @@
 import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import SEO from '@/components/SEO';
 
 const TermsAndConditions = () => {
     return (
         <div className="min-h-screen flex flex-col bg-white">
+            <SEO 
+                title="Terms & Conditions | Mansara Foods"
+                description="Terms and conditions for using the Mansara Foods website and purchasing our health mixes and food products."
+                url="https://www.mansarafoods.com/terms-and-conditions"
+            />
             <Header />
             <main className="flex-grow container mx-auto px-4 py-12 max-w-4xl">
                 <h1 className="text-3xl font-bold mb-8 text-center text-brand-blue">TERMS & CONDITIONS</h1>

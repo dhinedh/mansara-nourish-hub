@@ -61,6 +61,7 @@ const Contact: React.FC = () => {
         title="Contact Us | Mansara Foods Chennai"
         description="Have questions about our health mixes? Get in touch with Mansara Foods Chennai. We're here to help with orders, product info, and healthy eating tips. Call or WhatsApp us today."
         keywords="contact Mansara Foods, health mix Chennai customer care, buy health mix online Tamil Nadu help, traditional food enquiry"
+        url="https://www.mansarafoods.com/contact"
       />
       {/* Hero */}
       <PageHero pageKey="contact">

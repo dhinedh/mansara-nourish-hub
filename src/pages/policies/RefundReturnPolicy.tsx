@@ -1,10 +1,16 @@
 import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import SEO from '@/components/SEO';
 
 const RefundReturnPolicy = () => {
     return (
         <div className="min-h-screen flex flex-col bg-white">
+            <SEO 
+                title="Refund & Return Policy | Mansara Foods"
+                description="Refund and return policy for food products purchased from Mansara Foods."
+                url="https://www.mansarafoods.com/refund-return-policy"
+            />
             <Header />
             <main className="flex-grow container mx-auto px-4 py-12 max-w-4xl">
                 <h1 className="text-3xl font-bold mb-8 text-center text-brand-blue">REFUND & RETURN POLICY</h1>

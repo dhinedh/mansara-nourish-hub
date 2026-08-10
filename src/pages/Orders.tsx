@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Package, ChevronRight, ArrowLeft } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 
 const Orders: React.FC = () => {
@@ -41,6 +42,7 @@ const Orders: React.FC = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
+            <SEO title="My Orders | Mansara Foods" noindex url="https://www.mansarafoods.com/orders" />
             <div className="max-w-4xl mx-auto">
                 <div className="flex items-center gap-2 mb-6">
                     <Button variant="ghost" size="icon" onClick={() => navigate('/account')}>

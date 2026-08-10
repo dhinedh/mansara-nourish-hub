@@ -5,6 +5,7 @@ import { fetchBlogPostById } from '@/lib/api';
 import { Calendar, User, ArrowLeft, Loader2, Share2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import SEO from '@/components/SEO';
 
 interface BlogPost {
     _id: string;
@@ -73,6 +74,33 @@ const BlogDetail = () => {
 
     return (
         <Layout>
+            <SEO 
+                title={`${post.title} | Mansara Foods Blog`}
+                description={post.excerpt || (post.content ? post.content.replace(/<[^>]*>?/gm, '').slice(0, 160) : `Read ${post.title} on Mansara Foods Blog`)}
+                image={post.image}
+                url={`https://www.mansarafoods.com/blog/${post.slug || post._id}`}
+                type="article"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "Article",
+                    "headline": post.title,
+                    "description": post.excerpt,
+                    "image": post.image ? (post.image.startsWith('http') ? post.image : `https://www.mansarafoods.com${post.image}`) : undefined,
+                    "datePublished": post.createdAt,
+                    "author": {
+                        "@type": "Person",
+                        "name": post.author || "Mansara Team"
+                    },
+                    "publisher": {
+                        "@type": "Organization",
+                        "name": "Mansara Foods",
+                        "logo": {
+                            "@type": "ImageObject",
+                            "url": "https://www.mansarafoods.com/logo.png"
+                        }
+                    }
+                }}
+            />
             {/* Hero Section */}
             <div className="relative w-full h-[60vh] min-h-[400px] overflow-hidden">
                 {post.image ? (

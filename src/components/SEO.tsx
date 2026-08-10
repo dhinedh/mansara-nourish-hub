@@ -8,6 +8,7 @@ interface SEOProps {
   image?: string;
   url?: string;
   type?: string;
+  noindex?: boolean;
   schema?: any;
 }
 
@@ -18,9 +19,14 @@ const SEO: React.FC<SEOProps> = ({
   image = "/logo.png",
   url = "https://www.mansarafoods.com",
   type = "website",
+  noindex = false,
   schema
 }) => {
   const siteTitle = title.includes("Mansara Foods") ? title : `${title} | Mansara Foods`;
+
+  const absoluteImage = image.startsWith('http://') || image.startsWith('https://')
+    ? image
+    : `https://www.mansarafoods.com${image.startsWith('/') ? '' : '/'}${image}`;
 
   return (
     <Helmet>
@@ -30,18 +36,20 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="keywords" content={keywords} />
       <link rel="canonical" href={url} />
 
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
+
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
       <meta property="og:title" content={siteTitle} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
+      <meta property="og:image" content={absoluteImage} />
       <meta property="og:url" content={url} />
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={siteTitle} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
+      <meta name="twitter:image" content={absoluteImage} />
 
       {/* Local SEO for Chennai / Tamil Nadu */}
       <meta name="geo.region" content="IN-TN" />
@@ -66,15 +74,15 @@ const SEO: React.FC<SEOProps> = ({
             "image": "https://www.mansarafoods.com/logo.png",
             "@id": "https://www.mansarafoods.com",
             "url": "https://www.mansarafoods.com",
-            // TODO (User): Replace with real phone number (e.g. "+91-9876543210")
+            // TODO: Needs real business telephone data for local SEO
             "telephone": "+91-XXXXXXXXXX",
             "address": {
               "@type": "PostalAddress",
-              // TODO (User): Replace with real street address
+              // TODO: Needs real business street address data for local SEO
               "streetAddress": "Address details here",
               "addressLocality": "Chennai",
               "addressRegion": "TN",
-              // TODO (User): Replace with real postal code (e.g. "600001")
+              // TODO: Needs real business postal code data for local SEO
               "postalCode": "600XXX",
               "addressCountry": "IN"
             },

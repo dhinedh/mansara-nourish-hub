@@ -8,25 +8,78 @@ const rootDir = path.resolve(__dirname, '..');
 const distDir = path.resolve(rootDir, 'dist');
 const serverDir = path.resolve(rootDir, 'dist-server');
 
+const API_BASE =
+  process.env.VITE_API_URL ||
+  'https://mansara-backend.onrender.com/api';
+
+/** Fetch JSON from a URL; returns [] on any error so the build never fails. */
+async function safeFetch(url) {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+    if (!res.ok) {
+      console.warn(`⚠️  ${url} returned ${res.status} – skipping dynamic routes for this endpoint.`);
+      return [];
+    }
+    const json = await res.json();
+    // APIs return either { items: [...] } or [...] directly
+    return Array.isArray(json) ? json : (json.items || []);
+  } catch (err) {
+    console.warn(`⚠️  Could not fetch ${url}: ${err.message} – skipping.`);
+    return [];
+  }
+}
+
 async function prerender() {
   console.log('🚀 Starting static site prerendering & sitemap generation...');
 
-  // 1. Parse product slugs from src/data/products.ts
+  // ── 1. Parse product slugs from src/data/products.ts ──────────────────────
+  // Scope the regex to only the `products` array section (after "export const products")
   const productsFilePath = path.resolve(rootDir, 'src/data/products.ts');
   const productsContent = fs.readFileSync(productsFilePath, 'utf-8');
-  
+
+  // Slice to only the text that follows "export const products: Product[] = ["
+  const productsArrayStart = productsContent.indexOf('export const products');
+  const productsSection =
+    productsArrayStart >= 0 ? productsContent.slice(productsArrayStart) : productsContent;
+
   const productSlugs = [];
   const slugRegex = /"slug":\s*"([^"]+)"/g;
   let match;
-  while ((match = slugRegex.exec(productsContent)) !== null) {
+  while ((match = slugRegex.exec(productsSection)) !== null) {
     if (!productSlugs.includes(match[1])) {
       productSlugs.push(match[1]);
     }
   }
 
-  console.log(`📦 Found ${productSlugs.length} products to prerender:`, productSlugs);
+  console.log(`📦 Found ${productSlugs.length} products:`, productSlugs);
 
-  // 2. Define all routes for prerendering and sitemap
+  // ── 2. Fetch dynamic slugs / IDs from the live API ────────────────────────
+  console.log(`🌐 Fetching dynamic content from ${API_BASE} …`);
+
+  const [blogPosts, pressReleases, careers] = await Promise.all([
+    safeFetch(`${API_BASE}/blog`),
+    safeFetch(`${API_BASE}/press`),
+    safeFetch(`${API_BASE}/careers`),
+  ]);
+
+  // Blog uses slug or _id as route param (BlogDetail uses :slug param)
+  const blogSlugs = blogPosts
+    .map(p => p.slug || p._id)
+    .filter(Boolean);
+
+  // Press uses slug or _id as route param (PressDetail uses :slug param)
+  const pressSlugs = pressReleases
+    .map(p => p.slug || p._id)
+    .filter(Boolean);
+
+  // Career uses _id as route param (CareerDetail uses :id param)
+  const careerIds = careers
+    .map(c => c._id || c.id)
+    .filter(Boolean);
+
+  console.log(`📝 Blog posts: ${blogSlugs.length}, Press releases: ${pressSlugs.length}, Careers: ${careerIds.length}`);
+
+  // ── 3. Build full route list ───────────────────────────────────────────────
   const staticRoutes = [
     '/',
     '/products',
@@ -44,12 +97,22 @@ async function prerender() {
     '/refund-return-policy',
   ];
 
-  const productRoutes = productSlugs.map(slug => `/product/${slug}`);
-  const allRoutes = [...staticRoutes, ...productRoutes];
+  const productRoutes  = productSlugs.map(s  => `/product/${s}`);
+  const blogRoutes     = blogSlugs.map(s     => `/blog/${s}`);
+  const pressRoutes    = pressSlugs.map(s    => `/press/${s}`);
+  const careerRoutes   = careerIds.map(id    => `/careers/${id}`);
 
-  // 3. Generate sitemap.xml
+  const allRoutes = [
+    ...staticRoutes,
+    ...productRoutes,
+    ...blogRoutes,
+    ...pressRoutes,
+    ...careerRoutes,
+  ];
+
+  // ── 4. Generate sitemap.xml ────────────────────────────────────────────────
   const domain = 'https://www.mansarafoods.com';
-  let sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+  const today  = new Date().toISOString().split('T')[0];
 
   const getPriority = (route) => {
     if (route === '/') return '1.0';
@@ -57,87 +120,78 @@ async function prerender() {
     if (route.startsWith('/product/')) return '0.8';
     if (route === '/offers' || route === '/new-arrivals') return '0.8';
     if (route === '/about' || route === '/contact') return '0.7';
-    if (route === '/blog' || route === '/press') return '0.6';
+    if (route === '/blog' || route === '/press' || route === '/careers') return '0.6';
+    if (route.startsWith('/blog/') || route.startsWith('/press/')) return '0.6';
+    if (route.startsWith('/careers/')) return '0.5';
     return '0.5';
   };
 
+  let sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
   allRoutes.forEach(route => {
     const loc = route === '/' ? `${domain}/` : `${domain}${route}`;
-    sitemapXml += `  <url>\n    <loc>${loc}</loc>\n    <priority>${getPriority(route)}</priority>\n  </url>\n`;
+    sitemapXml += `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${getPriority(route)}</priority>\n  </url>\n`;
   });
   sitemapXml += `</urlset>\n`;
 
-  // Write sitemap.xml to public/ and dist/
   fs.writeFileSync(path.resolve(rootDir, 'public/sitemap.xml'), sitemapXml, 'utf-8');
   if (fs.existsSync(distDir)) {
     fs.writeFileSync(path.resolve(distDir, 'sitemap.xml'), sitemapXml, 'utf-8');
   }
-  console.log('✅ Generated public/sitemap.xml and dist/sitemap.xml');
+  console.log(`✅ Generated sitemap with ${allRoutes.length} URLs`);
 
-  // 4. Load SSR entry bundle
+  // ── 5. Load SSR entry bundle ───────────────────────────────────────────────
   const serverEntryPath = path.resolve(serverDir, 'entry-server.js');
   if (!fs.existsSync(serverEntryPath)) {
     throw new Error(`Server entry file not found at ${serverEntryPath}. Did "vite build --ssr" run?`);
   }
-
   const { render } = await import(`file://${serverEntryPath}`);
 
-  // Read index.html template
   const templatePath = path.resolve(distDir, 'index.html');
   const template = fs.readFileSync(templatePath, 'utf-8');
 
-  // 5. Prerender each route
+  // ── 6. Prerender each route ────────────────────────────────────────────────
   for (const route of allRoutes) {
     try {
       const { html, helmet } = render(route);
 
-      const titleTag = helmet?.title?.toString() || '';
-      const metaTags = helmet?.meta?.toString() || '';
-      const linkTags = helmet?.link?.toString() || '';
+      const titleTag   = helmet?.title?.toString()  || '';
+      const metaTags   = helmet?.meta?.toString()   || '';
+      const linkTags   = helmet?.link?.toString()   || '';
       const scriptTags = helmet?.script?.toString() || '';
 
       const headInsertions = `${metaTags}\n  ${linkTags}\n  ${scriptTags}`;
 
       let pageHtml = template;
 
-      // Replace existing title if helmet provided a title
       if (titleTag) {
         pageHtml = pageHtml.replace(/<title>.*?<\/title>/s, titleTag);
       }
 
-      // Replace meta description or append head tags
       if (pageHtml.includes('<meta name="description"')) {
         pageHtml = pageHtml.replace(/<meta name="description" [^>]*\/>/s, headInsertions);
       } else {
         pageHtml = pageHtml.replace('</head>', `  ${headInsertions}\n</head>`);
       }
 
-      // Replace root div with rendered HTML
       pageHtml = pageHtml.replace('<div id="root"></div>', `<div id="root">${html}</div>`);
 
-      // Determine output directory & file paths
       if (route === '/') {
         fs.writeFileSync(templatePath, pageHtml, 'utf-8');
         console.log(`  ✓ Rendered / -> dist/index.html`);
       } else {
         const routePath = route.substring(1); // remove leading /
-        const pageDir = path.resolve(distDir, routePath);
+        const pageDir   = path.resolve(distDir, routePath);
         fs.mkdirSync(pageDir, { recursive: true });
-
-        // Write index.html inside route directory (e.g. dist/product/slug/index.html)
         fs.writeFileSync(path.resolve(pageDir, 'index.html'), pageHtml, 'utf-8');
-
-        // Write route.html for servers that serve cleanUrls (e.g. dist/product/slug.html)
         fs.writeFileSync(path.resolve(distDir, `${routePath}.html`), pageHtml, 'utf-8');
-
-        console.log(`  ✓ Rendered ${route} -> dist/${routePath}/index.html & dist/${routePath}.html`);
+        console.log(`  ✓ Rendered ${route}`);
       }
     } catch (err) {
-      console.error(`❌ Error prerendering route ${route}:`, err);
+      console.error(`❌ Error prerendering route ${route}:`, err.message);
     }
   }
 
-  // 6. Clean up dist-server directory
+  // ── 7. Clean up dist-server directory ─────────────────────────────────────
   if (fs.existsSync(serverDir)) {
     fs.rmSync(serverDir, { recursive: true, force: true });
     console.log('🧹 Cleaned up temporary dist-server directory.');

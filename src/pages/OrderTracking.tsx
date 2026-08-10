@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { mockOrders, Order } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Circle, ArrowLeft, Phone, BadgeCheck, PackageCheck, Truck, Home } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 const OrderTracking: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
@@ -69,6 +70,7 @@ const OrderTracking: React.FC = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
+            <SEO title="Order Tracking | Mansara Foods" noindex url="https://www.mansarafoods.com/order-tracking" />
             <div className="max-w-3xl mx-auto">
                 <div className="flex items-center gap-2 mb-6">
                     <Button variant="ghost" size="icon" onClick={() => navigate('/orders')}>

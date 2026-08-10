@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 import { getUserOrders, fetchUser, addAddress, updateAddress, deleteAddress } from '@/lib/api';
 import {
     Package,
@@ -101,6 +102,7 @@ const Account: React.FC = () => {
 
     return (
         <Layout>
+            <SEO title="My Account | Mansara Foods" noindex url="https://www.mansarafoods.com/account" />
             <div className="container mx-auto px-4 py-8">
                 <div className="flex flex-col md:flex-row gap-8 min-h-[600px]">
 

@@ -3,6 +3,7 @@ import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
 import { useStore } from '@/context/StoreContext';
 import PageHero from '@/components/layout/PageHero';
+import SEO from '@/components/SEO';
 
 // ========================================
 // OPTIMIZED NEW ARRIVALS PAGE
@@ -32,6 +33,12 @@ const NewArrivals: React.FC = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="New Arrivals & Latest Health Mixes | Mansara Foods"
+        description="Discover the latest healthy products from Mansara Foods including Ragi Choco Malt and new traditional health mix releases in Chennai."
+        keywords="new health mix launch, Ragi Choco Malt, Mansara Foods new products, latest traditional foods Chennai"
+        url="https://www.mansarafoods.com/new-arrivals"
+      />
       {/* Hero Banner */}
       <PageHero pageKey="newArrivals" className="py-24 md:py-36">
         <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-sm font-bold mb-6 shadow-sm border border-white/30 lowercase italic">

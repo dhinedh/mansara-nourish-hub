@@ -18,7 +18,7 @@ const WhatsAppBuyButton: React.FC<WhatsAppBuyButtonProps> = ({ product, variant,
         e.preventDefault();
         e.stopPropagation();
 
-        const phoneNumber = import.meta.env.VITE_BOTBIZ_PHONE_NUMBER || '91XXXXXXXXXX';
+        const phoneNumber = import.meta.env.VITE_BOTBIZ_PHONE_NUMBER || '918838887064';
         const price = variant ? variant.price : product.price;
         const name = product.name + (variant ? ` (${variant.weight})` : '');
 

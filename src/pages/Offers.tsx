@@ -3,6 +3,7 @@ import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/ProductCard';
 import { useStore } from '@/context/StoreContext';
 import PageHero from '@/components/layout/PageHero';
+import SEO from '@/components/SEO';
 
 // ========================================
 // OPTIMIZED OFFERS PAGE
@@ -32,6 +33,12 @@ const Offers: React.FC = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="Special Offers & Discounts on Health Mixes | Mansara Foods"
+        description="Explore exclusive deals and discounts on traditional health mixes, porridge mixes, and idly podis from Mansara Foods. Premium natural nutrition at special prices."
+        keywords="health mix offers, porridge mix discount, Mansara Foods deals, traditional food sale Chennai"
+        url="https://www.mansarafoods.com/offers"
+      />
       {/* Hero Banner */}
       <PageHero pageKey="offers" />
 

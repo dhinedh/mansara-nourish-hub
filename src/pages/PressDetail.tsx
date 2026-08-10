@@ -5,6 +5,7 @@ import { fetchPressReleases } from '@/lib/api'; // Using generic fetch for now, 
 import { Calendar, ArrowLeft, Loader2, Download, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import SEO from '@/components/SEO';
 
 // Ideally we should have a fetchPressReleaseBySlug or use the crudFactory's ID/Slug support
 import { API_URL } from '@/lib/api';
@@ -69,6 +70,29 @@ const PressDetail = () => {
 
     return (
         <Layout>
+            <SEO 
+                title={`${release.title} | Mansara Foods Press`}
+                description={release.excerpt || (release.content ? release.content.replace(/<[^>]*>?/gm, '').slice(0, 160) : `Official press release: ${release.title}`)}
+                image={release.image}
+                url={`https://www.mansarafoods.com/press/${release.slug || release._id}`}
+                type="article"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "NewsArticle",
+                    "headline": release.title,
+                    "description": release.excerpt,
+                    "image": release.image ? (release.image.startsWith('http') ? release.image : `https://www.mansarafoods.com${release.image}`) : undefined,
+                    "datePublished": release.publishDate || release.createdAt,
+                    "publisher": {
+                        "@type": "Organization",
+                        "name": "Mansara Foods",
+                        "logo": {
+                            "@type": "ImageObject",
+                            "url": "https://www.mansarafoods.com/logo.png"
+                        }
+                    }
+                }}
+            />
             <div className="pt-24 pb-12 bg-secondary/20">
                 <div className="container mx-auto px-4 max-w-4xl">
                     <Link

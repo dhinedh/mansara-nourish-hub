@@ -6,6 +6,7 @@ import { fetchCareers } from '@/lib/api';
 import { Briefcase, MapPin, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import { useContent } from '@/context/ContentContext';
 import { Button } from '@/components/ui/button';
+import SEO from '@/components/SEO';
 
 interface Job {
     _id: string;
@@ -39,6 +40,12 @@ const Careers = () => {
 
     return (
         <Layout>
+            <SEO 
+                title="Careers at Mansara Foods | Join Our Team in Chennai"
+                description="Join Mansara Foods and build a career in traditional health foods and natural nutrition. View open job positions in Chennai and grow with us."
+                keywords="careers Mansara Foods, job openings Chennai, health food jobs Tamil Nadu, work at Mansara Foods"
+                url="https://www.mansarafoods.com/careers"
+            />
             <PageHero pageKey="careers">
                 <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/30">
                     {getContent('careers', 'tagline', 'Join Our Mission')}

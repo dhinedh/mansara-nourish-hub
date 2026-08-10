@@ -3,6 +3,7 @@ import Layout from '@/components/layout/Layout';
 import ComboCard from '@/components/ComboCard';
 import { useStore } from '@/context/StoreContext';
 import PageHero from '@/components/layout/PageHero';
+import SEO from '@/components/SEO';
 
 // ========================================
 // OPTIMIZED COMBOS PAGE
@@ -26,6 +27,12 @@ const Combos: React.FC = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="Special Health Mix Combos & Savings Packs | Mansara Foods"
+        description="Save on traditional health mixes and porridge packs with Mansara Foods value combos. Best health mix bundles crafted in Chennai for complete family wellness."
+        keywords="health mix combo Chennai, porridge mix offer packs, Mansara Foods combo packs, discount health food Tamil Nadu"
+        url="https://www.mansarafoods.com/combos"
+      />
       {/* Hero Banner */}
       <PageHero pageKey="combos" className="py-24 md:py-48" />
 

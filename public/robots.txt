@@ -3,5 +3,12 @@ Allow: /
 Disallow: /admin
 Disallow: /checkout
 Disallow: /account
+Disallow: /cart
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /verify-email
+Disallow: /orders
+Disallow: /order-tracking
 
 Sitemap: https://www.mansarafoods.com/sitemap.xml

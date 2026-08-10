@@ -8,6 +8,7 @@ import { verifyEmail, resendOTP } from "@/lib/api";
 import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { MessageSquare, KeyRound, RefreshCw } from "lucide-react";
+import SEO from "@/components/SEO";
 
 interface FormData {
     otp: string;
@@ -73,6 +74,7 @@ const VerifyEmail = () => {
 
     return (
         <Layout>
+            <SEO title="Verify Email | Mansara Foods" noindex url="https://www.mansarafoods.com/verify-email" />
             <div className="flex-grow flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg border border-gray-200">
                     <div className="text-center">

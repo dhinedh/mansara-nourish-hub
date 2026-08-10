@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import ProgressiveImage from '@/components/ui/ProgressiveImage';
+import SEO from '@/components/SEO';
 
 // ========================================
 // OPTIMIZED CART PAGE
@@ -84,6 +85,7 @@ const Cart: React.FC = () => {
 
   return (
     <Layout>
+      <SEO title="Shopping Cart | Mansara Foods" noindex url="https://www.mansarafoods.com/cart" />
       {/* Header - Always show */}
       <section className="bg-secondary py-8">
         <PageHero pageKey="cart" />

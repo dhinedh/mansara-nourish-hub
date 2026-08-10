@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPressReleases } from '@/lib/api';
 import { Calendar, ExternalLink } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 interface PressRelease {
     _id: string;
@@ -31,6 +32,11 @@ const PressReleases = () => {
 
     return (
         <div className="bg-white min-h-screen py-16 px-4 sm:px-6 lg:px-8">
+            <SEO 
+                title="Press Releases | Mansara Foods News"
+                description="Read official press releases, news announcements, and media updates from Mansara Foods."
+                url="https://www.mansarafoods.com/press"
+            />
             <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl font-extrabold text-[#131A4E] sm:text-5xl">

@@ -5,6 +5,7 @@ import PageHero from '@/components/layout/PageHero';
 import { fetchBlogPosts } from '@/lib/api';
 import { Calendar, User, ArrowRight, Loader2 } from 'lucide-react';
 import { useContent } from '@/context/ContentContext';
+import SEO from '@/components/SEO';
 
 interface BlogPost {
     _id: string;
@@ -38,6 +39,12 @@ const Blog = () => {
 
     return (
         <Layout>
+            <SEO 
+                title="Health & Wellness Blog | Traditional Food Stories | Mansara Foods"
+                description="Read articles and health tips from Mansara Foods. Discover benefits of traditional porridge mixes, black rice, millets, and healthy South Indian recipes."
+                keywords="health mix blog, traditional food articles Chennai, millet benefits, Mansara Foods stories"
+                url="https://www.mansarafoods.com/blog"
+            />
             <PageHero pageKey="blog">
                 <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/30">
                     {getContent('blog', 'tagline', 'Insights & Stories')}

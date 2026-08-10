@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Loader2, ArrowLeft, KeyRound, MessageSquare } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { forgotPassword, resetPassword } from '@/lib/api';
+import SEO from '@/components/SEO';
 
 const ForgotPassword: React.FC = () => {
     const [step, setStep] = useState<1 | 2>(1);
@@ -106,6 +107,7 @@ const ForgotPassword: React.FC = () => {
 
     return (
         <div className="min-h-[80vh] flex items-center justify-center bg-background px-4 py-12">
+            <SEO title="Forgot Password | Mansara Foods" noindex url="https://www.mansarafoods.com/forgot-password" />
             <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-xl shadow-lg border border-border">
                 <div className="text-center">
                     <img src={logo} alt="Mansara Foods" className="h-16 mx-auto mb-6" />
