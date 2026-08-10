@@ -12,8 +12,8 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({
-  title = "Mansara Foods | Healthy Porridge Mixes & Rice Podis from Chennai",
-  description = "Pure, traditional, and healthy porridge mixes, health mixes, and idly podis from Mansara Foods, Chennai. Nutritious food for all age groups in Tamil Nadu.",
+  title = "Mansara Foods | Healthy Porridge Mixes, Health Mix & Idly Podi | Chennai",
+  description = "Pure, traditional health mixes, porridge mixes, and idly podis from Mansara Foods, Chennai. Nutritious food for all ages, made the traditional way.",
   keywords = "health mix, porridge mix, urad dal health mix, black rice mix, idly podi, traditional food, healthy breakfast, Mansara Foods, Chennai, Tamil Nadu, organic food India",
   image = "/logo.png",
   url = "https://www.mansarafoods.com",
@@ -66,12 +66,15 @@ const SEO: React.FC<SEOProps> = ({
             "image": "https://www.mansarafoods.com/logo.png",
             "@id": "https://www.mansarafoods.com",
             "url": "https://www.mansarafoods.com",
+            // TODO (User): Replace with real phone number (e.g. "+91-9876543210")
             "telephone": "+91-XXXXXXXXXX",
             "address": {
               "@type": "PostalAddress",
+              // TODO (User): Replace with real street address
               "streetAddress": "Address details here",
               "addressLocality": "Chennai",
               "addressRegion": "TN",
+              // TODO (User): Replace with real postal code (e.g. "600001")
               "postalCode": "600XXX",
               "addressCountry": "IN"
             },
