@@ -10,7 +10,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "sync-fallback": "node ../\"mansara backend\"/scripts/generate_fallback.js"
+    "sync-fallback": "node ../\"mansara backend\"/scripts/generate_fallback.js",
+    "sync-sitemap": "node ../\"mansara backend\"/scripts/generate_sitemap.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

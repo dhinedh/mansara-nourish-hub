@@ -80,10 +80,10 @@ const Products: React.FC = () => {
   return (
     <Layout>
       <SEO 
-        title="Our Products | Best Health Mixes & Porridge Mixes"
-        description="Browse our full range of traditional health mixes, urad dal porridge mixes, and authentic idly podis. Handcrafted in Chennai with pure, natural ingredients."
-        keywords="buy health mix online, urad porridge mix Chennai, organic idly podi Tamil Nadu, traditional breakfast mixes India"
-        url="https://www.mansarafoods.com/products"
+        title="Health Mix & Idly Podi Catalog | Mansara Foods"
+        description="Explore pure traditional South Indian health mixes, sprouted urad porridge mixes & authentic idly podis from Mansara Foods Chennai. Order online."
+        keywords="buy health mix online, urad porridge mix Chennai, idly podi online, traditional breakfast mixes India"
+        url="/products"
       />
       <div className="min-h-screen bg-background">
         {/* Hero Banner */}

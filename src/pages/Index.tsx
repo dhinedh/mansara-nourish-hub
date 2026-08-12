@@ -199,6 +199,61 @@ const Index: React.FC = () => {
         </div>
       </section>
 
+      {/* Traditional Health Mix & Porridge Educational SEO Content Section */}
+      <section className="py-16 bg-card border-t border-border/40">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
+          <div className="max-w-4xl mx-auto space-y-8 text-foreground/90">
+            <div className="text-center">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-3">
+                <Leaf className="w-3.5 h-3.5" /> Traditional Wellness & Nutrition
+              </span>
+              <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
+                Authentic Traditional Health Mix & Porridge Mixes from Chennai
+              </h2>
+              <div className="w-20 h-1 bg-primary mx-auto rounded-full mt-4" />
+            </div>
+
+            <div className="prose prose-slate max-w-none space-y-6 text-sm sm:text-base leading-relaxed text-muted-foreground">
+              <p>
+                At <strong className="text-foreground">Mansara Foods</strong>, based in <strong className="text-foreground">Chennai, Tamil Nadu</strong>, we are dedicated to reviving authentic South Indian culinary heritage through our premium <strong className="text-foreground">health mix Chennai</strong> creations and wholesome <strong className="text-foreground">traditional porridge mix</strong> blends. Rooted in ancestral recipes, our products offer complete family nutrition without artificial preservatives, additives, or refined sugars.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-6 my-6 not-prose">
+                <div className="bg-secondary/40 p-5 rounded-2xl border border-border/50">
+                  <h3 className="font-heading text-lg font-bold text-foreground mb-2 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-primary" />
+                    Heritage Tamil Porridge Recipes
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    Our flagship Urad Health Mixes and Black Rice Porridge Mixes draw from centuries of Tamil culinary wisdom. Slowly roasted whole grains and sprouted lentils nourish the stomach, boost vitality, and support bone density for all age groups.
+                  </p>
+                </div>
+                <div className="bg-secondary/40 p-5 rounded-2xl border border-border/50">
+                  <h3 className="font-heading text-lg font-bold text-foreground mb-2 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-brand-orange" />
+                    Sprouted Millet Health Mix India
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    Packed with multi-grains, finger millet (ragi), kambu, and digestive spices, our <strong className="text-foreground">millet health mix India</strong> blends provide sustained energy for toddlers, growing children, working professionals, and seniors alike.
+                  </p>
+                </div>
+              </div>
+
+              <h3 className="font-heading text-xl font-bold text-foreground tracking-tight">
+                Buy Authentic Tamil Nadu Idly Podi Online
+              </h3>
+              <p>
+                In addition to our nourishing porridge mixes, Mansara Foods crafts aromatic rice mixes and classic <strong className="text-foreground">idly podi online</strong> formulations—including Curry Leaf Podi, Moringa Rice Mix, Coriander Aroma Mix, and Pirandai Power Mix. Prepared using traditional slow-roasting techniques, each batch preserves natural essential oils, vitamins, and minerals.
+              </p>
+
+              <p>
+                Whether you are looking for a wholesome daily morning breakfast drink or authentic South Indian side mixes delivered directly to your doorstep in Chennai and across India, Mansara Foods brings you pure, unadulterated taste and health.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <TrustStrip />
     </Layout>
   );

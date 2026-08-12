@@ -65,8 +65,9 @@ const Header: React.FC = () => {
         <Link to="/" className="flex items-center gap-2 transform transition-transform duration-300 hover:scale-105 ml-2">
           <img
             src={logo}
-            alt="Mansara Foods"
+            alt="Mansara Foods - Traditional Health Mix & Porridge Mixes"
             className="h-16 md:h-20 w-auto object-contain transition-all duration-300 hover:rotate-3"
+            loading="eager"
           />
         </Link>
 

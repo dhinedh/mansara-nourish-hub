@@ -16,11 +16,11 @@ const Footer: React.FC = () => {
           {/* Brand & Address */}
           <div>
             <div className="mb-6">
-              <img src={logo} alt="Mansara Foods" className="h-20 w-auto object-contain bg-brand-cream p-2 rounded-xl" />
+              <img src={logo} alt="Mansara Foods - Traditional Health Mix & Porridge Mixes Chennai" className="h-20 w-auto object-contain bg-brand-cream p-2 rounded-xl" loading="lazy" />
             </div>
             <address className="not-italic text-brand-cream/70 text-sm space-y-2">
               <p className="font-semibold text-brand-yellow">MansaraFoods Private Limited</p>
-              <p className="whitespace-pre-line">{settings?.address || 'Tamil Nadu, India'}</p>
+              <p className="whitespace-pre-line">{settings?.address || 'Chennai, Tamil Nadu, India'}</p>
               <p>Email: {settings?.contact_email || 'contact@mansarafoods.com'}</p>
               <p>Phone: {settings?.phone_number || '+91-883 888 7064'}</p>
             </address>
@@ -44,28 +44,28 @@ const Footer: React.FC = () => {
               <h3 className="font-heading font-semibold text-lg text-brand-yellow mb-4">Connect with Us</h3>
               <div className="flex gap-4">
                 <a
-                  href={settings?.facebook_url || '#'}
+                  href={settings?.facebook_url && settings.facebook_url !== '#' ? settings.facebook_url : 'https://www.facebook.com/mansarafoods'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Follow us on Facebook"
+                  aria-label="Follow Mansara Foods on Facebook"
                   className="w-12 h-12 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300"
                 >
                   <Facebook className="h-5 w-5" />
                 </a>
                 <a
-                  href={settings?.twitter_url || '#'}
+                  href={settings?.twitter_url && settings.twitter_url !== '#' ? settings.twitter_url : 'https://twitter.com/mansarafoods'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Follow us on Twitter"
+                  aria-label="Follow Mansara Foods on Twitter"
                   className="w-12 h-12 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300"
                 >
                   <Twitter className="h-5 w-5" />
                 </a>
                 <a
-                  href={settings?.instagram_url || '#'}
+                  href={settings?.instagram_url && settings.instagram_url !== '#' ? settings.instagram_url : 'https://www.instagram.com/mansarafoods'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Follow us on Instagram"
+                  aria-label="Follow Mansara Foods on Instagram"
                   className="w-12 h-12 rounded-full bg-brand-cream/10 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-blue transition-all duration-300"
                 >
                   <Instagram className="h-5 w-5" />
