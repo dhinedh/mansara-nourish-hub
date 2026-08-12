@@ -40,8 +40,8 @@ export const heroConfig: HeroConfig = {
             id: '1',
             image: '/hero-desktop.png',
             mobileImage: '/hero-mobile.png',
-            title: '',
-            subtitle: '',
+            title: 'Traditional Health Mixes & Porridge Mixes from Chennai',
+            subtitle: 'Nourish from Within with Pure Natural Ingredients',
             ctaText: 'Shop Now',
             ctaLink: '/products'
         },
@@ -49,8 +49,8 @@ export const heroConfig: HeroConfig = {
             id: '2',
             image: '/hero-desktop-2.png',
             mobileImage: '/hero-desktop.png',
-            title: '',
-            subtitle: '',
+            title: 'Authentic South Indian Porridge & Idly Podi Mixes',
+            subtitle: 'Handcrafted Heritage Recipes Delivered Worldwide',
             ctaText: 'View Combos',
             ctaLink: '/combos'
         }
