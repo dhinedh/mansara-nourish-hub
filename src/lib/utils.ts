@@ -71,3 +71,23 @@ export function getCloudinaryBlurUrl(url: string): string {
   return `${prefix}f_auto,q_auto,w_30,e_blur:1000/${rest}`;
 }
 
+export function isProductInStock(p: any): boolean {
+  if (!p) return false;
+  if (typeof p.stock === 'number' && p.stock > 0) return true;
+  if (Array.isArray(p.variants) && p.variants.length > 0) {
+    return p.variants.some((v: any) => (typeof v.stock === 'number' ? v.stock > 0 : true));
+  }
+  return p.stock === undefined || p.stock > 0;
+}
+
+export function sortInStockFirst<T>(items: T[]): T[] {
+  if (!Array.isArray(items)) return [];
+  return [...items].sort((a: any, b: any) => {
+    const aInStock = isProductInStock(a);
+    const bInStock = isProductInStock(b);
+    if (aInStock && !bInStock) return -1;
+    if (!aInStock && bInStock) return 1;
+    return 0;
+  });
+}
+

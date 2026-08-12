@@ -26,18 +26,20 @@ const ProductSkeleton: React.FC = () => (
   </div>
 );
 
+import { sortInStockFirst } from '@/lib/utils';
+
 const Index: React.FC = () => {
   const { products, isLoading } = useStore();
   const { getContent } = useContent();
 
-  // Memoize to prevent recalculation on every render
+  // Memoize to prevent recalculation on every render - in-stock products displayed first
   const featuredProducts = useMemo(() =>
-    products.filter(p => p.isFeatured && p.isActive).slice(0, 4),
+    sortInStockFirst(products.filter(p => p.isFeatured && p.isActive)).slice(0, 4),
     [products]
   );
 
   const newArrivals = useMemo(() =>
-    products.filter(p => p.slug === 'ragi-choco-malt' && p.isActive),
+    sortInStockFirst(products.filter(p => p.slug === 'ragi-choco-malt' && p.isActive)),
     [products]
   );
 

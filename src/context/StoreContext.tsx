@@ -7,6 +7,8 @@ import {
 } from '@/data/products';
 import { fallbackProducts } from '@/data/fallbackProducts';
 
+import { sortInStockFirst } from '@/lib/utils';
+
 // ========================================
 // REFACTORED STORE CONTEXT - API FIRST
 // ========================================
@@ -134,7 +136,7 @@ const CACHE_KEY = 'mansara-store-cache-v4'; // Bumped version
 // ========================================
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [products, setProducts] = useState<Product[]>(fallbackProducts as any);
+    const [products, setProducts] = useState<Product[]>(sortInStockFirst(fallbackProducts as any));
     const [combos, setCombos] = useState<Combo[]>(staticCombos as any);
     const [categories, setCategories] = useState<Category[]>(staticCategories as any);
     const [isLoading, setIsLoading] = useState(false);
@@ -146,7 +148,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (saved) {
             try {
                 const { products: p, combos: c, categories: cat } = JSON.parse(saved);
-                if (p) setProducts(p);
+                if (p) setProducts(sortInStockFirst(p));
                 if (c) setCombos(c);
                 if (cat) setCategories(cat);
                 setIsLoading(false);
@@ -230,13 +232,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 };
             });
 
-            setProducts(resolvedProducts);
+            const sortedProducts = sortInStockFirst(resolvedProducts);
+            setProducts(sortedProducts);
             setCombos(resolvedCombos);
             setCategories(mergedCategories);
 
             // Persist
             localStorage.setItem(CACHE_KEY, JSON.stringify({
-                products: resolvedProducts,
+                products: sortedProducts,
                 combos: resolvedCombos,
                 categories: mergedCategories
             }));

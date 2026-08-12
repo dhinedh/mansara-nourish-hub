@@ -22,12 +22,14 @@ const ProductSkeleton: React.FC = () => (
   </div>
 );
 
+import { sortInStockFirst } from '@/lib/utils';
+
 const Offers: React.FC = () => {
   const { products, isLoading } = useStore();
 
-  // Memoize filtering to prevent recalculation
+  // Memoize filtering and sort in-stock products to the top
   const offerProducts = useMemo(() =>
-    products.filter(p => p.isOffer && p.isActive),
+    sortInStockFirst(products.filter(p => p.isOffer && p.isActive)),
     [products]
   );
 

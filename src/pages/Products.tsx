@@ -7,7 +7,7 @@ import PageHero from '@/components/layout/PageHero';
 import { useContent } from '@/context/ContentContext';
 import SEO from '@/components/SEO';
 import ProgressiveImage from '@/components/ui/ProgressiveImage';
-import { optimizeImage } from '@/lib/utils';
+import { optimizeImage, sortInStockFirst } from '@/lib/utils';
 
 const Products: React.FC = () => {
   const { products, isLoading, categories: storeCategories } = useStore();
@@ -74,7 +74,8 @@ const Products: React.FC = () => {
       );
     }
 
-    setFilteredProducts(result);
+    // Always sort in-stock products first, pushing out-of-stock items to the bottom
+    setFilteredProducts(sortInStockFirst(result));
   }, [selectedCategory, products, searchQuery, storeCategories]);
 
   return (
