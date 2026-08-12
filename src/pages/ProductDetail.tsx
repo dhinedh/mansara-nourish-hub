@@ -765,7 +765,7 @@ const ProductDetail: React.FC = () => {
               <div className="flex gap-2 flex-wrap">
                 {reviewForm.images.map((img, idx) => (
                   <div key={idx} className="relative w-16 h-16">
-                    <img src={img} className="w-full h-full object-cover rounded" />
+                    <img src={img} alt={`${product.name} gallery image ${idx + 1}`} className="w-full h-full object-cover rounded" />
                     <button
                       onClick={() => setReviewForm(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))}
                       className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 w-4 h-4 flex items-center justify-center text-[10px]"

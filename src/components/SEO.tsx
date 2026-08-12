@@ -97,9 +97,22 @@ const SEO: React.FC<SEOProps> = ({
     }
   };
 
+  // WebSite Schema (Enables Google Sitelinks Search Box eligibility)
+  const webSiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Mansara Foods",
+    "url": "https://www.mansarafoods.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.mansarafoods.com/products?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   const schemasToRender = schema
     ? (Array.isArray(schema) ? schema : [schema])
-    : [organizationSchema, localBusinessSchema];
+    : [organizationSchema, localBusinessSchema, webSiteSchema];
 
   return (
     <Helmet>

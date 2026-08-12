@@ -55,6 +55,37 @@ const Contact: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Are Mansara Foods products suitable for babies and toddlers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, our sprouted Nutrimix and Urad Health Mixes are made with 100% natural, chemical-free sprouted grains, perfect for weaning babies (6+ months), toddlers, and growing children."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do you ship Mansara Foods products internationally?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! We ship export-certified South Indian health mixes and idly podis worldwide including USA, UK, Canada, UAE, Singapore, and Europe."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are your health mixes suitable for diabetic patients?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Our sprouted Urad Health Mix - Millet Magic and Black Rice Delight contain zero added sugars and high soluble fiber, providing low GI breakfast options suitable for diabetics and seniors."
+        }
+      }
+    ]
+  };
+
   return (
     <Layout>
       <SEO 
@@ -62,6 +93,7 @@ const Contact: React.FC = () => {
         description="Have questions about our health mixes? Get in touch with Mansara Foods Chennai. We're here to help with orders, product info, and healthy eating tips. Call or WhatsApp us today."
         keywords="contact Mansara Foods, health mix Chennai customer care, buy health mix online Tamil Nadu help, traditional food enquiry"
         url="https://www.mansarafoods.com/contact"
+        schema={faqSchema}
       />
       {/* Hero */}
       <PageHero pageKey="contact">
