@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { cn, getCloudinaryBlurUrl } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+
+const DEFAULT_HARDCODED_IMAGE = '/products/urad-classic-front.jpg';
 
 interface ProgressiveImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     src: string;
@@ -7,20 +9,16 @@ interface ProgressiveImageProps extends React.ImgHTMLAttributes<HTMLImageElement
     fallback?: string;
     alt: string;
     className?: string;
-    /** Use "eager" only for above-the-fold images (e.g. first hero slide) */
     loading?: 'lazy' | 'eager';
-    /** Explicit intrinsic width — prevents CLS; CSS sizing still controlled by className */
     width?: number;
-    /** Explicit intrinsic height — prevents CLS; CSS sizing still controlled by className */
     height?: number;
-    /** HTML fetchpriority attribute (lowercase) — use "high" for LCP images */
     fetchpriority?: 'high' | 'low' | 'auto';
 }
 
 const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
     src,
-    placeholder = '/placeholder.svg',
-    fallback = 'https://placehold.co/800x800/f5f5f5/999999?text=Product',
+    placeholder,
+    fallback = DEFAULT_HARDCODED_IMAGE,
     alt,
     className,
     loading = 'lazy',
@@ -28,58 +26,17 @@ const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
     height = 800,
     ...props
 }) => {
-    const blurPlaceholder = src && src.includes('cloudinary.com') ? getCloudinaryBlurUrl(src) : placeholder;
-
-    const [imgSrc, setImgSrc] = useState<string>(blurPlaceholder);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [hasError, setHasError] = useState<boolean>(false);
+    // Hardcode valid product image if src is missing, empty, or placeholder.svg
+    const validSrc = (!src || src.includes('placeholder.svg')) ? DEFAULT_HARDCODED_IMAGE : src;
+    const [imgSrc, setImgSrc] = useState<string>(validSrc);
 
     useEffect(() => {
-        setIsLoading(true);
-        setHasError(false);
-        const currentBlur = src && src.includes('cloudinary.com') ? getCloudinaryBlurUrl(src) : placeholder;
-        setImgSrc(currentBlur);
-
-        if (!src) {
-            setHasError(true);
-            setImgSrc(fallback);
-            setIsLoading(false);
-            return;
-        }
-
-        const img = new Image();
-        img.src = src;
-
-        img.onload = () => {
-            setImgSrc(src);
-            setIsLoading(false);
-        };
-
-        img.onerror = () => {
-            setHasError(true);
-            setImgSrc(fallback);
-            setIsLoading(false);
-        };
-
-        return () => {
-            img.onload = null;
-            img.onerror = null;
-        };
-    }, [src, placeholder, fallback]);
+        const nextSrc = (!src || src.includes('placeholder.svg')) ? DEFAULT_HARDCODED_IMAGE : src;
+        setImgSrc(nextSrc);
+    }, [src]);
 
     return (
         <div className={cn("relative overflow-hidden w-full h-full bg-slate-100", className)}>
-            {/* Low-quality blur background while high-res image loads */}
-            {isLoading && blurPlaceholder && blurPlaceholder !== placeholder && (
-                <img
-                    src={blurPlaceholder}
-                    alt=""
-                    aria-hidden="true"
-                    className="absolute inset-0 w-full h-full object-cover filter blur-md scale-105 opacity-90 transition-opacity duration-300"
-                />
-            )}
-
-            {/* High-res image smoothly fading in */}
             <img
                 {...props}
                 src={imgSrc}
@@ -88,19 +45,16 @@ const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
                 height={height}
                 loading={loading}
                 decoding="async"
+                onError={() => {
+                    if (imgSrc !== DEFAULT_HARDCODED_IMAGE) {
+                        setImgSrc(DEFAULT_HARDCODED_IMAGE);
+                    }
+                }}
                 className={cn(
-                    "w-full h-full object-cover transition-opacity duration-500",
-                    isLoading && blurPlaceholder !== placeholder ? "opacity-0" : "opacity-100",
+                    "w-full h-full object-cover transition-all duration-300",
                     className
                 )}
             />
-
-            {/* Spinner fallback if no blur placeholder available */}
-            {isLoading && (!blurPlaceholder || blurPlaceholder === placeholder) && (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-100/50">
-                    <div className="w-8 h-8 border-4 border-slate-200 border-t-primary rounded-full animate-spin" />
-                </div>
-            )}
         </div>
     );
 };

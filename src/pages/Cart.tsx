@@ -159,7 +159,6 @@ const Cart: React.FC = () => {
                         src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover"
-                        placeholder="/placeholder.svg"
                       />
                     </div>
 

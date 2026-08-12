@@ -375,7 +375,6 @@ const ProductDetail: React.FC = () => {
                     src={optimizeImage(selectedImage || product.image, 800)}
                     alt={product.name}
                     className="w-full h-full object-cover"
-                    placeholder="/placeholder.svg"
                     width={800}
                     height={800}
                     loading="eager"
@@ -395,7 +394,6 @@ const ProductDetail: React.FC = () => {
                           src={optimizeImage(img, 160)}
                           alt={`View ${idx + 1}`}
                           className="w-full h-full object-cover"
-                          placeholder="/placeholder.svg"
                           width={160}
                           height={160}
                           loading="lazy"
