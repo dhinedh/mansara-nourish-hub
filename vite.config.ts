@@ -21,11 +21,12 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Core React runtime — cached independently from all other code
+          // Core React runtime & Helmet — cached independently from feature code
           if (id.includes('node_modules/react/') ||
               id.includes('node_modules/react-dom/') ||
               id.includes('node_modules/react-router-dom/') ||
               id.includes('node_modules/react-router/') ||
+              id.includes('node_modules/react-helmet-async/') ||
               id.includes('node_modules/scheduler/')) {
             return 'vendor-react';
           }
@@ -33,10 +34,6 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/@radix-ui/') ||
               id.includes('node_modules/lucide-react/')) {
             return 'vendor-ui';
-          }
-          // React Helmet for SSR/SEO
-          if (id.includes('node_modules/react-helmet-async/')) {
-            return 'vendor-helmet';
           }
           // Networking & toast — rarely changes
           if (id.includes('node_modules/axios/') ||

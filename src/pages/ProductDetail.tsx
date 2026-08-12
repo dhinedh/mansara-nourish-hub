@@ -613,6 +613,27 @@ const ProductDetail: React.FC = () => {
                   </section>
                 )}
 
+                {/* Related Health & Nutrition Guides */}
+                <section className="bg-brand-cream/30 p-5 rounded-xl border border-brand-orange/20 my-4">
+                  <h3 className="font-heading font-bold text-base mb-2" style={{ color: '#1F2A7C' }}>
+                    Related Health & Nutrition Guides
+                  </h3>
+                  <div className="flex flex-col gap-2 text-sm text-brand-blue">
+                    <Link to="/blog/health-mix-for-babies-and-kids" className="hover:underline flex items-center gap-1.5 font-medium text-slate-700 hover:text-primary">
+                      • Sathu Maavu & Sprouted Health Mix for Babies, Toddlers & Nursing Mothers
+                    </Link>
+                    <Link to="/blog/health-mix-for-weight-loss" className="hover:underline flex items-center gap-1.5 font-medium text-slate-700 hover:text-primary">
+                      • High Fiber Porridge Mixes for Natural Weight Management
+                    </Link>
+                    <Link to="/blog/millet-mix-for-diabetics" className="hover:underline flex items-center gap-1.5 font-medium text-slate-700 hover:text-primary">
+                      • Low GI Millet Porridge & Health Mixes for Seniors and Diabetic Support
+                    </Link>
+                    <Link to="/blog/international-shipping-south-indian-food" className="hover:underline flex items-center gap-1.5 font-medium text-slate-700 hover:text-primary">
+                      • Buying Sathu Maavu & Idly Podi Online in USA & Worldwide
+                    </Link>
+                  </div>
+                </section>
+
                 <div className="p-4 rounded-lg mt-4" style={{ backgroundColor: '#FFF2CC' }}>
                   <h3 className="font-semibold mb-2" style={{ color: '#1F2A7C' }}>
                     The MANSARA Promise

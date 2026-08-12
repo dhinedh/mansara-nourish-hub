@@ -7,35 +7,45 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import SEO from '@/components/SEO';
 
+import { blogPosts as fallbackBlogPosts } from '@/data/blogPosts';
+
 interface BlogPost {
     _id: string;
     title: string;
     excerpt: string;
     content: string;
-    image: string;
-    images: string[];
-    video: string;
+    image?: string;
+    featuredImage?: string;
+    images?: string[];
+    video?: string;
     slug?: string;
     createdAt: string;
     author: string;
+    relatedProducts?: { name: string; slug: string; image: string; price: number }[];
 }
 
 const BlogDetail = () => {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
-    const [post, setPost] = useState<BlogPost | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    
+    const fallbackMatch = fallbackBlogPosts.find(p => p.slug === slug);
+    const [post, setPost] = useState<BlogPost | null>(fallbackMatch as any || null);
+    const [isLoading, setIsLoading] = useState(!fallbackMatch);
 
     useEffect(() => {
         const loadPost = async () => {
             if (!slug) return;
             try {
-                const data = await fetchBlogPostById(slug); // slug works because we updated crudFactory
-                setPost(data);
+                const data = await fetchBlogPostById(slug);
+                if (data && data.title) {
+                    setPost(data);
+                }
             } catch (error) {
-                console.error('Failed to load blog post:', error);
-                toast.error("Could not load the article");
-                navigate('/blog');
+                console.log('[Blog] API load notice - relying on static article fallback');
+                if (!fallbackMatch) {
+                    toast.error("Could not load the article");
+                    navigate('/blog');
+                }
             } finally {
                 setIsLoading(false);
             }
@@ -169,6 +179,22 @@ const BlogDetail = () => {
                         className="prose prose-lg md:prose-xl max-w-none prose-headings:font-heading prose-headings:font-bold prose-p:text-slate-600 prose-img:rounded-3xl prose-img:shadow-lg prose-a:text-primary hover:prose-a:text-primary/80"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                     />
+
+                    {/* Related Recommended Products */}
+                    {post.relatedProducts && post.relatedProducts.length > 0 && (
+                        <div className="mt-12 p-6 bg-brand-cream/40 rounded-2xl border border-brand-orange/20">
+                            <h3 className="text-xl font-bold font-heading mb-4 text-foreground">Recommended Products Featured in This Article</h3>
+                            <div className="grid sm:grid-cols-3 gap-4">
+                                {post.relatedProducts.map((rel, idx) => (
+                                    <Link key={idx} to={`/product/${rel.slug}`} className="bg-white p-4 rounded-xl border hover:shadow-md transition-all flex flex-col items-center text-center group">
+                                        <img src={rel.image} alt={rel.name} className="w-20 h-20 object-cover rounded-lg mb-2 group-hover:scale-105 transition-transform" />
+                                        <h4 className="font-semibold text-sm text-foreground mb-1 group-hover:text-primary">{rel.name}</h4>
+                                        <span className="text-xs font-bold text-brand-orange">₹{rel.price}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Gallery */}
                     {post.images && post.images.length > 0 && (

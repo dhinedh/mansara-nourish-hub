@@ -7,11 +7,14 @@ import { Calendar, User, ArrowRight, Loader2 } from 'lucide-react';
 import { useContent } from '@/context/ContentContext';
 import SEO from '@/components/SEO';
 
+import { blogPosts as fallbackBlogPosts } from '@/data/blogPosts';
+
 interface BlogPost {
     _id: string;
     title: string;
     excerpt: string;
-    image: string;
+    image?: string;
+    featuredImage?: string;
     slug?: string;
     createdAt: string;
     author: string;
@@ -19,17 +22,18 @@ interface BlogPost {
 
 const Blog = () => {
     const { getContent } = useContent();
-    const [posts, setPosts] = useState<BlogPost[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [posts, setPosts] = useState<BlogPost[]>(fallbackBlogPosts as any);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const loadPosts = async () => {
             try {
                 const data = await fetchBlogPosts();
-                // Check if data is array (backend might return list directly)
-                setPosts(Array.isArray(data) ? data : []);
+                if (Array.isArray(data) && data.length > 0) {
+                    setPosts(data);
+                }
             } catch (error) {
-                console.error('Failed to load blog posts:', error);
+                console.error('Failed to load live blog posts, using fallback:', error);
             } finally {
                 setIsLoading(false);
             }

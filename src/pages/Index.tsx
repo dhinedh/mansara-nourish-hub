@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf, Sparkles } from 'lucide-react';
+import { ArrowRight, Leaf, Sparkles, Heart, Activity, ShieldCheck, Globe } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/ProductCard';
@@ -133,6 +133,87 @@ const Index: React.FC = () => {
               </div>
             </>
           ) : null}
+        </div>
+      </section>
+
+      {/* Audience Segment Section */}
+      <section className="py-12 sm:py-16 bg-brand-cream/40 border-y border-border/40">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-3">
+              Tailored For Your Wellness
+            </span>
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-foreground">
+              Nutrition Crafted for Every Stage of Life
+            </h2>
+            <div className="w-16 h-1 bg-primary mx-auto rounded-full mt-3" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Card 1: Mothers & Kids */}
+            <div className="bg-card p-6 rounded-2xl border border-border shadow-card hover:shadow-hover transition-all duration-300 flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Heart className="w-6 h-6" />
+                </div>
+                <h3 className="font-heading font-bold text-lg text-foreground mb-2">Mothers & Kids</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-4">
+                  Sprouted sathu maavu & multi-grain porridges for infant weight gain, toddler immunity & lactating mothers.
+                </p>
+              </div>
+              <Link to="/blog/health-mix-for-babies-and-kids" className="inline-flex items-center text-xs font-bold text-primary hover:underline">
+                Explore Baby & Kids Guide <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Link>
+            </div>
+
+            {/* Card 2: Fitness & Weight Loss */}
+            <div className="bg-card p-6 rounded-2xl border border-border shadow-card hover:shadow-hover transition-all duration-300 flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Activity className="w-6 h-6" />
+                </div>
+                <h3 className="font-heading font-bold text-lg text-foreground mb-2">Fitness & Weight Loss</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-4">
+                  High-fiber Karuppu Kavuni black rice & protein-rich sprouted urad mixes to sustain fat loss and active metabolism.
+                </p>
+              </div>
+              <Link to="/blog/health-mix-for-weight-loss" className="inline-flex items-center text-xs font-bold text-primary hover:underline">
+                Read Weight Loss Guide <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Link>
+            </div>
+
+            {/* Card 3: Diabetic & Senior Care */}
+            <div className="bg-card p-6 rounded-2xl border border-border shadow-card hover:shadow-hover transition-all duration-300 flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <h3 className="font-heading font-bold text-lg text-foreground mb-2">Diabetic & Senior Care</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-4">
+                  Low GI sprouted millets & whole urad dal for natural blood sugar stability and gentle digestive comfort.
+                </p>
+              </div>
+              <Link to="/blog/millet-mix-for-diabetics" className="inline-flex items-center text-xs font-bold text-primary hover:underline">
+                Read Senior Care Guide <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Link>
+            </div>
+
+            {/* Card 4: NRI & Global Tamil Diaspora */}
+            <div className="bg-card p-6 rounded-2xl border border-border shadow-card hover:shadow-hover transition-all duration-300 flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Globe className="w-6 h-6" />
+                </div>
+                <h3 className="font-heading font-bold text-lg text-foreground mb-2">NRI & Global Diaspora</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-4">
+                  Freshly roasted, export-certified South Indian health mixes & idly podis delivered directly to your doorstep worldwide.
+                </p>
+              </div>
+              <Link to="/blog/international-shipping-south-indian-food" className="inline-flex items-center text-xs font-bold text-primary hover:underline">
+                View Export Shipping Info <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

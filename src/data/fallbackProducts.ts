@@ -1,9 +1,8 @@
 /**
  * FALLBACK FEATURED PRODUCTS DATA
- * Exact live JSON snapshot from API / MongoDB database.
- * Used as initial starting state for instant 0ms homepage rendering
- * before live API fetch replaces it in background.
- * Updated: 2026-08-12T06:00:17.389Z
+ * Exact live JSON snapshot from API / MongoDB database with SEO-enriched long-tail descriptions.
+ * Used as initial starting state for instant 0ms homepage rendering.
+ * Updated: 2026-08-12T06:18:50.758Z
  */
 import { Product } from './products';
 
@@ -23,7 +22,7 @@ export const fallbackProducts: Product[] = [
       "/products/urad-classic-back.jpg",
       "/products/urad-classic-side.jpg"
     ],
-    "description": "Mansara Classic Urad Health Mix is a time-tested nourishing blend made primarily from premium black gram (Urad Dal).",
+    "description": "Mansara Classic Urad Health Mix is a time-tested nourishing blend made primarily from premium black gram (Urad Dal). A wholesome, traditional sprouted black gram (urad dal) porridge mix designed for daily nourishment, bone strength, and digestive vitality. Highly recommended as a traditional health mix for lactating mothers and elderly family members in Chennai, it is slow-roasted in small batches with zero added sugar or artificial flavorings.",
     "ingredients": "Black Gram (Urad Dal), Samba Wheat, Fried Gram, Cardamom.",
     "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
     "storage": "Store in a cool, dry place.",
@@ -77,7 +76,7 @@ export const fallbackProducts: Product[] = [
       "/products/urad-salt-pepper-back.jpg",
       "/products/urad-salt-pepper-side.jpg"
     ],
-    "description": "Mansara Urad Health Mix – Salt n Pepper is a savoury twist on the traditional ulunthankanji.",
+    "description": "Mansara Urad Health Mix – Salt n Pepper is a savoury twist on the traditional ulunthankanji. A wholesome, traditional sprouted black gram (urad dal) porridge mix designed for daily nourishment, bone strength, and digestive vitality. Highly recommended as a traditional health mix for lactating mothers and elderly family members in Chennai, it is slow-roasted in small batches with zero added sugar or artificial flavorings.",
     "ingredients": "Black Gram (60.9%), Kavuni Rice (30%), Black Pepper (4.55%), Cumin Seeds (2.73%), Salt (1.82%).",
     "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously to avoid lumps, and serve warm.",
     "storage": "Store in a cool, dry place.",
@@ -131,7 +130,7 @@ export const fallbackProducts: Product[] = [
       "/products/urad-millet-magic-back.jpg",
       "/products/urad-millet-magic-side.jpg"
     ],
-    "description": "Mansara Millet Magic Urad Health Mix brings together the muscle-strengthening benefits of black gram with the mineral-rich goodness of diverse millets.",
+    "description": "Mansara Millet Magic Urad Health Mix brings together the muscle-strengthening benefits of black gram with the mineral-rich goodness of diverse millets. A wholesome, traditional sprouted black gram (urad dal) porridge mix designed for daily nourishment, bone strength, and digestive vitality. Highly recommended as a traditional health mix for lactating mothers and elderly family members in Chennai, it is slow-roasted in small batches with zero added sugar or artificial flavorings.",
     "ingredients": "Black Gram, Finger Millet, Foxtail Millet, Pearl Millet, Little Millet, Kodo Millet, Barnyard Millet, Jowar, Bajra, Spices.",
     "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
     "storage": "Store in a cool, dry place.",
@@ -294,7 +293,7 @@ export const fallbackProducts: Product[] = [
       "/products/MilletFusionIdlyPodi.PNG",
       "/products/MilletFusionIdlyPodiLabel.PNG"
     ],
-    "description": "A nutritious millet-enriched idly podi combining lentils, millets, and spices for a healthy traditional side dish.",
+    "description": "A nutritious millet-enriched idly podi combining lentils, millets, and spices for a healthy traditional side dish. An authentic, no preservative idly podi online favorite from Chennai, prepared with traditional slow-roasted lentils, sesame seeds, red chillies, and digestive herbs. Perfect as a flavorful gunpowder podi home delivery side dish for idlis, dosas, and warm rice tossed in pure ghee or gingelly oil.",
     "ingredients": "Black Gram (கருப்பு உளுந்து), Bengal Gram (கடலைப்பருப்பு), Green Gram (பாசிப்பருப்பு), Fried Gram (வருத்தக்கடலை), Foxtail Millet (தினை), Little Millet (சாமை), Barnyard Millet (குதிரைவாலி), Kodo Millet (வரகு), Dry Red Chilli (காய்ந்த மிளகாய்), Kashmiri Chilli (காஷ்மீரி மிளகாய்), Toor Dal (துவரம் பருப்பு), Salt (உப்பு), Black Pepper (மிளகு), Asafoetida (பெருங்காயம்)",
     "howToUse": "Mix with gingelly oil or ghee and serve with idly, dosa, chapati, or poori.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
@@ -339,7 +338,7 @@ export const fallbackProducts: Product[] = [
     "images": [
       "/product-combo-5mixes.jpg"
     ],
-    "description": "Experience the complete range of Mansara Foods premium porridge mixes. This pack contains all 5 of our signature blends- Urad Porridge Mix (Classic, Premium, Salt & Pepper, Millet Magic) and Black Rice Delight.",
+    "description": "Experience the complete range of Mansara Foods premium porridge mixes. This pack contains all 5 of our signature blends- Urad Porridge Mix (Classic, Premium, Salt & Pepper, Millet Magic) and Black Rice Delight. Authentic South Indian health mix product prepared in Chennai using traditional slow-roasting techniques with zero preservatives, artificial colors, or chemical additives for complete family wellness.",
     "ingredients": "",
     "howToUse": "",
     "storage": "",
@@ -372,7 +371,7 @@ export const fallbackProducts: Product[] = [
       "/products/RagiChocoMalt.PNG",
       "/products/RagiChocoMaltLabel.PNG"
     ],
-    "description": "Mansara Ragi Choco Malt is a nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa.",
+    "description": "Mansara Ragi Choco Malt is a nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa. A delicious, no sugar health drink for kids combining organic finger millet (ragi) with natural cocoa and traditional spices. Packed with dietary calcium, plant protein, and iron, it serves as a nutrient-rich millet health mix for children and teenagers seeking healthy morning stamina.",
     "ingredients": "Ragi (Finger Millet), Brown Sugar, Cocoa Powder, Cashew Nuts, Almonds, Dry Ginger, Cardamom, Saffron.",
     "howToUse": "Mix 2 tbsp (approx. 25g) with milk or water. Cook on low flame with continuous stirring until smooth.",
     "storage": "Store in a cool, dry place. Keep the container tightly closed.",
@@ -418,7 +417,7 @@ export const fallbackProducts: Product[] = [
       "/products/NutriMix.PNG",
       "/products/NutriMix_Label.PNG"
     ],
-    "description": "A traditional 27-ingredient multi-grain health mix designed for complete family nutrition and strength.",
+    "description": "A traditional 27-ingredient multi-grain health mix designed for complete family nutrition and strength. A traditional 27 ingredient multigrain health mix formulated according to authentic South Indian nutritional wisdom. Packed with sprouted millets, whole pulses, and premium nuts, this health mix for lactating mothers in Tamil Nadu and growing infants provides essential iron, bio-available calcium, and plant proteins. Prepared with zero preservatives, artificial colors, or chemical additives, it offers a complete, easy-to-digest daily breakfast for toddlers, active children, and adults.",
     "ingredients": "Ragi, Kollu, Green Gram, Badam, Barley, Red Rice, Samba Wheat, Cashew, Kambu, Kaikuthal Rice, Kavuni Rice, Javvarisi, Yellow Cholam, White Cholam, Rajma, Black Gram, Groundnut, Moongil Arisi, Kaatu Yaanai Rice, Mappillai Samba, Fried Gram (Udacha Kadalai), Thinai, Saamai, Guthirai Vaali, Varagu, Dry Ginger, Cardamom",
     "howToUse": "Mix 2 tbsp with water, cook on low flame with stirring till thick. Add milk/salt/jaggery as preferred. Serve warm.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
@@ -464,7 +463,7 @@ export const fallbackProducts: Product[] = [
       "/products/TraditionalIdlyPodi.PNG",
       "/products/TraditionalIdlyPodiLabel.PNG"
     ],
-    "description": "A classic South Indian idly podi made from roasted lentils and spices, crafted to enhance the taste of idly and dosa.",
+    "description": "A classic South Indian idly podi made from roasted lentils and spices, crafted to enhance the taste of idly and dosa. An authentic, no preservative idly podi online favorite from Chennai, prepared with traditional slow-roasted lentils, sesame seeds, red chillies, and digestive herbs. Perfect as a flavorful gunpowder podi home delivery side dish for idlis, dosas, and warm rice tossed in pure ghee or gingelly oil.",
     "ingredients": "Black Gram (கருப்பு உளுந்து), Bengal Gram (கடலைப்பருப்பு), Green Gram (பாசிப்பருப்பு), Fried Gram (வருத்தக்கடலை), Dry Red Chilli (காய்ந்த மிளகாய்), Kashmiri Chilli (காஷ்மீரி மிளகாய்), Toor Dal (துவரம் பருப்பு), Salt (உப்பு), Black Pepper (மிளகு), Asafoetida (பெருங்காயம்)",
     "howToUse": "Mix required quantity with gingelly oil or ghee. Best served with idly, dosa, uthappam, or chapati.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
@@ -510,7 +509,7 @@ export const fallbackProducts: Product[] = [
       "/products/HomeStyleParuppu.PNG",
       "/products/HomeStyleParuppuLabel.PNG"
     ],
-    "description": "A homestyle protein-rich paruppu podi made from roasted dals and spices, perfect for mixing with hot rice and ghee.",
+    "description": "A homestyle protein-rich paruppu podi made from roasted dals and spices, perfect for mixing with hot rice and ghee. An authentic, no preservative idly podi online favorite from Chennai, prepared with traditional slow-roasted lentils, sesame seeds, red chillies, and digestive herbs. Perfect as a flavorful gunpowder podi home delivery side dish for idlis, dosas, and warm rice tossed in pure ghee or gingelly oil.",
     "ingredients": "Toor Daal, Bengal Gram, Green Gram, Fried Gram (Udacha Kadalai), Cumin Seeds, Salt, Pepper, Dry Chilli, Kashmiri Chilli, Asafoetida",
     "howToUse": "Mix 1–2 tsp with hot rice and ghee or gingelly oil. Also pairs with idly and dosa.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
@@ -556,7 +555,7 @@ export const fallbackProducts: Product[] = [
       "/products/KaruveppillaiSpecial.PNG",
       "/products/KaruveppillaiSpecialLabel.PNG"
     ],
-    "description": "A flavourful curry leaf rice mix blended with lentils and spices for a fragrant traditional meal.",
+    "description": "A flavourful curry leaf rice mix blended with lentils and spices for a fragrant traditional meal. Authentic South Indian health mix product prepared in Chennai using traditional slow-roasting techniques with zero preservatives, artificial colors, or chemical additives for complete family wellness.",
     "ingredients": "Toor Dhal, Urad Dhal, Pepper, Jeera, Salt, Hing, Curry Leaves, Red Chilli, Tamarind",
     "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
@@ -602,7 +601,7 @@ export const fallbackProducts: Product[] = [
       "/products/KothamalliAroma.PNG",
       "/products/KothamalliAromaLabel.PNG"
     ],
-    "description": "A fragrant coriander-based rice mix with roasted lentils and spices for quick, tasty meals.",
+    "description": "A fragrant coriander-based rice mix with roasted lentils and spices for quick, tasty meals. Authentic South Indian health mix product prepared in Chennai using traditional slow-roasting techniques with zero preservatives, artificial colors, or chemical additives for complete family wellness.",
     "ingredients": "Dhaniya (Coriander), Urad Dhal, Jeera, Red Chilli, Salt, Asafoetida",
     "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
@@ -648,7 +647,7 @@ export const fallbackProducts: Product[] = [
       "/products/MurungaiVital.PNG",
       "/products/MurungaiVitalLabel.PNG"
     ],
-    "description": "A nutritious moringa leaf rice mix blended with lentils and spices for daily wellness.",
+    "description": "A nutritious moringa leaf rice mix blended with lentils and spices for daily wellness. Authentic South Indian health mix product prepared in Chennai using traditional slow-roasting techniques with zero preservatives, artificial colors, or chemical additives for complete family wellness.",
     "ingredients": "Murungai Keerai (Moringa Leaves), Gram Dhal, Urad Dhal, Tamarind, Salt, Asafoetida",
     "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
@@ -694,7 +693,7 @@ export const fallbackProducts: Product[] = [
       "/products/PirandaiPower.PNG",
       "/products/PirandaiPowerLabel.PNG"
     ],
-    "description": "A traditional pirandai-based rice mix known for its distinctive taste and digestive benefits.",
+    "description": "A traditional pirandai-based rice mix known for its distinctive taste and digestive benefits. Authentic South Indian health mix product prepared in Chennai using traditional slow-roasting techniques with zero preservatives, artificial colors, or chemical additives for complete family wellness.",
     "ingredients": "Pirandai (Adamant Creeper), Tamarind, Gram Dhal, Urad Dhal, Jeera, Pepper, Salt, Asafoetida",
     "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
     "storage": "Store in a cool, dry place. Keep airtight after opening.",
@@ -739,7 +738,7 @@ export const fallbackProducts: Product[] = [
     "images": [
       "/products/urad-classic-front.jpg"
     ],
-    "description": "",
+    "description": "A wholesome, traditional sprouted black gram (urad dal) porridge mix designed for daily nourishment, bone strength, and digestive vitality. Highly recommended as a traditional health mix for lactating mothers and elderly family members in Chennai, it is slow-roasted in small batches with zero added sugar or artificial flavorings.",
     "ingredients": "",
     "howToUse": "",
     "storage": "",
@@ -771,7 +770,7 @@ export const fallbackProducts: Product[] = [
     "images": [
       "/products/urad-salt-pepper-front.jpg"
     ],
-    "description": "",
+    "description": "A wholesome, traditional sprouted black gram (urad dal) porridge mix designed for daily nourishment, bone strength, and digestive vitality. Highly recommended as a traditional health mix for lactating mothers and elderly family members in Chennai, it is slow-roasted in small batches with zero added sugar or artificial flavorings.",
     "ingredients": "",
     "howToUse": "",
     "storage": "",
@@ -803,7 +802,7 @@ export const fallbackProducts: Product[] = [
     "images": [
       "/products/urad-millet-magic-front.jpg"
     ],
-    "description": "",
+    "description": "A wholesome, traditional sprouted black gram (urad dal) porridge mix designed for daily nourishment, bone strength, and digestive vitality. Highly recommended as a traditional health mix for lactating mothers and elderly family members in Chennai, it is slow-roasted in small batches with zero added sugar or artificial flavorings.",
     "ingredients": "",
     "howToUse": "",
     "storage": "",
@@ -835,7 +834,7 @@ export const fallbackProducts: Product[] = [
     "images": [
       "/products/urad-premium-front.jpg"
     ],
-    "description": "",
+    "description": "A wholesome, traditional sprouted black gram (urad dal) porridge mix designed for daily nourishment, bone strength, and digestive vitality. Highly recommended as a traditional health mix for lactating mothers and elderly family members in Chennai, it is slow-roasted in small batches with zero added sugar or artificial flavorings.",
     "ingredients": "",
     "howToUse": "",
     "storage": "",
@@ -867,7 +866,7 @@ export const fallbackProducts: Product[] = [
     "images": [
       "/products/black-rice-delight-front.jpg"
     ],
-    "description": "",
+    "description": "Prepared from ancient Karuppu Kavuni (black rice), this high fiber porridge mix for weight loss and anti-inflammatory wellness is rich in natural anthocyanins, dietary iron, and essential antioxidants. A popular low GI breakfast option in India, it stabilizes blood sugar levels while nourishing digestive health for elders and fitness enthusiasts alike.",
     "ingredients": "",
     "howToUse": "",
     "storage": "",

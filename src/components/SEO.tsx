@@ -74,6 +74,8 @@ const SEO: React.FC<SEOProps> = ({
     "telephone": "+91-8838887064",
     "email": "contact@mansarafoods.com",
     "priceRange": "₹70 - ₹500",
+    "description": "Authentic health mix shop Chennai and traditional food store offering porridge mix delivery Tamil Nadu, idly podi online, and sprouted multigrain wellness products.",
+    "areaServed": ["Chennai", "Tamil Nadu", "India", "Worldwide"],
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Chennai",
