@@ -9,7 +9,7 @@ import { useStore } from '@/context/StoreContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { fetchProductReviews, checkReviewEligibility, createReview, notifyMe, deleteReview } from '@/lib/api';
-import { calculateUnitPrice } from '@/lib/utils';
+import { calculateUnitPrice, optimizeImage } from '@/lib/utils';
 import ProgressiveImage from '@/components/ui/ProgressiveImage';
 import WhatsAppBuyButton from '@/components/WhatsAppBuyButton';
 import VariantSelectionModal from '@/components/VariantSelectionModal';
@@ -343,10 +343,13 @@ const ProductDetail: React.FC = () => {
               <div className="lg:sticky lg:top-24 space-y-4">
                 <div className="aspect-square rounded-xl overflow-hidden bg-gray-50 border">
                   <ProgressiveImage
-                    src={selectedImage || product.image}
+                    src={optimizeImage(selectedImage || product.image, 800)}
                     alt={product.name}
                     className="w-full h-full object-cover"
                     placeholder="/placeholder.svg"
+                    width={800}
+                    height={800}
+                    loading="eager"
                   />
                 </div>
                 {/* Thumbnails */}
@@ -359,7 +362,15 @@ const ProductDetail: React.FC = () => {
                         className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImage === img ? 'border-[#1F2A7C]' : 'border-transparent hover:border-gray-300'
                           }`}
                       >
-                        <ProgressiveImage src={img} alt={`View ${idx + 1}`} className="w-full h-full object-cover" placeholder="/placeholder.svg" />
+                        <ProgressiveImage
+                          src={optimizeImage(img, 160)}
+                          alt={`View ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                          placeholder="/placeholder.svg"
+                          width={160}
+                          height={160}
+                          loading="lazy"
+                        />
                       </button>
                     ))}
                   </div>
@@ -629,7 +640,16 @@ const ProductDetail: React.FC = () => {
                           {(review.images.length > 0 || review.video) && (
                             <div className="flex gap-2 overflow-x-auto">
                               {review.images.map((img: string, idx: number) => (
-                                <img key={idx} src={img} alt="Review" className="w-20 h-20 object-cover rounded-lg border" />
+                                <div key={idx} className="w-20 h-20 rounded-lg overflow-hidden border flex-shrink-0">
+                                  <ProgressiveImage
+                                    src={optimizeImage(img, 160)}
+                                    alt="Review"
+                                    className="w-full h-full object-cover"
+                                    loading="lazy"
+                                    width={160}
+                                    height={160}
+                                  />
+                                </div>
                               ))}
                               {review.video && (
                                 <a href={review.video} target="_blank" rel="noopener noreferrer" className="w-20 h-20 bg-gray-100 rounded-lg border flex items-center justify-center text-blue-600 hover:bg-gray-200">

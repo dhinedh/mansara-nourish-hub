@@ -44,9 +44,30 @@ export function calculateUnitPrice(price: number, weightStr?: string): string | 
 export function optimizeImage(url: string, width: number = 500): string {
   if (!url || !url.includes('cloudinary.com')) return url || "https://placehold.co/800x800/f5f5f5/999999?text=Product";
 
-  // Check if already optimized (has w_ or q_ or f_)
-  if (url.includes('/w_') || url.includes('/q_')) return url;
+  const uploadIndex = url.indexOf('/upload/');
+  if (uploadIndex === -1) return url;
 
-  // Insert transformation params after /upload/
-  return url.replace('/upload/', `/upload/w_${width},q_auto,f_auto/`);
+  const prefix = url.substring(0, uploadIndex + 8);
+  let rest = url.substring(uploadIndex + 8);
+
+  // Strip any existing transformation options before the version/public_id (e.g. w_400,q_auto/ or f_auto,q_auto/)
+  rest = rest.replace(/^([a-z]{1,2}_[a-zA-Z0-9:-]+,?)+\//, '');
+
+  return `${prefix}f_auto,q_auto,w_${width}/${rest}`;
 }
+
+export function getCloudinaryBlurUrl(url: string): string {
+  if (!url || !url.includes('cloudinary.com')) return url;
+
+  const uploadIndex = url.indexOf('/upload/');
+  if (uploadIndex === -1) return url;
+
+  const prefix = url.substring(0, uploadIndex + 8);
+  let rest = url.substring(uploadIndex + 8);
+
+  // Strip any existing transformation options
+  rest = rest.replace(/^([a-z]{1,2}_[a-zA-Z0-9:-]+,?)+\//, '');
+
+  return `${prefix}f_auto,q_auto,w_30,e_blur:1000/${rest}`;
+}
+

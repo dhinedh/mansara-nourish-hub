@@ -5,6 +5,7 @@ import {
     categories as staticCategories,
     combos as staticCombos
 } from '@/data/products';
+import { fallbackProducts } from '@/data/fallbackProducts';
 
 // ========================================
 // REFACTORED STORE CONTEXT - API FIRST
@@ -133,7 +134,7 @@ const CACHE_KEY = 'mansara-store-cache-v4'; // Bumped version
 // ========================================
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [products, setProducts] = useState<Product[]>(staticProducts as any);
+    const [products, setProducts] = useState<Product[]>(fallbackProducts as any);
     const [combos, setCombos] = useState<Combo[]>(staticCombos as any);
     const [categories, setCategories] = useState<Category[]>(staticCategories as any);
     const [isLoading, setIsLoading] = useState(false);

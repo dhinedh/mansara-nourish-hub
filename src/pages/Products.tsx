@@ -6,6 +6,8 @@ import { useStore } from '@/context/StoreContext';
 import PageHero from '@/components/layout/PageHero';
 import { useContent } from '@/context/ContentContext';
 import SEO from '@/components/SEO';
+import ProgressiveImage from '@/components/ui/ProgressiveImage';
+import { optimizeImage } from '@/lib/utils';
 
 const Products: React.FC = () => {
   const { products, isLoading, categories: storeCategories } = useStore();
@@ -91,7 +93,14 @@ const Products: React.FC = () => {
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto mt-8">
           {items.map((banner) => (
             <div key={banner.id} className="relative rounded-2xl overflow-hidden shadow-lg h-48 sm:h-64 cursor-pointer group">
-              <img src={banner.image} alt={banner.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <ProgressiveImage
+                src={optimizeImage(banner.image, 1200)}
+                alt={banner.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                width={1200}
+                height={400}
+              />
               <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center p-6 text-white">
                 <h3 className="font-heading text-2xl sm:text-3xl font-bold mb-2">{banner.title}</h3>
                 <p className="text-lg opacity-90">{banner.subtitle}</p>

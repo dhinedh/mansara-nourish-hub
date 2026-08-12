@@ -6,6 +6,8 @@ import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
+import ProgressiveImage from '@/components/ui/ProgressiveImage';
+import { optimizeImage } from '@/lib/utils';
 
 interface ComboCardProps {
   combo: Combo;
@@ -34,15 +36,19 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
 
   const savings = combo.originalPrice - combo.comboPrice;
   const productNames = (combo.products || []).map(id => getProduct(id)?.name).filter(Boolean);
+  const imageUrl = optimizeImage(combo.image, 500);
 
   return (
     <div className="bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
       {/* Image Container */}
       <div className="relative aspect-[4/3] bg-secondary overflow-hidden">
-        <img
-          src={combo.image}
+        <ProgressiveImage
+          src={imageUrl}
           alt={combo.name}
           className="w-full h-full object-cover"
+          loading="lazy"
+          width={500}
+          height={375}
         />
 
         {/* Savings Badge */}
