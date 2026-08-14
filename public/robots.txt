@@ -1,17 +1,39 @@
 User-agent: *
 Allow: /
 
-# Private / Auth / Account pages
-Disallow: /admin
-Disallow: /checkout
-Disallow: /account
-Disallow: /cart
-Disallow: /login
-Disallow: /register
+# Allow all public products, blogs, policy & brand pages
+Allow: /products
+Allow: /product/
+Allow: /combos
+Allow: /offers
+Allow: /new-arrivals
+Allow: /about
+Allow: /contact
+Allow: /blog
+Allow: /blog/
+Allow: /press
+Allow: /careers
+
+# Disallow account, checkout & utility routes only
+Disallow: /admin/
+Disallow: /admin$
+Disallow: /checkout/
+Disallow: /checkout$
+Disallow: /account/
+Disallow: /account$
+Disallow: /cart/
+Disallow: /cart$
+Disallow: /login/
+Disallow: /login$
+Disallow: /register/
+Disallow: /register$
 Disallow: /forgot-password
 Disallow: /verify-email
-Disallow: /orders
-Disallow: /order-tracking
+Disallow: /orders/
+Disallow: /orders$
+Disallow: /order-tracking/
+Disallow: /order-tracking$
 Disallow: /api/
 
 Sitemap: https://www.mansarafoods.com/sitemap.xml
+

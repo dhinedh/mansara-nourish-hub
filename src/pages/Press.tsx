@@ -18,20 +18,32 @@ interface PressRelease {
     mediaKitUrl?: string;
 }
 
+const fallbackPressReleases: PressRelease[] = [
+    {
+        _id: "press-01",
+        title: "Mansara Foods Launches Export-Grade Traditional Health Mix Range",
+        excerpt: "Chennai-based traditional food brand Mansara Foods introduces farm-sourced sprouted health mixes and herbal podis with global shipping compliance.",
+        image: "/products/urad-classic-front.jpg",
+        slug: "mansara-foods-launches-export-grade-traditional-health-mix-range",
+        createdAt: "2026-08-01T00:00:00.000Z",
+        publishDate: "2026-08-01T00:00:00.000Z"
+    }
+];
+
 const Press = () => {
     const { getContent } = useContent();
-    const [releases, setReleases] = useState<PressRelease[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [releases, setReleases] = useState<PressRelease[]>(fallbackPressReleases);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const loadReleases = async () => {
             try {
                 const data = await fetchPressReleases();
-                setReleases(Array.isArray(data) ? data : []);
+                if (Array.isArray(data) && data.length > 0) {
+                    setReleases(data);
+                }
             } catch (error) {
                 console.error('Failed to load press releases:', error);
-            } finally {
-                setIsLoading(false);
             }
         };
         loadReleases();

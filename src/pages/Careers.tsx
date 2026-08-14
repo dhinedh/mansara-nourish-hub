@@ -17,22 +17,40 @@ interface Job {
     isActive: boolean;
 }
 
+const fallbackJobs: Job[] = [
+    {
+        _id: "job-01",
+        title: "Quality Assurance & Production Specialist",
+        department: "Operations & Quality Control",
+        location: "Chennai, Tamil Nadu",
+        type: "Full-Time",
+        isActive: true
+    },
+    {
+        _id: "job-02",
+        title: "Digital Marketing & E-Commerce Executive",
+        department: "Marketing & Growth",
+        location: "Chennai, Tamil Nadu",
+        type: "Full-Time",
+        isActive: true
+    }
+];
+
 const Careers = () => {
     const { getContent } = useContent();
-    const [jobs, setJobs] = useState<Job[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [jobs, setJobs] = useState<Job[]>(fallbackJobs);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const loadJobs = async () => {
             try {
                 const data = await fetchCareers();
-                // Filter only active jobs for the public page
                 const activeJobs = (Array.isArray(data) ? data : []).filter((job: Job) => job.isActive);
-                setJobs(activeJobs);
+                if (activeJobs.length > 0) {
+                    setJobs(activeJobs);
+                }
             } catch (error) {
                 console.error('Failed to load careers:', error);
-            } finally {
-                setIsLoading(false);
             }
         };
         loadJobs();
