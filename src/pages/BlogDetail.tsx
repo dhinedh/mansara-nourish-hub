@@ -90,26 +90,52 @@ const BlogDetail = () => {
                 image={post.image}
                 url={`https://www.mansarafoods.com/blog/${post.slug || post._id}`}
                 type="article"
-                schema={{
-                    "@context": "https://schema.org",
-                    "@type": "Article",
-                    "headline": post.title,
-                    "description": post.excerpt,
-                    "image": post.image ? (post.image.startsWith('http') ? post.image : `https://www.mansarafoods.com${post.image}`) : undefined,
-                    "datePublished": post.createdAt,
-                    "author": {
-                        "@type": "Person",
-                        "name": post.author || "Mansara Team"
-                    },
-                    "publisher": {
-                        "@type": "Organization",
-                        "name": "Mansara Foods",
-                        "logo": {
-                            "@type": "ImageObject",
-                            "url": "https://www.mansarafoods.com/logo.png"
+                schema={[
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "Article",
+                        "headline": post.title,
+                        "description": post.excerpt,
+                        "image": post.image ? (post.image.startsWith('http') ? post.image : `https://www.mansarafoods.com${post.image}`) : undefined,
+                        "datePublished": post.createdAt,
+                        "author": {
+                            "@type": "Person",
+                            "name": post.author || "Mansara Team"
+                        },
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "Mansara Foods",
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": "https://www.mansarafoods.com/logo.png"
+                            }
                         }
+                    },
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            {
+                                "@type": "ListItem",
+                                "position": 1,
+                                "name": "Home",
+                                "item": "https://www.mansarafoods.com/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 2,
+                                "name": "Blog",
+                                "item": "https://www.mansarafoods.com/blog"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 3,
+                                "name": post.title,
+                                "item": `https://www.mansarafoods.com/blog/${post.slug || post._id}`
+                            }
+                        ]
                     }
-                }}
+                ]}
             />
             {/* Hero Section */}
             <div className="relative w-full h-[60vh] min-h-[400px] overflow-hidden">
