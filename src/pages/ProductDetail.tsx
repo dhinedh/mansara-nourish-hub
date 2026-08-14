@@ -26,10 +26,32 @@ import VideoUpload from "@/components/admin/VideoUpload";
 import { MessageCircle } from 'lucide-react';
 import SEO from '@/components/SEO';
 
+const SLUG_ALIASES: Record<string, string> = {
+  'curry-leaves-rice-podi-mix': 'karuveppillai-special',
+  'curry-leaf-podi-mix': 'karuveppillai-special',
+  'coriander-rice-podi-mix': 'kotha-malli-aroma',
+  'coriander-podi-mix': 'kotha-malli-aroma',
+  'moringa-rice-podi-mix': 'murungai-vital',
+  'moringa-podi-mix': 'murungai-vital',
+  'pirandai-rice-podi-mix': 'pirandai-power',
+  'pirandai-podi-mix': 'pirandai-power',
+  'rice-podi-mix': 'home-style-paruppu-podi',
+};
+
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { getProduct } = useStore();
   const navigate = useNavigate();
+
+  const targetSlug = slug ? (SLUG_ALIASES[slug] || slug) : undefined;
+  const product = targetSlug ? getProduct(targetSlug) : undefined;
+
+  React.useEffect(() => {
+    if (slug && SLUG_ALIASES[slug]) {
+      navigate(`/product/${SLUG_ALIASES[slug]}`, { replace: true });
+    }
+  }, [slug, navigate]);
+
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
@@ -76,8 +98,6 @@ const ProductDetail: React.FC = () => {
       setIsNotifying(false);
     }
   };
-
-  const product = slug ? getProduct(slug) : undefined;
 
   // Update selected image when product loads
   React.useEffect(() => {

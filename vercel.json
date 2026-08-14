@@ -46,6 +46,17 @@
       ]
     }
   ],
+  "redirects": [
+    { "source": "/product/curry-leaves-rice-podi-mix", "destination": "/product/karuveppillai-special", "permanent": true },
+    { "source": "/product/curry-leaf-podi-mix", "destination": "/product/karuveppillai-special", "permanent": true },
+    { "source": "/product/coriander-rice-podi-mix", "destination": "/product/kotha-malli-aroma", "permanent": true },
+    { "source": "/product/coriander-podi-mix", "destination": "/product/kotha-malli-aroma", "permanent": true },
+    { "source": "/product/moringa-rice-podi-mix", "destination": "/product/murungai-vital", "permanent": true },
+    { "source": "/product/moringa-podi-mix", "destination": "/product/murungai-vital", "permanent": true },
+    { "source": "/product/pirandai-rice-podi-mix", "destination": "/product/pirandai-power", "permanent": true },
+    { "source": "/product/pirandai-podi-mix", "destination": "/product/pirandai-power", "permanent": true },
+    { "source": "/product/rice-podi-mix", "destination": "/product/home-style-paruppu-podi", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/((?!.*\\.).*)",

@@ -185,7 +185,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 }
             });
 
-            // 2. Products Merge (API First)
+            // 2. Products Merge (API First, but clean local descriptions & names take priority over generic DB fallbacks)
             const resolvedProducts = apiProducts.map(apiP => {
                 const staticP = staticProducts.find(p => p.slug === apiP.slug);
 
@@ -195,14 +195,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 delete cleanStaticP.offerPrice;
                 delete cleanStaticP.originalPrice;
 
+                // If API description is generic or blank, rely on rich local description
+                if (!apiP.description || apiP.description.includes('Authentic South Indian health mix product prepared in Chennai using traditional slow-roasting')) {
+                    delete apiP.description;
+                }
+                if (apiP.name === 'Rice Podi Mix') {
+                    apiP.name = 'Home Style Paruppu Podi';
+                }
+
                 // Robust Pricing Normalization
                 const normalizePrice = (p: any) => {
                     const price = p.price || 0;
                     const offerPrice = p.offerPrice;
                     const originalPrice = p.originalPrice;
 
-                    // Truth: If originalPrice exists and is higher than price, it's a discount
-                    // If offerPrice exists and is lower than price, it's a discount (legacy)
                     const mrp = originalPrice || (offerPrice && offerPrice < price ? price : price);
                     const selling = offerPrice || price;
 
