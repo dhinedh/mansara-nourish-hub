@@ -42,17 +42,20 @@ async function prerender() {
   const productsSection =
     productsArrayStart >= 0 ? productsContent.slice(productsArrayStart) : productsContent;
 
-  const productSlugs = [];
-  const slugRegex = /"slug":\s*"([^"]+)"/g;
+  const productItems = [];
+  const productBlockRegex = /\{[\s\S]*?"slug":\s*"([^"]+)"[\s\S]*?"updatedAt":\s*"([^"]+)"[\s\S]*?\}/g;
   let match;
-  while ((match = slugRegex.exec(productsSection)) !== null) {
+  while ((match = productBlockRegex.exec(productsSection)) !== null) {
     const slug = match[1];
+    const rawDate = match[2];
+    const dateStr = rawDate.split('T')[0];
     if (slug && !['urad-porridge-mix', 'black-rice-mix', 'millet-fusion-mix', 'combos', 'idly-podi', 'rice-mixes'].includes(slug)) {
-      if (!productSlugs.includes(slug)) {
-        productSlugs.push(slug);
+      if (!productItems.some(p => p.slug === slug)) {
+        productItems.push({ slug, lastmod: dateStr });
       }
     }
   }
+  const productSlugs = productItems.map(p => p.slug);
 
   console.log(`📦 Found ${productSlugs.length} products:`, productSlugs);
 
@@ -70,7 +73,7 @@ async function prerender() {
     const blogFilePath = path.resolve(rootDir, 'src/data/blogPosts.ts');
     if (fs.existsSync(blogFilePath)) {
       const content = fs.readFileSync(blogFilePath, 'utf-8');
-      const postRegex = /_id:\s*["'][^"']+["'][\s\S]*?slug:\s*["']([^"']+)["'][\s\S]*?createdAt:\s*["']([^"']+)["']/g;
+      const postRegex = /_id:\s*["'][^"']+["'][\s\S]*?slug:\s*["']([^"']+)["'][\s\S]*?(?:updatedAt|createdAt):\s*["']([^"']+)["']/g;
       let match;
       blogPosts = [];
       while ((match = postRegex.exec(content)) !== null) {
@@ -79,7 +82,7 @@ async function prerender() {
         if (slug && !blogPosts.some(b => b.slug === slug)) {
           blogPosts.push({
             slug: slug,
-            createdAt: dateStr
+            updatedAt: dateStr
           });
         }
       }
@@ -163,6 +166,11 @@ async function prerender() {
   };
 
   const getRouteLastmod = (route) => {
+    if (route.startsWith('/product/')) {
+      const slug = route.replace('/product/', '');
+      const item = productItems.find(p => p.slug === slug);
+      if (item) return item.lastmod;
+    }
     if (route.startsWith('/blog/')) {
       const slug = route.replace('/blog/', '');
       const item = blogItems.find(b => b.slug === slug);

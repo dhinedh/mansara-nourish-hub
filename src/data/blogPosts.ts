@@ -8,6 +8,7 @@ export interface BlogPost {
   images?: string[];
   slug: string;
   createdAt: string;
+  updatedAt?: string;
   author: string;
   category: string;
   readTime?: string;
@@ -24,6 +25,7 @@ export const blogPosts: BlogPost[] = [
     category: "Mothers & Children",
     author: "Mansara Nutrition Team",
     createdAt: "2026-08-10T00:00:00.000Z",
+    updatedAt: "2026-08-10T08:00:00.000Z",
     readTime: "7 min read",
     image: "/products/urad-classic-front.jpg",
     content: `
@@ -76,6 +78,7 @@ export const blogPosts: BlogPost[] = [
     category: "Fitness & Weight Loss",
     author: "Mansara Wellness Team",
     createdAt: "2026-08-11T00:00:00.000Z",
+    updatedAt: "2026-08-11T10:30:00.000Z",
     readTime: "6 min read",
     image: "/products/black-rice-delight-front.jpg",
     content: `
@@ -125,6 +128,7 @@ export const blogPosts: BlogPost[] = [
     category: "Diabetic & Senior Care",
     author: "Mansara Health Desk",
     createdAt: "2026-08-11T00:00:00.000Z",
+    updatedAt: "2026-08-12T14:15:00.000Z",
     readTime: "7 min read",
     image: "/products/urad-millet-magic-front.jpg",
     content: `
@@ -175,6 +179,7 @@ export const blogPosts: BlogPost[] = [
     category: "NRI & Worldwide Delivery",
     author: "Mansara Global Operations",
     createdAt: "2026-08-12T00:00:00.000Z",
+    updatedAt: "2026-08-13T09:45:00.000Z",
     readTime: "6 min read",
     image: "/products/SaltnPepperFront.jpg",
     content: `
