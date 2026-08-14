@@ -46,26 +46,55 @@ async function prerender() {
   const slugRegex = /"slug":\s*"([^"]+)"/g;
   let match;
   while ((match = slugRegex.exec(productsSection)) !== null) {
-    if (!productSlugs.includes(match[1])) {
-      productSlugs.push(match[1]);
+    const slug = match[1];
+    if (slug && !['urad-porridge-mix', 'black-rice-mix', 'millet-fusion-mix', 'combos', 'idly-podi', 'rice-mixes'].includes(slug)) {
+      if (!productSlugs.includes(slug)) {
+        productSlugs.push(slug);
+      }
     }
   }
 
   console.log(`📦 Found ${productSlugs.length} products:`, productSlugs);
 
-  // ── 2. Fetch dynamic slugs / IDs from the live API ────────────────────────
+  // ── 2. Fetch dynamic slugs / IDs from the live API (with local fallback) ────
   console.log(`🌐 Fetching dynamic content from ${API_BASE} …`);
 
-  const [blogPosts, pressReleases, careers] = await Promise.all([
+  let [blogPosts, pressReleases, careers] = await Promise.all([
     safeFetch(`${API_BASE}/blog`),
     safeFetch(`${API_BASE}/press`),
     safeFetch(`${API_BASE}/careers`),
   ]);
 
+  // Fallback for blog posts if live API is unavailable during build
+  if (!blogPosts || blogPosts.length === 0) {
+    const blogFilePath = path.resolve(rootDir, 'src/data/blogPosts.ts');
+    if (fs.existsSync(blogFilePath)) {
+      const content = fs.readFileSync(blogFilePath, 'utf-8');
+      const postRegex = /_id:\s*["'][^"']+["'][\s\S]*?slug:\s*["']([^"']+)["'][\s\S]*?createdAt:\s*["']([^"']+)["']/g;
+      let match;
+      blogPosts = [];
+      while ((match = postRegex.exec(content)) !== null) {
+        const slug = match[1];
+        const dateStr = match[2];
+        if (slug && !blogPosts.some(b => b.slug === slug)) {
+          blogPosts.push({
+            slug: slug,
+            createdAt: dateStr
+          });
+        }
+      }
+    }
+  }
+
   // Blog uses slug or _id as route param (BlogDetail uses :slug param)
-  const blogSlugs = blogPosts
-    .map(p => p.slug || p._id)
-    .filter(Boolean);
+  const blogItems = blogPosts
+    .map(p => ({
+      slug: p.slug || p._id,
+      lastmod: (p.updatedAt || p.createdAt || p.publishedAt || '2026-08-10').split('T')[0]
+    }))
+    .filter(p => Boolean(p.slug));
+
+  const blogSlugs = blogItems.map(b => b.slug);
 
   // Press uses slug or _id as route param (PressDetail uses :slug param)
   const pressSlugs = pressReleases
@@ -112,7 +141,6 @@ async function prerender() {
 
   // ── 4. Generate sitemap.xml ────────────────────────────────────────────────
   const domain = 'https://www.mansarafoods.com';
-  const today  = new Date().toISOString().split('T')[0];
 
   const getPriority = (route) => {
     if (route === '/') return '1.0';
@@ -126,10 +154,27 @@ async function prerender() {
     return '0.5';
   };
 
+  const getChangeFreq = (route) => {
+    if (route === '/' || route === '/products') return 'daily';
+    if (route.startsWith('/product/') || route.startsWith('/blog/')) return 'weekly';
+    if (route === '/combos' || route === '/offers' || route === '/new-arrivals' || route === '/blog') return 'weekly';
+    if (route === '/about' || route === '/contact' || route === '/press' || route === '/careers') return 'monthly';
+    return 'yearly';
+  };
+
+  const getRouteLastmod = (route) => {
+    if (route.startsWith('/blog/')) {
+      const slug = route.replace('/blog/', '');
+      const item = blogItems.find(b => b.slug === slug);
+      if (item) return item.lastmod;
+    }
+    return '2026-08-12';
+  };
+
   let sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
   allRoutes.forEach(route => {
     const loc = route === '/' ? `${domain}/` : `${domain}${route}`;
-    sitemapXml += `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${getPriority(route)}</priority>\n  </url>\n`;
+    sitemapXml += `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${getRouteLastmod(route)}</lastmod>\n    <changefreq>${getChangeFreq(route)}</changefreq>\n    <priority>${getPriority(route)}</priority>\n  </url>\n`;
   });
   sitemapXml += `</urlset>\n`;
 
