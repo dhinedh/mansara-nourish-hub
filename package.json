@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "sync-fallback": "node ../\"mansara backend\"/scripts/generate_fallback.js",
-    "sync-sitemap": "node ../\"mansara backend\"/scripts/generate_sitemap.js",
+    "sync-sitemap": "node scripts/generate_sitemap.mjs",
     "test:canonical": "node scripts/test_canonical_audit.mjs"
   },
   "dependencies": {
