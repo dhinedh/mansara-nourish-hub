@@ -321,65 +321,93 @@ const ProductDetail: React.FC = () => {
     ? selectedVariant.stock
     : product.stock;
 
+  // Determine safe category name for keywords and breadcrumbs (avoiding raw MongoDB ObjectIds)
+  const categoryName = (product.category && !/^[0-9a-fA-F]{24}$/.test(product.category))
+    ? product.category
+    : "Health Mix";
+
+  const breadcrumbItems = [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.mansarafoods.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Products",
+      "item": "https://www.mansarafoods.com/products"
+    }
+  ];
+
+  if (categoryName && categoryName !== "Health Mix") {
+    breadcrumbItems.push({
+      "@type": "ListItem",
+      "position": 3,
+      "name": categoryName,
+      "item": `https://www.mansarafoods.com/products?category=${encodeURIComponent(categoryName)}`
+    });
+    breadcrumbItems.push({
+      "@type": "ListItem",
+      "position": 4,
+      "name": product.name,
+      "item": `https://www.mansarafoods.com/product/${product.slug}`
+    });
+  } else {
+    breadcrumbItems.push({
+      "@type": "ListItem",
+      "position": 3,
+      "name": product.name,
+      "item": `https://www.mansarafoods.com/product/${product.slug}`
+    });
+  }
+
+  const productSchema: any = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.image ? (product.image.startsWith('http') ? product.image : `https://www.mansarafoods.com${product.image.startsWith('/') ? '' : '/'}${product.image}`) : "https://www.mansarafoods.com/logo.png",
+    "description": product.description || product.short_description || `${product.name} from Mansara Foods Chennai.`,
+    "sku": product.id || product.slug,
+    "mpn": product.id || product.slug,
+    "brand": {
+      "@type": "Brand",
+      "name": "Mansara Foods"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": `https://www.mansarafoods.com/product/${product.slug}`,
+      "priceCurrency": "INR",
+      "price": displayPrice,
+      "availability": (currentStock && currentStock > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+  };
+
+  if (product.numReviews && product.numReviews > 0) {
+    productSchema.aggregateRating = {
+      "@type": "AggregateRating",
+      "ratingValue": product.rating || 5,
+      "reviewCount": product.numReviews
+    };
+  }
+
   return (
     <Layout>
       <SEO
         title={`${product.name} | Health Mix | Mansara Foods`}
         description={(product.short_description || product.description || `Buy ${product.name} online from Mansara Foods Chennai. Traditional natural health mix with zero preservatives.`).substring(0, 150)}
-        keywords={`${product.name}, ${product.category}, health mix Chennai, traditional porridge mix, Mansara Foods`}
+        keywords={`${product.name}, ${categoryName}, health mix Chennai, traditional porridge mix, Mansara Foods`}
         image={product.image}
         url={`/product/${product.slug}`}
         type="product"
         schema={[
-          {
-            "@context": "https://schema.org/",
-            "@type": "Product",
-            "name": product.name,
-            "image": product.image.startsWith('http') ? product.image : `https://www.mansarafoods.com${product.image}`,
-            "description": product.description || product.short_description || `${product.name} from Mansara Foods Chennai.`,
-            "sku": product.id || product.slug,
-            "mpn": product.id || product.slug,
-            "brand": {
-              "@type": "Brand",
-              "name": "Mansara Foods"
-            },
-            "offers": {
-              "@type": "Offer",
-              "url": `https://www.mansarafoods.com/product/${product.slug}`,
-              "priceCurrency": "INR",
-              "price": displayPrice,
-              "availability": currentStock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-              "itemCondition": "https://schema.org/NewCondition"
-            },
-            "aggregateRating": product.numReviews && product.numReviews > 0 ? {
-              "@type": "AggregateRating",
-              "ratingValue": product.rating || 5,
-              "reviewCount": product.numReviews
-            } : undefined
-          },
+          productSchema,
           {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
-            "itemListElement": [
-              {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "https://www.mansarafoods.com/"
-              },
-              {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "Products",
-                "item": "https://www.mansarafoods.com/products"
-              },
-              {
-                "@type": "ListItem",
-                "position": 3,
-                "name": product.name,
-                "item": `https://www.mansarafoods.com/product/${product.slug}`
-              }
-            ]
+            "itemListElement": breadcrumbItems
           }
         ]}
       />
