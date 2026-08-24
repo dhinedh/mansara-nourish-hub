@@ -38,8 +38,15 @@ const Offers: React.FC = () => {
       <SEO 
         title="Special Offers & Discounts on Health Mixes | Mansara Foods"
         description="Explore exclusive deals and discounts on traditional health mixes, porridge mixes, and idly podis from Mansara Foods. Premium natural nutrition at special prices."
-        keywords="health mix offers, porridge mix discount, Mansara Foods deals, traditional food sale Chennai"
-        url="https://www.mansarafoods.com/offers"
+        url="/offers"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.mansarafoods.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Offers", "item": "https://www.mansarafoods.com/offers" }
+          ]
+        }}
       />
       {/* Hero Banner */}
       <PageHero pageKey="offers" />

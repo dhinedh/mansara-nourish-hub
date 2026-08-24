@@ -142,7 +142,6 @@ const SEO: React.FC<SEOProps> = ({
       {/* Standard Meta */}
       <title>{cleanTitle}</title>
       <meta name="description" content={cleanDescription} />
-      {cleanKeywords && <meta name="keywords" content={cleanKeywords} />}
       <link rel="canonical" href={absoluteUrl} />
 
       {noindex && <meta name="robots" content="noindex, nofollow" />}

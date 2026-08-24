@@ -24,6 +24,7 @@ import {
 import ImageUpload from "@/components/admin/ImageUpload";
 import VideoUpload from "@/components/admin/VideoUpload";
 import { MessageCircle } from 'lucide-react';
+import ProductCard from '@/components/ProductCard';
 import SEO from '@/components/SEO';
 
 const SLUG_ALIASES: Record<string, string> = {
@@ -40,7 +41,7 @@ const SLUG_ALIASES: Record<string, string> = {
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { getProduct } = useStore();
+  const { getProduct, products: allProducts } = useStore();
   const navigate = useNavigate();
 
   const targetSlug = slug ? (SLUG_ALIASES[slug] || slug) : undefined;
@@ -321,6 +322,17 @@ const ProductDetail: React.FC = () => {
     ? selectedVariant.stock
     : product.stock;
 
+  // Determine canonical slug (consolidate 250g variants to primary product page for rank consolidation)
+  const canonicalSlug = product.slug.endsWith('-250g') ? product.slug.replace(/-250g$/, '') : product.slug;
+
+  // Filter 4 related products for internal linking
+  const relatedProducts = React.useMemo(() => {
+    if (!product || !allProducts) return [];
+    return allProducts
+      .filter(p => p.slug !== product.slug && (p as any).isActive !== false)
+      .slice(0, 4);
+  }, [product, allProducts]);
+
   // Determine safe category name for keywords and breadcrumbs (avoiding raw MongoDB ObjectIds)
   const categoryName = (product.category && !/^[0-9a-fA-F]{24}$/.test(product.category))
     ? product.category
@@ -398,9 +410,8 @@ const ProductDetail: React.FC = () => {
       <SEO
         title={`${product.name} | Health Mix | Mansara Foods`}
         description={(product.short_description || product.description || `Buy ${product.name} online from Mansara Foods Chennai. Traditional natural health mix with zero preservatives.`).substring(0, 150)}
-        keywords={`${product.name}, ${categoryName}, health mix Chennai, traditional porridge mix, Mansara Foods`}
         image={product.image}
-        url={`/product/${product.slug}`}
+        url={`/product/${canonicalSlug}`}
         type="product"
         schema={[
           productSchema,
@@ -421,7 +432,7 @@ const ProductDetail: React.FC = () => {
                 <div className="aspect-square rounded-xl overflow-hidden bg-gray-50 border">
                   <ProgressiveImage
                     src={optimizeImage(selectedImage || product.image, 800)}
-                    alt={product.name}
+                    alt={`${product.name} ${displayWeight ? displayWeight + ' pack' : ''} - Mansara Foods`}
                     className="w-full h-full object-cover"
                     width={800}
                     height={800}
@@ -440,7 +451,7 @@ const ProductDetail: React.FC = () => {
                       >
                         <ProgressiveImage
                           src={optimizeImage(img, 160)}
-                          alt={`View ${idx + 1}`}
+                          alt={`${product.name} image view ${idx + 1}`}
                           className="w-full h-full object-cover"
                           width={160}
                           height={160}
@@ -500,10 +511,20 @@ const ProductDetail: React.FC = () => {
                     )}
                   </div>
 
-                  {currentStock > 0 && (
-                    <p className="text-sm text-gray-500 mb-4">
+                  {currentStock > 0 ? (
+                    <p className="text-sm text-green-700 font-medium mb-4 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
                       {currentStock < 10 ? `Only ${currentStock} left in stock!` : 'In Stock'}
                     </p>
+                  ) : (
+                    <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/80 text-amber-900 mb-4 font-medium">
+                      <p className="font-bold text-sm text-amber-900 flex items-center gap-1.5 mb-1">
+                        ⚠️ Currently Out of Stock
+                      </p>
+                      <p className="text-xs text-amber-800 leading-relaxed">
+                        Expected Restock: Fresh batch prepping — Dispatches in 3–5 days. Click below to get notified on WhatsApp!
+                      </p>
+                    </div>
                   )}
 
                   <div className="flex items-center gap-4 mb-6">
@@ -766,6 +787,20 @@ const ProductDetail: React.FC = () => {
                     )}
                   </div>
                 </section>
+
+                {/* You May Also Like Section (Internal Linking) */}
+                {relatedProducts.length > 0 && (
+                  <section className="mt-12 border-t pt-8">
+                    <h2 className="text-2xl font-bold mb-6" style={{ color: '#1F2A7C' }}>
+                      You May Also Like
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {relatedProducts.map((relProd) => (
+                        <ProductCard key={relProd.id || relProd.slug} product={relProd as any} />
+                      ))}
+                    </div>
+                  </section>
+                )}
               </div>
             </div>
           </div>

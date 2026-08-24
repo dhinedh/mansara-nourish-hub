@@ -44,7 +44,7 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
       <div className="relative aspect-[4/3] bg-secondary overflow-hidden">
         <ProgressiveImage
           src={imageUrl}
-          alt={combo.name}
+          alt={`${combo.name} - Mansara Foods Combo Pack`}
           className="w-full h-full object-cover"
           loading="lazy"
           width={500}

@@ -156,7 +156,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
       >
         <ProgressiveImage
           src={imageUrl}
-          alt={product.name}
+          alt={`${product.name} ${product.weight ? product.weight + ' pack' : ''} - Mansara Foods`}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           placeholder="/placeholder.svg"
           loading="lazy"

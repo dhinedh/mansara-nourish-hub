@@ -38,8 +38,15 @@ const NewArrivals: React.FC = () => {
       <SEO 
         title="New Arrivals & Latest Health Mixes | Mansara Foods"
         description="Discover the latest healthy products from Mansara Foods including Ragi Choco Malt and new traditional health mix releases in Chennai."
-        keywords="new health mix launch, Ragi Choco Malt, Mansara Foods new products, latest traditional foods Chennai"
-        url="https://www.mansarafoods.com/new-arrivals"
+        url="/new-arrivals"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.mansarafoods.com/" },
+            { "@type": "ListItem", "position": 2, "name": "New Arrivals", "item": "https://www.mansarafoods.com/new-arrivals" }
+          ]
+        }}
       />
       {/* Hero Banner */}
       <PageHero pageKey="newArrivals" className="py-24 md:py-36">

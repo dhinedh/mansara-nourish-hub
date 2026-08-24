@@ -91,9 +91,18 @@ const Contact: React.FC = () => {
       <SEO 
         title="Contact Us | Mansara Foods Chennai"
         description="Have questions about our health mixes? Get in touch with Mansara Foods Chennai. We're here to help with orders, product info, and healthy eating tips. Call or WhatsApp us today."
-        keywords="contact Mansara Foods, health mix Chennai customer care, buy health mix online Tamil Nadu help, traditional food enquiry"
-        url="https://www.mansarafoods.com/contact"
-        schema={faqSchema}
+        url="/contact"
+        schema={[
+          faqSchema,
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.mansarafoods.com/" },
+              { "@type": "ListItem", "position": 2, "name": "Contact Us", "item": "https://www.mansarafoods.com/contact" }
+            ]
+          }
+        ]}
       />
       {/* Hero */}
       <PageHero pageKey="contact">

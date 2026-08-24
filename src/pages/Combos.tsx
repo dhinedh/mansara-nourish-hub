@@ -30,8 +30,15 @@ const Combos: React.FC = () => {
       <SEO 
         title="Special Health Mix Combos & Savings Packs | Mansara Foods"
         description="Save on traditional health mixes and porridge packs with Mansara Foods value combos. Best health mix bundles crafted in Chennai for complete family wellness."
-        keywords="health mix combo Chennai, porridge mix offer packs, Mansara Foods combo packs, discount health food Tamil Nadu"
-        url="https://www.mansarafoods.com/combos"
+        url="/combos"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.mansarafoods.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Combos", "item": "https://www.mansarafoods.com/combos" }
+          ]
+        }}
       />
       {/* Hero Banner */}
       <PageHero pageKey="combos" className="py-24 md:py-48" />

@@ -61,8 +61,7 @@ const Careers = () => {
             <SEO 
                 title="Careers at Mansara Foods | Join Our Team in Chennai"
                 description="Join Mansara Foods and build a career in traditional health foods and natural nutrition. View open job positions in Chennai and grow with us."
-                keywords="careers Mansara Foods, job openings Chennai, health food jobs Tamil Nadu, work at Mansara Foods"
-                url="https://www.mansarafoods.com/careers"
+                url="/careers"
             />
             <PageHero pageKey="careers">
                 <span className="inline-block bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/30">

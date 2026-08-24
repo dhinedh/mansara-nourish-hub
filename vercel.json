@@ -47,6 +47,17 @@
     }
   ],
   "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "mansarafoods.com"
+        }
+      ],
+      "destination": "https://www.mansarafoods.com/:path*",
+      "permanent": true
+    },
     { "source": "/product/curry-leaves-rice-podi-mix", "destination": "/product/karuveppillai-special", "permanent": true },
     { "source": "/product/curry-leaf-podi-mix", "destination": "/product/karuveppillai-special", "permanent": true },
     { "source": "/product/coriander-rice-podi-mix", "destination": "/product/kotha-malli-aroma", "permanent": true },
