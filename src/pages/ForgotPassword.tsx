@@ -124,17 +124,16 @@ const ForgotPassword: React.FC = () => {
                 {step === 1 ? (
                     <form className="mt-4 space-y-6" onSubmit={handleSendOTP}>
                         <div>
-                            <Label htmlFor="email">Email address</Label>
+                            <Label htmlFor="email">Email address or WhatsApp phone number</Label>
                             <Input
                                 id="email"
                                 name="email"
-                                type="email"
-                                autoComplete="email"
+                                type="text"
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="mt-1"
-                                placeholder="name@example.com"
+                                placeholder="name@example.com or 9876543210"
                             />
                         </div>
 
