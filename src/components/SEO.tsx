@@ -130,12 +130,21 @@ const SEO: React.FC<SEOProps> = ({
     }
   };
 
+  const isLocalBusinessPage = currentPath === '/' || currentPath === '' || currentPath === '/about' || currentPath === '/contact';
+
+  const baseSchemas: any[] = [organizationSchema];
+  if (currentPath === '/' || currentPath === '') {
+    baseSchemas.push(webSiteSchema);
+  }
+  if (isLocalBusinessPage) {
+    baseSchemas.push(localBusinessSchema);
+  }
+
   const customSchemas = schema
     ? (Array.isArray(schema) ? schema : [schema])
-    : [localBusinessSchema, webSiteSchema];
+    : [];
 
-  // Organization schema is ALWAYS rendered sitewide
-  const schemasToRender = [organizationSchema, ...customSchemas];
+  const schemasToRender = [...baseSchemas, ...customSchemas];
 
   return (
     <Helmet>

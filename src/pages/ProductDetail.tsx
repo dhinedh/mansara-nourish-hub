@@ -375,12 +375,16 @@ const ProductDetail: React.FC = () => {
     });
   }
 
+  const imageUrls = product.images && product.images.length > 0
+    ? product.images.map(img => img.startsWith('http') ? img : `https://www.mansarafoods.com${img.startsWith('/') ? '' : '/'}${img}`)
+    : [product.image ? (product.image.startsWith('http') ? product.image : `https://www.mansarafoods.com${product.image.startsWith('/') ? '' : '/'}${product.image}`) : "https://www.mansarafoods.com/logo.png"];
+
   const productSchema: any = {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": product.name,
-    "image": product.image ? (product.image.startsWith('http') ? product.image : `https://www.mansarafoods.com${product.image.startsWith('/') ? '' : '/'}${product.image}`) : "https://www.mansarafoods.com/logo.png",
-    "description": product.description || product.short_description || `${product.name} from Mansara Foods Chennai.`,
+    "image": imageUrls,
+    "description": product.description || product.short_description || `Buy ${product.name} online from Mansara Foods Chennai.`,
     "sku": product.id || product.slug,
     "mpn": product.id || product.slug,
     "brand": {
@@ -389,7 +393,7 @@ const ProductDetail: React.FC = () => {
     },
     "offers": {
       "@type": "Offer",
-      "url": `https://www.mansarafoods.com/product/${product.slug}`,
+      "url": `https://www.mansarafoods.com/product/${canonicalSlug}`,
       "priceCurrency": "INR",
       "price": displayPrice,
       "availability": (currentStock && currentStock > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",

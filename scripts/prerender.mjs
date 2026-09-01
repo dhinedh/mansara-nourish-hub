@@ -220,11 +220,11 @@ async function prerender() {
         pageHtml = pageHtml.replace(/<title>.*?<\/title>/s, titleTag);
       }
 
-      if (pageHtml.includes('<meta name="description"')) {
-        pageHtml = pageHtml.replace(/<meta name="description" [^>]*\/>/s, headInsertions);
-      } else {
-        pageHtml = pageHtml.replace('</head>', `  ${headInsertions}\n</head>`);
-      }
+      // Remove fallback meta description from root index.html template if present
+      pageHtml = pageHtml.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/gi, '');
+
+      // Insert dynamic route head elements right before </head>
+      pageHtml = pageHtml.replace('</head>', `  ${headInsertions}\n</head>`);
 
       pageHtml = pageHtml.replace('<div id="root"></div>', `<div id="root">${html}</div>`);
 

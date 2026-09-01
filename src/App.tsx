@@ -27,17 +27,17 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NewArrivals from "./pages/NewArrivals";
 import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
 import Press from "./pages/Press";
+import PressDetail from "./pages/PressDetail";
 import Careers from "./pages/Careers";
+import CareerDetail from "./pages/CareerDetail";
 import TermsAndConditions from "./pages/policies/TermsAndConditions";
 import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
 import DeliveryShippingPolicy from "./pages/policies/DeliveryShippingPolicy";
 import RefundReturnPolicy from "./pages/policies/RefundReturnPolicy";
 
 // Secondary / Auth / Admin Pages (Lazy Load)
-const BlogDetail = lazy(() => import("./pages/BlogDetail"));
-const PressDetail = lazy(() => import("./pages/PressDetail"));
-const CareerDetail = lazy(() => import("./pages/CareerDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));

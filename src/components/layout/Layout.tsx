@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import SEO from '../SEO';
 
 interface LayoutProps {
   children: ReactNode;
@@ -17,7 +16,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       >
         Skip to main content
       </a>
-      <SEO />
       <Header />
       <main id="main-content" className="flex-1 pt-20" tabIndex={-1}>
         {children}
