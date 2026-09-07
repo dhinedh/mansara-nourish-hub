@@ -20,6 +20,7 @@ const Checkout: React.FC = () => {
   const [placedOrderId, setPlacedOrderId] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'Online'>('Online');
+  const [whatsappOptIn, setWhatsappOptIn] = useState<boolean>(true);
 
   // Address State
   const [address, setAddress] = useState<{
@@ -385,7 +386,8 @@ const Checkout: React.FC = () => {
           zip: address.pincode,
           state: address.state || 'Tamil Nadu',
           phone: address.phone,
-          whatsapp: address.whatsapp || address.phone
+          whatsapp: address.whatsapp || address.phone,
+          whatsappConsent: whatsappOptIn
         }
       };
 
@@ -636,9 +638,18 @@ const Checkout: React.FC = () => {
                       className="w-full px-4 py-3 rounded-lg border border-border bg-background"
                       placeholder="9876543210 (will use phone if not provided)"
                     />
-                    <p className="text-xs text-slate-500 mt-1">
-                      You'll receive order updates via WhatsApp
-                    </p>
+                    <div className="flex items-center gap-2 mt-2 p-2 bg-green-50/70 border border-green-200 rounded-md">
+                      <input
+                        type="checkbox"
+                        id="whatsappOptIn"
+                        checked={whatsappOptIn}
+                        onChange={(e) => setWhatsappOptIn(e.target.checked)}
+                        className="w-4 h-4 text-green-600 rounded focus:ring-green-500 cursor-pointer"
+                      />
+                      <label htmlFor="whatsappOptIn" className="text-xs text-green-900 font-medium cursor-pointer">
+                        Send my live order tracking, shipment updates & invoice on WhatsApp 🌿
+                      </label>
+                    </div>
                   </div>
 
                   <div>
