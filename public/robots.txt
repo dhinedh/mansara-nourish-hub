@@ -13,27 +13,30 @@ Allow: /blog
 Allow: /blog/
 Allow: /press
 Allow: /careers
+Allow: /terms-and-conditions
+Allow: /privacy-policy
+Allow: /delivery-shipping-policy
+Allow: /refund-return-policy
 
 # Disallow account, checkout & utility routes only
+Disallow: /admin
 Disallow: /admin/
-Disallow: /admin$
+Disallow: /checkout
 Disallow: /checkout/
-Disallow: /checkout$
+Disallow: /account
 Disallow: /account/
-Disallow: /account$
+Disallow: /cart
 Disallow: /cart/
-Disallow: /cart$
+Disallow: /login
 Disallow: /login/
-Disallow: /login$
+Disallow: /register
 Disallow: /register/
-Disallow: /register$
 Disallow: /forgot-password
 Disallow: /verify-email
+Disallow: /orders
 Disallow: /orders/
-Disallow: /orders$
+Disallow: /order-tracking
 Disallow: /order-tracking/
-Disallow: /order-tracking$
 Disallow: /api/
 
 Sitemap: https://www.mansarafoods.com/sitemap.xml
-

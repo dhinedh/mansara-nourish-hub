@@ -217,7 +217,7 @@ export const blogPosts: BlogPost[] = [
     `,
     relatedProducts: [
       { name: "Nutrimix Super Health Mix", slug: "nutrimix-super-health-mix", image: "/products/urad-classic-front.jpg", price: 160 },
-      { name: "Urad Health Mix – Classic 250g", slug: "urad-porridge-mix-classic-250g", image: "/products/urad-classic-front.jpg", price: 165 },
+      { name: "Urad Health Mix – Classic", slug: "urad-porridge-mix-classic", image: "/products/urad-classic-front.jpg", price: 70 },
       { name: "Millet Fusion Idly Podi", slug: "millet-fusion-idly-podi", image: "/products/MilletFusionIdlyPodiFront.jpg", price: 75 }
     ]
   }

@@ -66,12 +66,23 @@
     { "source": "/product/moringa-podi-mix", "destination": "/product/murungai-vital", "permanent": true },
     { "source": "/product/pirandai-rice-podi-mix", "destination": "/product/pirandai-power", "permanent": true },
     { "source": "/product/pirandai-podi-mix", "destination": "/product/pirandai-power", "permanent": true },
-    { "source": "/product/rice-podi-mix", "destination": "/product/home-style-paruppu-podi", "permanent": true }
+    { "source": "/product/rice-podi-mix", "destination": "/product/home-style-paruppu-podi", "permanent": true },
+    { "source": "/product/urad-porridge-mix-classic-250g", "destination": "/product/urad-porridge-mix-classic", "permanent": true },
+    { "source": "/product/urad-porridge-mix-salt-pepper-250g", "destination": "/product/urad-porridge-mix-salt-pepper", "permanent": true },
+    { "source": "/product/urad-porridge-mix-millet-magic-250g", "destination": "/product/urad-porridge-mix-millet-magic", "permanent": true },
+    { "source": "/product/urad-porridge-mix-premium-250g", "destination": "/product/urad-porridge-mix-premium", "permanent": true },
+    { "source": "/product/black-rice-delight-porridge-mix-250g", "destination": "/product/black-rice-delight-porridge-mix", "permanent": true }
   ],
   "rewrites": [
-    {
-      "source": "/((?!api/|assets/|uploads/|.*\\..*).*)",
-      "destination": "/index.html"
-    }
+    { "source": "/cart", "destination": "/index.html" },
+    { "source": "/checkout", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/register", "destination": "/index.html" },
+    { "source": "/verify-email", "destination": "/index.html" },
+    { "source": "/forgot-password", "destination": "/index.html" },
+    { "source": "/account", "destination": "/index.html" },
+    { "source": "/orders", "destination": "/index.html" },
+    { "source": "/order-tracking/:path*", "destination": "/index.html" },
+    { "source": "/admin/:path*", "destination": "/index.html" }
   ]
-}
+}

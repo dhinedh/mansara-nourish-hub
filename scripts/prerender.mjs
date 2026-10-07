@@ -202,8 +202,9 @@ async function prerender() {
   const templatePath = path.resolve(distDir, 'index.html');
   const template = fs.readFileSync(templatePath, 'utf-8');
 
-  // ── 6. Prerender each route ────────────────────────────────────────────────
-  for (const route of allRoutes) {
+  // ── 6. Prerender each route + 404 page ─────────────────────────────────────
+  const prerenderRoutes = [...allRoutes, '/404'];
+  for (const route of prerenderRoutes) {
     try {
       const { html, helmet } = render(route);
 
@@ -231,6 +232,12 @@ async function prerender() {
       if (route === '/') {
         fs.writeFileSync(templatePath, pageHtml, 'utf-8');
         console.log(`  ✓ Rendered / -> dist/index.html`);
+      } else if (route === '/404') {
+        fs.writeFileSync(path.resolve(distDir, '404.html'), pageHtml, 'utf-8');
+        const pageDir = path.resolve(distDir, '404');
+        fs.mkdirSync(pageDir, { recursive: true });
+        fs.writeFileSync(path.resolve(pageDir, 'index.html'), pageHtml, 'utf-8');
+        console.log(`  ✓ Rendered /404 -> dist/404.html`);
       } else {
         const routePath = route.substring(1); // remove leading /
         const pageDir   = path.resolve(distDir, routePath);

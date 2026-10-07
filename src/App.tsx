@@ -36,9 +36,9 @@ import TermsAndConditions from "./pages/policies/TermsAndConditions";
 import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
 import DeliveryShippingPolicy from "./pages/policies/DeliveryShippingPolicy";
 import RefundReturnPolicy from "./pages/policies/RefundReturnPolicy";
+import NotFound from "./pages/NotFound";
 
 // Secondary / Auth / Admin Pages (Lazy Load)
-const NotFound = lazy(() => import("./pages/NotFound"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));

@@ -37,6 +37,11 @@ const SLUG_ALIASES: Record<string, string> = {
   'pirandai-rice-podi-mix': 'pirandai-power',
   'pirandai-podi-mix': 'pirandai-power',
   'rice-podi-mix': 'home-style-paruppu-podi',
+  'urad-porridge-mix-classic-250g': 'urad-porridge-mix-classic',
+  'urad-porridge-mix-salt-pepper-250g': 'urad-porridge-mix-salt-pepper',
+  'urad-porridge-mix-millet-magic-250g': 'urad-porridge-mix-millet-magic',
+  'urad-porridge-mix-premium-250g': 'urad-porridge-mix-premium',
+  'black-rice-delight-porridge-mix-250g': 'black-rice-delight-porridge-mix',
 };
 
 const ProductDetail: React.FC = () => {
@@ -204,8 +209,15 @@ const ProductDetail: React.FC = () => {
   if (!product) {
     return (
       <Layout>
-        <div className="min-h-screen flex flex-col items-center justify-center">
-          <p className="text-gray-600 mb-4">Product not found</p>
+        <SEO
+          title="Product Not Found | Mansara Foods"
+          description="The product you are looking for is unavailable or has been moved."
+          noindex={true}
+          url={slug ? `/product/${slug}` : '/product'}
+        />
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Product Not Found</h1>
+          <p className="text-gray-600 mb-6 max-w-md">The product you are looking for is unavailable or has been moved.</p>
           <Link to="/products">
             <Button style={{ backgroundColor: '#FDB913', color: '#1F2A7C' }}>
               Browse Products
@@ -396,6 +408,7 @@ const ProductDetail: React.FC = () => {
       "url": `https://www.mansarafoods.com/product/${canonicalSlug}`,
       "priceCurrency": "INR",
       "price": displayPrice,
+      "priceValidUntil": "2026-12-31",
       "availability": (currentStock && currentStock > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "itemCondition": "https://schema.org/NewCondition"
     }
