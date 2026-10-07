@@ -11,7 +11,7 @@ const About: React.FC = () => {
   return (
     <Layout>
       <SEO
-        title="About Us | Pure & Traditional Food Brand in Chennai"
+        title="About Mansara Foods | Traditional Food Brand Chennai"
         description="Learn about Mansara Foods, founded by Deepika Harikrishnan. Our story is rooted in Chennai, bringing traditional health mixes and pure oils to your home. Discover our mission for honest nourishment."
         url="/about"
         schema={{

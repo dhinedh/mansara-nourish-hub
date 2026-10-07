@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf, Sparkles, Heart, Activity, ShieldCheck, Globe } from 'lucide-react';
+import { ArrowRight, Leaf, Sparkles, Heart, Activity, ShieldCheck, Globe, BookOpen, Layers } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/ProductCard';
@@ -9,6 +9,7 @@ import HeroSlider from '@/components/home/HeroSlider';
 import SEO from '@/components/SEO';
 import { useStore } from '@/context/StoreContext';
 import { useContent } from '@/context/ContentContext';
+import { blogPosts } from '@/data/blogPosts';
 
 // ========================================
 // OPTIMIZED HOME PAGE  
@@ -32,11 +33,12 @@ const Index: React.FC = () => {
   const { products, isLoading } = useStore();
   const { getContent } = useContent();
 
-  // Memoize to prevent recalculation on every render - in-stock products displayed first
-  const featuredProducts = useMemo(() =>
-    sortInStockFirst(products.filter(p => p.isFeatured && p.isActive)).slice(0, 4),
-    [products]
-  );
+  // Memoize to prevent recalculation on every render - ensure top 4 products are displayed
+  const featuredProducts = useMemo(() => {
+    const featured = products.filter(p => p.isFeatured && p.isActive);
+    const nonFeatured = products.filter(p => !p.isFeatured && p.isActive);
+    return sortInStockFirst([...featured, ...nonFeatured]).slice(0, 4);
+  }, [products]);
 
   const newArrivals = useMemo(() =>
     sortInStockFirst(products.filter(p => p.slug === 'ragi-choco-malt' && p.isActive)),
@@ -46,7 +48,7 @@ const Index: React.FC = () => {
   return (
     <Layout>
       <SEO 
-        title="Mansara Foods | Healthy Porridge Mixes, Health Mix & Idly Podi | Chennai"
+        title="Mansara Foods | Traditional Health Mix & Idly Podi, Chennai"
         description="Pure, traditional health mixes, porridge mixes, and idly podis from Mansara Foods, Chennai. Nutritious food for all ages, made the traditional way."
         url="/"
       />
@@ -214,6 +216,230 @@ const Index: React.FC = () => {
                 View Export Shipping Info <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Shop by Category & Special Collections (Internal Linking) */}
+      <section className="py-12 sm:py-16 bg-background">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-3">
+              <Layers className="w-3.5 h-3.5" /> Traditional Categories
+            </span>
+            <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+              Shop by Category &amp; Collections
+            </h2>
+            <div className="w-16 h-1 bg-primary mx-auto rounded-full mt-3" />
+            <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto mt-3">
+              Explore nutrient-dense sprouted porridge powders, roasted rice mixes, and value bundles.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+            <Link
+              to="/products?category=urad-porridge-mix"
+              className="p-5 rounded-2xl bg-secondary/40 hover:bg-secondary border border-border/60 hover:border-primary/50 transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-heading font-bold text-base text-foreground group-hover:text-primary transition-colors">
+                  Urad Porridge Mixes
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  Classic, Salt &amp; Pepper, Millet Magic, and Premium whole black gram blends.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-primary mt-4 inline-flex items-center">
+                Explore Urad Mixes &rarr;
+              </span>
+            </Link>
+
+            <Link
+              to="/products?category=black-rice-mix"
+              className="p-5 rounded-2xl bg-secondary/40 hover:bg-secondary border border-border/60 hover:border-primary/50 transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-heading font-bold text-base text-foreground group-hover:text-primary transition-colors">
+                  Black Rice Mixes
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  Antioxidant-dense Karuppu Kavuni rice porridge mix for vitality &amp; stamina.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-primary mt-4 inline-flex items-center">
+                Explore Black Rice &rarr;
+              </span>
+            </Link>
+
+            <Link
+              to="/products?category=millet-fusion-mix"
+              className="p-5 rounded-2xl bg-secondary/40 hover:bg-secondary border border-border/60 hover:border-primary/50 transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-heading font-bold text-base text-foreground group-hover:text-primary transition-colors">
+                  Millet Fusion Mixes
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  Multi-millet health blends with finger millet, foxtail, and sprouted pulses.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-primary mt-4 inline-flex items-center">
+                Explore Millet Mixes &rarr;
+              </span>
+            </Link>
+
+            <Link
+              to="/products?category=idly-podi"
+              className="p-5 rounded-2xl bg-secondary/40 hover:bg-secondary border border-border/60 hover:border-primary/50 transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-heading font-bold text-base text-foreground group-hover:text-primary transition-colors">
+                  Traditional Idly Podi
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  Millet Fusion and Traditional gunpowder podis slow-roasted to perfection.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-primary mt-4 inline-flex items-center">
+                Explore Idly Podi &rarr;
+              </span>
+            </Link>
+
+            <Link
+              to="/products?category=rice-mixes"
+              className="p-5 rounded-2xl bg-secondary/40 hover:bg-secondary border border-border/60 hover:border-primary/50 transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-heading font-bold text-base text-foreground group-hover:text-primary transition-colors">
+                  Rice Podi Mixes
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  Curry Leaves, Moringa, Coriander, and Pirandai herbal podis for hot ghee rice.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-primary mt-4 inline-flex items-center">
+                Explore Rice Mixes &rarr;
+              </span>
+            </Link>
+
+            <Link
+              to="/combos"
+              className="p-5 rounded-2xl bg-secondary/40 hover:bg-secondary border border-border/60 hover:border-primary/50 transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-heading font-bold text-base text-foreground group-hover:text-primary transition-colors">
+                  Special Value Combos
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  Ultimate 5-mix bundles and curated packs for everyday household wellness.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-primary mt-4 inline-flex items-center">
+                View Health Mix Combos &rarr;
+              </span>
+            </Link>
+
+            <Link
+              to="/offers"
+              className="p-5 rounded-2xl bg-secondary/40 hover:bg-secondary border border-border/60 hover:border-primary/50 transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-heading font-bold text-base text-foreground group-hover:text-primary transition-colors">
+                  Discounts &amp; Offers
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  Limited-time savings on fresh Chennai batches with special introductory pricing.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-primary mt-4 inline-flex items-center">
+                See Discount Offers &rarr;
+              </span>
+            </Link>
+
+            <Link
+              to="/new-arrivals"
+              className="p-5 rounded-2xl bg-secondary/40 hover:bg-secondary border border-border/60 hover:border-primary/50 transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-heading font-bold text-base text-foreground group-hover:text-primary transition-colors">
+                  New Arrivals
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  Discover Ragi Choco Malt and our latest healthy natural cereal additions.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-primary mt-4 inline-flex items-center">
+                View New Releases &rarr;
+              </span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Blog Posts Section (Internal Linking) */}
+      <section className="py-12 sm:py-16 bg-brand-cream/30 border-t border-border/40">
+        <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 max-w-[1400px] mx-auto">
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange text-xs font-bold uppercase tracking-wider mb-3 border border-brand-orange/20">
+              <BookOpen className="w-3.5 h-3.5" /> Traditional Wisdom &amp; Nutrition
+            </span>
+            <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+              From Our Health &amp; Nutrition Blog
+            </h2>
+            <div className="w-16 h-1 bg-brand-orange mx-auto rounded-full mt-3" />
+            <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto mt-3">
+              Read actionable nutrition guides, ancient grain insights, and recipes from Mansara Foods Chennai.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {blogPosts.map((post) => (
+              <article
+                key={post.slug}
+                className="bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-hover transition-all flex flex-col justify-between group"
+              >
+                <div>
+                  <Link to={`/blog/${post.slug}`} className="block aspect-[16/10] overflow-hidden">
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  </Link>
+                  <div className="p-5">
+                    <span className="text-xs font-bold text-brand-orange uppercase tracking-wider">
+                      {post.category}
+                    </span>
+                    <Link to={`/blog/${post.slug}`}>
+                      <h3 className="font-heading font-semibold text-base text-foreground group-hover:text-primary transition-colors mt-2 line-clamp-2">
+                        {post.title}
+                      </h3>
+                    </Link>
+                    <p className="text-xs text-muted-foreground mt-2 line-clamp-3 leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  </div>
+                </div>
+                <div className="p-5 pt-0 mt-auto">
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    className="inline-flex items-center text-xs font-bold text-primary group-hover:text-primary/80 transition-colors"
+                  >
+                    Read Complete Guide &rarr;
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link to="/blog">
+              <Button variant="outline" size="lg" className="rounded-full px-8 text-sm sm:text-base border-2 hover:bg-brand-orange hover:text-white hover:border-brand-orange transition-all duration-300">
+                View All Health &amp; Nutrition Articles
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

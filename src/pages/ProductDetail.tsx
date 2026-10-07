@@ -337,12 +337,19 @@ const ProductDetail: React.FC = () => {
   // Determine canonical slug (consolidate 250g variants to primary product page for rank consolidation)
   const canonicalSlug = product.slug.endsWith('-250g') ? product.slug.replace(/-250g$/, '') : product.slug;
 
-  // Filter 4 related products for internal linking
+  // Dynamic priceValidUntil (1 year from build/render date)
+  const priceValidUntil = React.useMemo(() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 1);
+    return d.toISOString().split('T')[0];
+  }, []);
+
+  // Filter 4 related products for internal linking (same category prioritized)
   const relatedProducts = React.useMemo(() => {
     if (!product || !allProducts) return [];
-    return allProducts
-      .filter(p => p.slug !== product.slug && (p as any).isActive !== false)
-      .slice(0, 4);
+    const sameCategory = allProducts.filter(p => p.slug !== product.slug && p.category === product.category && (p as any).isActive !== false);
+    const otherProducts = allProducts.filter(p => p.slug !== product.slug && p.category !== product.category && (p as any).isActive !== false);
+    return [...sameCategory, ...otherProducts].slice(0, 4);
   }, [product, allProducts]);
 
   // Determine safe category name for keywords and breadcrumbs (avoiding raw MongoDB ObjectIds)
@@ -408,7 +415,7 @@ const ProductDetail: React.FC = () => {
       "url": `https://www.mansarafoods.com/product/${canonicalSlug}`,
       "priceCurrency": "INR",
       "price": displayPrice,
-      "priceValidUntil": "2026-12-31",
+      "priceValidUntil": priceValidUntil,
       "availability": (currentStock && currentStock > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "itemCondition": "https://schema.org/NewCondition"
     }
@@ -425,7 +432,7 @@ const ProductDetail: React.FC = () => {
   return (
     <Layout>
       <SEO
-        title={`${product.name} | Health Mix | Mansara Foods`}
+        title={`${product.name} | Mansara Foods`}
         description={(product.short_description || product.description || `Buy ${product.name} online from Mansara Foods Chennai. Traditional natural health mix with zero preservatives.`).substring(0, 150)}
         image={product.image}
         url={`/product/${canonicalSlug}`}
@@ -808,8 +815,8 @@ const ProductDetail: React.FC = () => {
                 {/* You May Also Like Section (Internal Linking) */}
                 {relatedProducts.length > 0 && (
                   <section className="mt-12 border-t pt-8">
-                    <h2 className="text-2xl font-bold mb-6" style={{ color: '#1F2A7C' }}>
-                      You May Also Like
+                    <h2 className="text-2xl font-bold mb-6 font-heading" style={{ color: '#1F2A7C' }}>
+                      Related Traditional Products
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                       {relatedProducts.map((relProd) => (
@@ -818,6 +825,148 @@ const ProductDetail: React.FC = () => {
                     </div>
                   </section>
                 )}
+
+                {/* Hub Pages & Explore More Links (Internal Linking) */}
+                <section className="mt-12 border-t pt-8">
+                  <div className="bg-brand-cream/40 rounded-2xl p-6 sm:p-8 border border-border">
+                    <h3 className="text-xl font-bold font-heading mb-3" style={{ color: '#1F2A7C' }}>
+                      Explore More from Mansara Foods
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
+                      Discover value savings, special introductory pricing, and new traditional grains freshly milled in Chennai.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="bg-white p-4 rounded-xl border border-border/80 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between">
+                        <div>
+                          <Link to="/combos" className="font-semibold text-sm text-foreground hover:text-primary transition-colors block">
+                            Special Value Combos
+                          </Link>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Save on bundled porridge mixes and daily wellness packs.
+                          </p>
+                        </div>
+                        <div className="mt-3 pt-2 border-t border-border/40 flex flex-col gap-1">
+                          <Link to="/product/ultimate-wellness-combo-5-mixes" className="text-xs font-bold text-primary hover:underline">
+                            Ultimate 5-Mix Combo &rarr;
+                          </Link>
+                          <Link to="/combos" className="text-[11px] text-muted-foreground hover:text-primary">
+                            All Combos Page &rarr;
+                          </Link>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-xl border border-border/80 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between">
+                        <div>
+                          <Link to="/products?category=idly-podi" className="font-semibold text-sm text-foreground hover:text-primary transition-colors block">
+                            Authentic Idly &amp; Rice Podis
+                          </Link>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Slow-roasted gunpowder and herbal dining mixes.
+                          </p>
+                        </div>
+                        <div className="mt-3 pt-2 border-t border-border/40 flex flex-col gap-1">
+                          <Link to="/product/traditional-idly-podi" className="text-xs font-bold text-primary hover:underline">
+                            Traditional Idly Podi &rarr;
+                          </Link>
+                          <Link to="/products?category=idly-podi" className="text-[11px] text-muted-foreground hover:text-primary">
+                            View All Podis &rarr;
+                          </Link>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-xl border border-border/80 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between">
+                        <div>
+                          <Link to="/offers" className="font-semibold text-sm text-foreground hover:text-primary transition-colors block">
+                            Discounts &amp; Offers
+                          </Link>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Limited-time price discounts on authentic Chennai mixes.
+                          </p>
+                        </div>
+                        <div className="mt-3 pt-2 border-t border-border/40 flex flex-col gap-1">
+                          <Link to="/offers" className="text-xs font-bold text-primary hover:underline">
+                            Explore Special Deals &rarr;
+                          </Link>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-xl border border-border/80 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between">
+                        <div>
+                          <Link to="/new-arrivals" className="font-semibold text-sm text-foreground hover:text-primary transition-colors block">
+                            New Arrivals
+                          </Link>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Check out Ragi Choco Malt and our latest healthy recipes.
+                          </p>
+                        </div>
+                        <div className="mt-3 pt-2 border-t border-border/40 flex flex-col gap-1">
+                          <Link to="/product/ragi-choco-malt" className="text-xs font-bold text-primary hover:underline">
+                            Ragi Choco Malt &rarr;
+                          </Link>
+                          <Link to="/new-arrivals" className="text-[11px] text-muted-foreground hover:text-primary">
+                            New Arrivals Page &rarr;
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Related Nutrition Reading Section */}
+                <section className="mt-8 border-t pt-8">
+                  <h3 className="text-xl font-bold font-heading mb-4" style={{ color: '#1F2A7C' }}>
+                    Related Traditional Nutrition Guides
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Link
+                      to="/blog/health-mix-for-babies-and-kids"
+                      className="p-4 rounded-xl bg-white border border-border hover:border-primary/60 hover:shadow-sm transition-all group"
+                    >
+                      <h4 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
+                        Sathu Maavu for Babies &amp; Kids: Infant Nutrition Guide
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Learn how traditional sprouted multi-grain health mixes support healthy weight gain and infant digestion.
+                      </p>
+                    </Link>
+
+                    <Link
+                      to="/blog/millet-mix-for-diabetics"
+                      className="p-4 rounded-xl bg-white border border-border hover:border-primary/60 hover:shadow-sm transition-all group"
+                    >
+                      <h4 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
+                        Low GI Millet Porridge Mix for Diabetics &amp; Senior Health
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Understand glycemic control, resistant starch, and natural blood sugar balance with South Indian millets.
+                      </p>
+                    </Link>
+
+                    <Link
+                      to="/blog/health-mix-for-weight-loss"
+                      className="p-4 rounded-xl bg-white border border-border hover:border-primary/60 hover:shadow-sm transition-all group"
+                    >
+                      <h4 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
+                        High Fiber &amp; Protein Health Mix for Sustainable Weight Loss
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Discover satiety benefits of ancient Karuppu Kavuni black rice and sprouted black gram protein.
+                      </p>
+                    </Link>
+
+                    <Link
+                      to="/blog/international-shipping-south-indian-food"
+                      className="p-4 rounded-xl bg-white border border-border hover:border-primary/60 hover:shadow-sm transition-all group"
+                    >
+                      <h4 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
+                        Buy Sathu Maavu &amp; Authentic Idly Podi Online in USA &amp; Worldwide
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        How Tamil diaspora and NRI families order export-grade Chennai health mixes with international delivery.
+                      </p>
+                    </Link>
+                  </div>
+                </section>
               </div>
             </div>
           </div>

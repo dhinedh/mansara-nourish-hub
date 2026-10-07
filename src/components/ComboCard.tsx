@@ -41,11 +41,11 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
   return (
     <div className="bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
       {/* Image Container */}
-      <div className="relative aspect-[4/3] bg-secondary overflow-hidden">
+      <Link to={`/product/${combo.slug || 'ultimate-wellness-combo-5-mixes'}`} className="block relative aspect-[4/3] bg-secondary overflow-hidden group">
         <ProgressiveImage
           src={imageUrl}
           alt={`${combo.name} - Mansara Foods Combo Pack`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
           width={500}
           height={375}
@@ -57,13 +57,15 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo }) => {
             Save ₹{savings}
           </span>
         </div>
-      </div>
+      </Link>
 
       {/* Content */}
       <div className="p-5">
-        <h3 className="font-heading font-bold text-foreground text-lg mb-2">
-          {combo.name}
-        </h3>
+        <Link to={`/product/${combo.slug || 'ultimate-wellness-combo-5-mixes'}`}>
+          <h3 className="font-heading font-bold text-foreground text-lg mb-2 hover:text-primary transition-colors">
+            {combo.name}
+          </h3>
+        </Link>
 
         <p className="text-muted-foreground text-sm mb-3">
           {combo.description}

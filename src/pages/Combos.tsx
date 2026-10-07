@@ -28,7 +28,7 @@ const Combos: React.FC = () => {
   return (
     <Layout>
       <SEO 
-        title="Special Health Mix Combos & Savings Packs | Mansara Foods"
+        title="Health Mix Combos & Savings Packs | Mansara Foods"
         description="Save on traditional health mixes and porridge packs with Mansara Foods value combos. Best health mix bundles crafted in Chennai for complete family wellness."
         url="/combos"
         schema={{

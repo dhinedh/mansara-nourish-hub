@@ -10,10 +10,11 @@
     "build:client": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview",
     "sync-fallback": "node ../\"mansara backend\"/scripts/generate_fallback.js",
     "sync-sitemap": "node scripts/generate_sitemap.mjs",
-    "test:canonical": "node scripts/test_canonical_audit.mjs"
+    "test:canonical": "node scripts/test_canonical_audit.mjs",
+    "verify:prerender": "node scripts/verify_sitemap_prerender.mjs",
+    "verify:links": "node scripts/verify_internal_links.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

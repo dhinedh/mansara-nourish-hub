@@ -26,9 +26,9 @@ const SEO: React.FC<SEOProps> = ({
   const location = useLocation();
   const currentPath = url || (location ? location.pathname : '/');
 
-  // Ensure title is clean and concise (under 60 characters recommended)
+  // Ensure title includes brand if not already present
   const fullTitle = title.includes("Mansara Foods") ? title : `${title} | Mansara Foods`;
-  const cleanTitle = fullTitle.length > 60 ? `${fullTitle.substring(0, 57)}...` : fullTitle;
+  const cleanTitle = fullTitle;
 
   // Ensure meta description is concise (under 155 characters)
   const cleanDescription = description.length > 155 ? `${description.substring(0, 152)}...` : description;

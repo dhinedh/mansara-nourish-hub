@@ -13,6 +13,7 @@ export interface BlogPost {
   category: string;
   readTime?: string;
   relatedProducts?: { name: string; slug: string; image: string; price: number }[];
+  seoTitle?: string;
 }
 
 export const blogPosts: BlogPost[] = [
@@ -21,6 +22,7 @@ export const blogPosts: BlogPost[] = [
     id: "blog-babies-kids-01",
     slug: "health-mix-for-babies-and-kids",
     title: "Sathu Maavu for Babies & Kids: Complete Guide to Traditional Infant Nutrition",
+    seoTitle: "Sathu Maavu for Babies & Kids Guide | Mansara Foods",
     excerpt: "Discover why traditional sprouted sathu maavu is the best health mix for infants, growing toddlers, and lactating mothers.",
     category: "Mothers & Children",
     author: "Mansara Nutrition Team",
@@ -74,6 +76,7 @@ export const blogPosts: BlogPost[] = [
     id: "blog-weight-loss-02",
     slug: "health-mix-for-weight-loss",
     title: "High Fiber & Protein Rich Health Mix for Sustainable Weight Loss",
+    seoTitle: "Health Mix for Weight Loss Guide | Mansara Foods",
     excerpt: "Learn how incorporating traditional high-fiber porridge mixes into your morning routine supports metabolism, satiety, and fat loss.",
     category: "Fitness & Weight Loss",
     author: "Mansara Wellness Team",
@@ -124,6 +127,7 @@ export const blogPosts: BlogPost[] = [
     id: "blog-diabetics-03",
     slug: "millet-mix-for-diabetics",
     title: "Low GI Millet Porridge Mix for Diabetics & Senior Health",
+    seoTitle: "Millet Mix for Diabetics & Seniors | Mansara Foods",
     excerpt: "Discover how low glycemic index millets and urad porridge mixes help seniors and diabetic individuals manage blood sugar levels naturally.",
     category: "Diabetic & Senior Care",
     author: "Mansara Health Desk",
@@ -175,6 +179,7 @@ export const blogPosts: BlogPost[] = [
     id: "blog-nri-shipping-04",
     slug: "international-shipping-south-indian-food",
     title: "Buy Sathu Maavu & Authentic Idly Podi Online in USA & Worldwide",
+    seoTitle: "Buy Sathu Maavu & Idly Podi Worldwide | Mansara Foods",
     excerpt: "Learn how Tamil diaspora and NRI families in the USA, UK, UAE, and Europe can order authentic, export-compliant South Indian health mixes online.",
     category: "NRI & Worldwide Delivery",
     author: "Mansara Global Operations",

@@ -36,7 +36,7 @@ const Offers: React.FC = () => {
   return (
     <Layout>
       <SEO 
-        title="Special Offers & Discounts on Health Mixes | Mansara Foods"
+        title="Special Offers & Discounts | Mansara Foods"
         description="Explore exclusive deals and discounts on traditional health mixes, porridge mixes, and idly podis from Mansara Foods. Premium natural nutrition at special prices."
         url="/offers"
         schema={{

@@ -82,10 +82,12 @@ const BlogDetail = () => {
 
     if (!post) return null;
 
+    const pageTitle = (post as any).seoTitle || `${post.title.slice(0, 42)} | Mansara Foods`;
+
     return (
         <Layout>
             <SEO 
-                title={`${post.title} | Mansara Foods Blog`}
+                title={pageTitle}
                 description={post.excerpt || (post.content ? post.content.replace(/<[^>]*>?/gm, '').slice(0, 160) : `Read ${post.title} on Mansara Foods Blog`)}
                 image={post.image}
                 url={`https://www.mansarafoods.com/blog/${post.slug || post._id}`}
@@ -209,18 +211,62 @@ const BlogDetail = () => {
                     {/* Related Recommended Products */}
                     {post.relatedProducts && post.relatedProducts.length > 0 && (
                         <div className="mt-12 p-6 bg-brand-cream/40 rounded-2xl border border-brand-orange/20">
-                            <h3 className="text-xl font-bold font-heading mb-4 text-foreground">Recommended Products Featured in This Article</h3>
+                            <h3 className="text-xl font-bold font-heading mb-4 text-foreground">
+                                Recommended Products Featured in This Article
+                            </h3>
                             <div className="grid sm:grid-cols-3 gap-4">
                                 {post.relatedProducts.map((rel, idx) => (
-                                    <Link key={idx} to={`/product/${rel.slug}`} className="bg-white p-4 rounded-xl border hover:shadow-md transition-all flex flex-col items-center text-center group">
-                                        <img src={rel.image} alt={rel.name} className="w-20 h-20 object-cover rounded-lg mb-2 group-hover:scale-105 transition-transform" />
-                                        <h4 className="font-semibold text-sm text-foreground mb-1 group-hover:text-primary">{rel.name}</h4>
-                                        <span className="text-xs font-bold text-brand-orange">₹{rel.price}</span>
-                                    </Link>
+                                    <div key={idx} className="bg-white p-4 rounded-xl border border-border hover:shadow-md transition-all flex flex-col justify-between items-center text-center group">
+                                        <Link to={`/product/${rel.slug}`} className="flex flex-col items-center w-full">
+                                            <img src={rel.image} alt={rel.name} className="w-20 h-20 object-cover rounded-lg mb-2 group-hover:scale-105 transition-transform" />
+                                            <h4 className="font-semibold text-sm text-foreground mb-1 group-hover:text-primary transition-colors">{rel.name}</h4>
+                                            <span className="text-xs font-bold text-brand-orange mb-3">₹{rel.price}</span>
+                                        </Link>
+                                        <Link
+                                            to={`/product/${rel.slug}`}
+                                            className="w-full py-2 px-3 bg-brand-yellow/90 hover:bg-brand-yellow text-slate-900 rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-1 shadow-sm"
+                                        >
+                                            Shop {rel.name} &rarr;
+                                        </Link>
+                                    </div>
                                 ))}
                             </div>
                         </div>
                     )}
+
+                    {/* Related Reading Section (Internal Linking) */}
+                    <div className="mt-12 pt-8 border-t border-border">
+                        <h3 className="text-2xl font-bold font-heading mb-6 text-foreground">
+                            Related Reading &amp; Traditional Nutrition Guides
+                        </h3>
+                        <div className="grid sm:grid-cols-3 gap-6">
+                            {fallbackBlogPosts
+                                .filter(p => p.slug !== (post.slug || post._id))
+                                .slice(0, 3)
+                                .map((relatedPost) => (
+                                    <Link
+                                        key={relatedPost.slug}
+                                        to={`/blog/${relatedPost.slug}`}
+                                        className="p-5 rounded-2xl bg-white border border-border hover:border-primary/60 hover:shadow-md transition-all group flex flex-col justify-between"
+                                    >
+                                        <div>
+                                            <span className="text-xs font-semibold text-brand-orange uppercase tracking-wider block mb-2">
+                                                {relatedPost.category}
+                                            </span>
+                                            <h4 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                                                {relatedPost.title}
+                                            </h4>
+                                            <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+                                                {relatedPost.excerpt}
+                                            </p>
+                                        </div>
+                                        <span className="text-xs font-bold text-primary mt-4 inline-flex items-center">
+                                            Read Nutrition Guide &rarr;
+                                        </span>
+                                    </Link>
+                                ))}
+                        </div>
+                    </div>
 
                     {/* Gallery */}
                     {post.images && post.images.length > 0 && (
@@ -269,10 +315,10 @@ const BlogDetail = () => {
                     </p>
                     <div className="flex justify-center gap-4">
                         <Link to="/blog">
-                            <Button variant="outline" size="lg" className="rounded-full px-8">Read More Stories</Button>
+                            <Button variant="outline" size="lg" className="rounded-full px-8">Read All Blog Posts</Button>
                         </Link>
-                        <Link to="/shop">
-                            <Button size="lg" className="rounded-full px-8 btn-shine">Start Shopping</Button>
+                        <Link to="/products">
+                            <Button size="lg" className="rounded-full px-8 btn-shine">Explore All Products</Button>
                         </Link>
                     </div>
                 </div>

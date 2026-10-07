@@ -10,11 +10,11 @@ import logo from '@/assets/logo.png';
 
 const navLinks = [
   { name: 'Home', path: '/' },
-  { name: 'Offers', path: '/offers' },
-  { name: 'Combos', path: '/combos' },
-  { name: 'New Arrivals', path: '/new-arrivals' },
   { name: 'Products', path: '/products' },
-  { name: 'Track Order', path: '/orders' },
+  { name: 'Combos', path: '/combos' },
+  { name: 'Offers', path: '/offers' },
+  { name: 'New Arrivals', path: '/new-arrivals' },
+  { name: 'Blog', path: '/blog' },
   { name: 'About', path: '/about' },
   { name: 'Contact', path: '/contact' },
 ];

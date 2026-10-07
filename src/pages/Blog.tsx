@@ -44,7 +44,7 @@ const Blog = () => {
     return (
         <Layout>
             <SEO 
-                title="Health & Wellness Blog | Traditional Food Stories | Mansara Foods"
+                title="Traditional Nutrition Blog | Mansara Foods"
                 description="Read articles and health tips from Mansara Foods. Discover benefits of traditional porridge mixes, black rice, millets, and healthy South Indian recipes."
                 url="/blog"
                 schema={{
@@ -119,9 +119,9 @@ const Blog = () => {
 
                                         <Link
                                             to={`/blog/${post.slug || post._id}`}
-                                            className="inline-flex items-center text-sm font-bold text-primary hover:text-primary/80 transition-colors uppercase tracking-wider group/link"
+                                            className="inline-flex items-center text-sm font-bold text-primary hover:text-primary/80 transition-colors tracking-wide group/link"
                                         >
-                                            Read Article
+                                            Read {post.category || 'Nutrition'} Guide
                                             <ArrowRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover/link:translate-x-1" />
                                         </Link>
                                     </div>
