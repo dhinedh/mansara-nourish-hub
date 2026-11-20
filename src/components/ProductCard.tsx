@@ -148,10 +148,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
     ? product.variants.map(v => v.weight).join(', ')
     : product.weight;
 
+  const productDetailSlug = product.slug?.endsWith('-250g')
+    ? product.slug.replace(/-250g$/, '')
+    : product.slug;
+
   return (
     <div className="group bg-card rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 border border-transparent hover:border-black/5 flex flex-col h-full">
       <Link
-        to={`/product/${product.slug}`}
+        to={`/product/${productDetailSlug}`}
         className="relative overflow-hidden aspect-square block"
       >
         <ProgressiveImage
@@ -191,7 +195,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
       </Link>
 
       <div className="p-5 flex flex-col flex-grow">
-        <Link to={`/product/${product.slug}`}>
+        <Link to={`/product/${productDetailSlug}`}>
           <h3 className="font-heading font-semibold text-lg mb-2 truncate text-foreground group-hover:text-primary transition-colors" title={product.name}>
             {product.name}
           </h3>

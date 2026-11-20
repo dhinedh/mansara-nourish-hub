@@ -37,26 +37,24 @@ const SLUG_ALIASES: Record<string, string> = {
   'pirandai-rice-podi-mix': 'pirandai-power',
   'pirandai-podi-mix': 'pirandai-power',
   'rice-podi-mix': 'home-style-paruppu-podi',
-  'urad-porridge-mix-classic-250g': 'urad-porridge-mix-classic',
-  'urad-porridge-mix-salt-pepper-250g': 'urad-porridge-mix-salt-pepper',
-  'urad-porridge-mix-millet-magic-250g': 'urad-porridge-mix-millet-magic',
-  'urad-porridge-mix-premium-250g': 'urad-porridge-mix-premium',
-  'black-rice-delight-porridge-mix-250g': 'black-rice-delight-porridge-mix',
 };
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { getProduct, products: allProducts } = useStore();
+  const { getProduct, products: allProducts, isLoading } = useStore();
   const navigate = useNavigate();
 
   const targetSlug = slug ? (SLUG_ALIASES[slug] || slug) : undefined;
-  const product = targetSlug ? getProduct(targetSlug) : undefined;
+  const product = (targetSlug ? getProduct(targetSlug) : undefined) || (slug ? getProduct(slug) : undefined);
 
   React.useEffect(() => {
     if (slug && SLUG_ALIASES[slug]) {
-      navigate(`/product/${SLUG_ALIASES[slug]}`, { replace: true });
+      const aliasTarget = SLUG_ALIASES[slug];
+      if (getProduct(aliasTarget)) {
+        navigate(`/product/${aliasTarget}`, { replace: true });
+      }
     }
-  }, [slug, navigate]);
+  }, [slug, navigate, getProduct]);
 
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
@@ -207,6 +205,16 @@ const ProductDetail: React.FC = () => {
   }, [product, selectedVariant]);
 
   if (!product) {
+    if (isLoading) {
+      return (
+        <Layout>
+          <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 text-center">
+            <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-gray-600 font-medium">Loading product details...</p>
+          </div>
+        </Layout>
+      );
+    }
     return (
       <Layout>
         <SEO
@@ -236,6 +244,7 @@ const ProductDetail: React.FC = () => {
 
       const itemToAdd = {
         ...product,
+        id: product.id || (product as any)._id,
         price: finalSellingPrice,
         originalPrice: finalMrp,
         weight: variant ? variant.weight : product?.weight,
@@ -243,9 +252,7 @@ const ProductDetail: React.FC = () => {
         variant: variant ? { weight: variant.weight } : undefined
       };
 
-      for (let i = 0; i < quantity; i++) {
-        addToCart(itemToAdd as any, 'product');
-      }
+      addToCart(itemToAdd as any, 'product', quantity);
       setQuantity(1);
       setAddSuccess(true);
       setTimeout(() => setAddSuccess(false), 3000);
@@ -280,6 +287,7 @@ const ProductDetail: React.FC = () => {
 
     const itemToAdd = {
       ...product,
+      id: product.id || (product as any)._id,
       price: finalSellingPrice,
       originalPrice: finalMrp,
       weight: variant ? variant.weight : product?.weight,
@@ -287,9 +295,7 @@ const ProductDetail: React.FC = () => {
       variant: variant ? { weight: variant.weight } : undefined
     };
 
-    for (let i = 0; i < quantity; i++) {
-      addToCart(itemToAdd as any, 'product');
-    }
+    addToCart(itemToAdd as any, 'product', quantity);
 
     navigate('/checkout');
   };

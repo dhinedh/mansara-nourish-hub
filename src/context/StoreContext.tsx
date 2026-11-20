@@ -129,7 +129,7 @@ const extractArray = (data: any, key: string): any[] => {
 
 const getToken = () => localStorage.getItem('mansara-token') || '';
 
-const CACHE_KEY = 'mansara-store-cache-v4'; // Bumped version
+const CACHE_KEY = 'mansara-store-cache-v6'; // Bumped version to force cache invalidation
 
 // ========================================
 // STORE PROVIDER
@@ -148,9 +148,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (saved) {
             try {
                 const { products: p, combos: c, categories: cat } = JSON.parse(saved);
-                if (p) setProducts(sortInStockFirst(p));
-                if (c) setCombos(c);
-                if (cat) setCategories(cat);
+                if (p && p.length > 0) setProducts(sortInStockFirst(p));
+                if (c && c.length > 0) setCombos(c);
+                if (cat && cat.length > 0) setCategories(cat);
                 setIsLoading(false);
             } catch (e) {
                 console.error('[Store] Failed to load cache:', e);
@@ -185,20 +185,48 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 }
             });
 
-            // 2. Products Merge (API First, but clean local descriptions & names take priority over generic DB fallbacks)
+            // 2. Products Merge (API First, but clean local descriptions, images & names take priority over generic/empty DB fallbacks)
             const resolvedProducts = apiProducts.map(apiP => {
-                const staticP = staticProducts.find(p => p.slug === apiP.slug);
+                const staticP = staticProducts.find(p =>
+                    p.slug === apiP.slug ||
+                    p.slug === apiP.slug.replace(/-250g$/, '') ||
+                    `${p.slug}-250g` === apiP.slug
+                );
 
-                // Exclude pricing fields from static fallback to prevent stale leaks
                 const cleanStaticP: any = staticP ? { ...staticP } : {};
                 delete cleanStaticP.price;
                 delete cleanStaticP.offerPrice;
                 delete cleanStaticP.originalPrice;
 
-                // If API description is generic or blank, rely on rich local description
-                if (!apiP.description || apiP.description.includes('Authentic South Indian health mix product prepared in Chennai using traditional slow-roasting')) {
-                    delete apiP.description;
-                }
+                // Ensure non-empty arrays and strings don't get erased by blank API values
+                const safeImages = (Array.isArray(apiP.images) && apiP.images.length > 0)
+                    ? apiP.images
+                    : (cleanStaticP.images || (apiP.image ? [apiP.image] : []));
+
+                const safeDescription = (apiP.description && apiP.description.trim().length > 0 && !apiP.description.includes('Authentic South Indian health mix product prepared in Chennai using traditional slow-roasting'))
+                    ? apiP.description
+                    : (cleanStaticP.description || '');
+
+                const safeIngredients = (apiP.ingredients && apiP.ingredients.trim().length > 0)
+                    ? apiP.ingredients
+                    : (cleanStaticP.ingredients || '');
+
+                const safeHowToUse = (apiP.howToUse && apiP.howToUse.trim().length > 0)
+                    ? apiP.howToUse
+                    : (cleanStaticP.howToUse || '');
+
+                const safeStorage = (apiP.storage && apiP.storage.trim().length > 0)
+                    ? apiP.storage
+                    : (cleanStaticP.storage || '');
+
+                const safeHighlights = (Array.isArray(apiP.highlights) && apiP.highlights.length > 0)
+                    ? apiP.highlights
+                    : (cleanStaticP.highlights || []);
+
+                const safeShortDesc = (apiP.short_description && apiP.short_description.trim().length > 0)
+                    ? apiP.short_description
+                    : (cleanStaticP.short_description || '');
+
                 if (apiP.name === 'Rice Podi Mix') {
                     apiP.name = 'Home Style Paruppu Podi';
                 }
@@ -207,7 +235,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 const normalizePrice = (p: any) => {
                     const price = p.price || 0;
                     const offerPrice = p.offerPrice;
-                    const originalPrice = p.originalPrice;
+                    const defaultMrp = cleanStaticP.originalPrice || (price > 100 ? 195 : 75);
+                    const originalPrice = p.originalPrice || defaultMrp;
 
                     const mrp = originalPrice || (offerPrice && offerPrice < price ? price : price);
                     const selling = offerPrice || price;
@@ -223,7 +252,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 const merged = {
                     ...cleanStaticP,
                     ...apiP,
-                    variants: (apiP.variants || staticP?.variants || []).map(normalizePrice)
+                    images: safeImages,
+                    description: safeDescription,
+                    ingredients: safeIngredients,
+                    howToUse: safeHowToUse,
+                    storage: safeStorage,
+                    highlights: safeHighlights,
+                    short_description: safeShortDesc,
+                    variants: (apiP.variants && apiP.variants.length > 0 ? apiP.variants : (staticP?.variants || [])).map(normalizePrice)
                 };
 
                 return normalizePrice(merged);
@@ -320,7 +356,25 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         await fetchData(true);
     };
 
-    const getProduct = (id: string) => products.find(p => p.id === id || p._id === id || p.slug === id);
+    const getProduct = (id: string) => {
+        if (!id) return undefined;
+        const direct = products.find(p => p.id === id || p._id === id || p.slug === id);
+        if (direct) return direct;
+
+        const with250g = id.endsWith('-250g') ? id : `${id}-250g`;
+        const without250g = id.replace(/-250g$/, '');
+
+        const suffixMatch = products.find(p => p.slug === with250g || p.slug === without250g);
+        if (suffixMatch) return suffixMatch;
+
+        return staticProducts.find(p =>
+            p.id === id ||
+            p._id === id ||
+            p.slug === id ||
+            p.slug === with250g ||
+            p.slug === without250g
+        );
+    };
 
     const addCombo = async (data: any) => {
         const token = getToken();

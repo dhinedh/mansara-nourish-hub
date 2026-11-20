@@ -29,7 +29,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product | Combo, type: 'product' | 'combo') => void;
+  addToCart: (product: Product | Combo, type: 'product' | 'combo', quantity?: number) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -49,8 +49,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
  * Sanitize cart item
  */
 const sanitizeCartItem = (item: any): CartItem => ({
-  id: item.id,
-  type: item.type,
+  id: String(item.id || item._id || ''),
+  type: item.type === 'combo' ? 'combo' : 'product',
   name: item.name || 'Unknown Item',
   price: Number(item.price) || 0,
   quantity: Math.max(1, Math.min(999, Number(item.quantity) || 1)),
@@ -63,7 +63,7 @@ const sanitizeCartItem = (item: any): CartItem => ({
  */
 const validateCartItems = (items: any[]): CartItem[] => {
   if (!Array.isArray(items)) return [];
-  return items.map(sanitizeCartItem).filter(item => item.id && item.price > 0);
+  return items.map(sanitizeCartItem).filter(item => item.id && item.price >= 0);
 };
 
 // ========================================
@@ -174,19 +174,24 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
+    if (!Array.isArray(cartItems)) {
+      console.warn('[Cart] Attempted to sync non-array cart items');
+      return;
+    }
+
+    // Always keep pendingSyncRef pointing to the latest cart array
+    pendingSyncRef.current = cartItems;
+
     // Clear existing timeout
     if (syncTimeoutRef.current) {
       clearTimeout(syncTimeoutRef.current);
     }
 
-    // Store pending sync
-    pendingSyncRef.current = cartItems;
-
-    // Debounce sync by 1 second
+    // Debounce sync by 500ms
     syncTimeoutRef.current = setTimeout(async () => {
       // Check if already syncing
       if (syncInProgressRef.current) {
-        console.log('[Cart] Sync already in progress, will retry');
+        console.log('[Cart] Sync already in progress, will flush on complete');
         return;
       }
 
@@ -196,12 +201,19 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
+      const itemsToSync = pendingSyncRef.current;
+      if (!itemsToSync || !Array.isArray(itemsToSync)) {
+        return;
+      }
+
       syncInProgressRef.current = true;
       setIsSyncing(true);
 
       try {
-        await updateCart(pendingSyncRef.current!, token);
-        pendingSyncRef.current = null;
+        await updateCart(itemsToSync, token);
+        if (pendingSyncRef.current === itemsToSync) {
+          pendingSyncRef.current = null;
+        }
         console.log('[Cart] ✓ Synced to server');
       } catch (error: any) {
         console.error('[Cart] ✗ Sync failed:', error);
@@ -209,15 +221,24 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Don't show toast for every sync failure (UX improvement)
         // Only show if user is actively using the cart
         if (document.hasFocus()) {
-          toast.error('Failed to sync cart with server', {
-            description: 'Your changes will be saved when connection is restored.'
-          });
+          if (error?.message === 'SESSION_EXPIRED') {
+            toast.error('Session expired', {
+              description: 'Please sign in again to keep your cart synced across devices.'
+            });
+          } else {
+            toast.error('Failed to sync cart with server', {
+              description: 'Your changes will be saved when connection is restored.'
+            });
+          }
         }
       } finally {
         syncInProgressRef.current = false;
         setIsSyncing(false);
+        if (pendingSyncRef.current !== null) {
+          syncToBackend(pendingSyncRef.current);
+        }
       }
-    }, 1000); // 1 second debounce
+    }, 500);
   }, [isAuthenticated, user]);
 
   // Cleanup on unmount
@@ -233,18 +254,27 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // CART ACTIONS
   // ========================================
 
-  const addToCart = useCallback((item: Product | Combo, type: 'product' | 'combo') => {
+  const addToCart = useCallback((item: Product | Combo, type: 'product' | 'combo', quantityToAdd: number = 1) => {
     if (!isAuthenticated) {
       toast.error('Please login to add items to cart');
       return;
     }
 
+    const itemId = String(item.id || (item as any)._id || '');
+    if (!itemId) {
+      console.error('[Cart] Item is missing an identifier:', item);
+      return;
+    }
+
+    const qty = Math.max(1, Math.min(999, Number(quantityToAdd) || 1));
+
     setItems(prev => {
       // For products with variants, we need to check both ID and weight
+      const itemWeight = (item as any).weight;
       const existingItem = prev.find(i =>
-        i.id === item.id &&
+        i.id === itemId &&
         i.type === type &&
-        (type === 'combo' || (i as any).weight === (item as Product).weight)
+        (type === 'combo' || i.weight === itemWeight)
       );
 
       let newItems: CartItem[];
@@ -252,20 +282,19 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (existingItem) {
         // Update quantity
         newItems = prev.map(i =>
-          (i.id === item.id && i.type === type && (type === 'combo' || (i as any).weight === (item as Product).weight))
-            ? { ...i, quantity: Math.min(999, i.quantity + 1) }
+          (i.id === itemId && i.type === type && (type === 'combo' || i.weight === itemWeight))
+            ? { ...i, quantity: Math.min(999, i.quantity + qty) }
             : i
         );
         toast.success('Cart updated', { duration: 2000 });
       } else {
         // Calculate price from live data if possible
         let price: number;
-        let weight: string | undefined = undefined;
+        let weight: string | undefined = itemWeight;
 
         if (type === 'product') {
           const p = item as Product;
-          weight = p.weight;
-          const liveProduct = products.find(lp => lp.id === p.id || lp._id === p.id);
+          const liveProduct = products.find(lp => lp.id === itemId || lp._id === itemId || lp.slug === p.slug);
 
           if (liveProduct) {
             price = liveProduct.price;
@@ -284,9 +313,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         // Add new item
         const newItem: CartItem = {
-          id: item.id,
+          id: itemId,
           type,
-          quantity: 1,
+          quantity: qty,
           price,
           name: item.name,
           image: item.image || '',
@@ -304,11 +333,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // REAL-TIME STOCK UPDATE (Optimistic)
       // ========================================
       if (type === 'product') {
-        const currentProduct = getProduct(item.id);
+        const currentProduct = getProduct(itemId);
         if (currentProduct) {
-          const newStock = Math.max(0, currentProduct.stock - 1);
+          const newStock = Math.max(0, currentProduct.stock - qty);
           // Trigger local update immediately
-          updateLocalStock(item.id, newStock);
+          updateLocalStock(itemId, newStock);
         } else {
           // Fallback: Refetch if product not in invalid state
           refetch();
@@ -317,7 +346,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       return newItems;
     });
-  }, [isAuthenticated, syncToBackend, getProduct, updateProduct, refetch]);
+  }, [isAuthenticated, syncToBackend, products, getProduct, updateLocalStock, refetch]);
 
   const removeFromCart = useCallback((id: string) => {
     if (!isAuthenticated) {

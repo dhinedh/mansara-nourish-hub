@@ -971,20 +971,32 @@ export const getCart = async (token: string) => {
             'Authorization': `Bearer ${token}`
         }
     });
+    if (response.status === 401) {
+        localStorage.removeItem('mansara-token');
+        throw new Error('SESSION_EXPIRED');
+    }
     if (!response.ok) throw new Error('Failed to fetch cart');
     return response.json();
 };
 
 export const updateCart = async (cartItems: any[], token: string) => {
+    const items = Array.isArray(cartItems) ? cartItems : [];
     const response = await fetch(`${API_URL}/cart`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ cart: cartItems }),
+        body: JSON.stringify({ cart: items }),
     });
-    if (!response.ok) throw new Error('Failed to update cart');
+    if (response.status === 401) {
+        localStorage.removeItem('mansara-token');
+        throw new Error('SESSION_EXPIRED');
+    }
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to update cart');
+    }
     return response.json();
 };
 

@@ -736,7 +736,9 @@ export const fallbackProducts: Product[] = [
     "originalPrice": 195,
     "image": "/products/urad-classic-front.jpg",
     "images": [
-      "/products/urad-classic-front.jpg"
+      "/products/urad-classic-front.jpg",
+      "/products/urad-classic-back.jpg",
+      "/products/urad-classic-side.jpg"
     ],
     "description": "Mansara Classic Urad Health Mix (250g Family Pack) is crafted for daily household nourishment and bone strength. Made primarily from premium sprouted black gram (Urad Dal) slow-roasted in small batches, this traditional porridge mix provides high plant protein and digestive comfort without added sugar or artificial flavorings.",
     "ingredients": "Black Gram (Urad Dal), Samba Wheat, Fried Gram, Cardamom.",
@@ -747,7 +749,7 @@ export const fallbackProducts: Product[] = [
     "isNewArrival": false,
     "isFeatured": false,
     "isActive": true,
-    "stock": 0,
+    "stock": 50,
     "highlights": [
       "250g Family Pack",
       "High Protein",
@@ -773,7 +775,9 @@ export const fallbackProducts: Product[] = [
     "originalPrice": 195,
     "image": "/products/urad-salt-pepper-front.jpg",
     "images": [
-      "/products/urad-salt-pepper-front.jpg"
+      "/products/urad-salt-pepper-front.jpg",
+      "/products/urad-salt-pepper-back.jpg",
+      "/products/urad-salt-pepper-side.jpg"
     ],
     "description": "Mansara Savoury Urad Health Mix with Salt n Pepper (250g Family Pack) offers a comforting, digestion-boosting twist on traditional South Indian ulunthankanji. Blended with coarse black pepper, aromatic cumin, and sprouted urad dal, it delivers a warm, gut-friendly savory meal ideal for wholesome family dinners.",
     "ingredients": "Black Gram (60.9%), Kavuni Rice (30%), Black Pepper (4.55%), Cumin Seeds (2.73%), Salt (1.82%).",
@@ -784,7 +788,7 @@ export const fallbackProducts: Product[] = [
     "isNewArrival": false,
     "isFeatured": false,
     "isActive": true,
-    "stock": 0,
+    "stock": 50,
     "highlights": [
       "250g Family Pack",
       "Savoury Taste",
@@ -810,7 +814,9 @@ export const fallbackProducts: Product[] = [
     "originalPrice": 195,
     "image": "/products/urad-millet-magic-front.jpg",
     "images": [
-      "/products/urad-millet-magic-front.jpg"
+      "/products/urad-millet-magic-front.jpg",
+      "/products/urad-millet-magic-back.jpg",
+      "/products/urad-millet-magic-side.jpg"
     ],
     "description": "Mansara Millet Magic Urad Health Mix (250g Family Pack) combines muscle-building sprouted black gram with a mineral-rich multi-millet complex (finger, foxtail, pearl, little, kodo, barnyard millets, and jowar). Designed for daily fitness, low-GI energy, and sustained family vitality.",
     "ingredients": "Black Gram, Finger Millet, Foxtail Millet, Pearl Millet, Little Millet, Kodo Millet, Barnyard Millet, Jowar, Bajra, Spices.",
@@ -821,7 +827,7 @@ export const fallbackProducts: Product[] = [
     "isNewArrival": false,
     "isFeatured": false,
     "isActive": true,
-    "stock": 0,
+    "stock": 50,
     "highlights": [
       "250g Family Pack",
       "Fiber Rich",
@@ -847,7 +853,9 @@ export const fallbackProducts: Product[] = [
     "originalPrice": 195,
     "image": "/products/urad-premium-front.jpg",
     "images": [
-      "/products/urad-premium-front.jpg"
+      "/products/urad-premium-front.jpg",
+      "/products/urad-premium-back.jpg",
+      "/products/urad-premium-side.jpg"
     ],
     "description": "Mansara Premium Multi-Grain Urad Porridge Mix (250g Family Pack) is formulated with fine-ground black gram, ragi, and rare heirloom Indian rice varieties (Karuppu Kavuni, Mappillai Samba, Bamboo Rice, and Red Rice). Tailored for physical stamina, immunity building, and active lifestyle recovery.",
     "ingredients": "Black Gram, Ragi, Kavuni Rice, Mappillai Samba Rice, Bamboo Rice, Red Rice, Hand-Pounded Rice.",
@@ -858,7 +866,7 @@ export const fallbackProducts: Product[] = [
     "isNewArrival": false,
     "isFeatured": false,
     "isActive": true,
-    "stock": 0,
+    "stock": 50,
     "highlights": [
       "250g Family Pack",
       "Multi-Grain",
@@ -884,7 +892,9 @@ export const fallbackProducts: Product[] = [
     "originalPrice": 195,
     "image": "/products/black-rice-delight-front.jpg",
     "images": [
-      "/products/black-rice-delight-front.jpg"
+      "/products/black-rice-delight-front.jpg",
+      "/products/black-rice-delight-back.jpg",
+      "/products/black-rice-delight-side.jpg"
     ],
     "description": "Mansara Black Rice Delight Porridge Mix (250g Family Pack) harnesses the high-antioxidant power of ancient Karuppu Kavuni rice, samba wheat, barley, and horse gram. Abundant in bio-available iron, anthocyanins, and dietary fiber, it supports cardiac wellness, metabolic balance, and steady energy.",
     "ingredients": "Kavuni Rice (49.50%), Samba Wheat (24.75%), Barley (12.87%), Horse Gram (12.87%).",
@@ -895,7 +905,7 @@ export const fallbackProducts: Product[] = [
     "isNewArrival": false,
     "isFeatured": false,
     "isActive": true,
-    "stock": 0,
+    "stock": 50,
     "highlights": [
       "250g Family Pack",
       "Antioxidant Rich",
