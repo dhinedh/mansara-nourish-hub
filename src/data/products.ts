@@ -30,7 +30,11 @@ export interface Product {
   highlights?: string[];
   nutrition?: string;
   compliance?: string;
+  sub_category?: string;
   short_description?: string;
+  rating?: number;
+  numReviews?: number;
+  video?: string;
   updatedAt?: string;
   createdAt?: string;
   variants?: {
