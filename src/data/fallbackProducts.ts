@@ -15,7 +15,7 @@ export const fallbackProducts: Product[] = [
     "category": "69620cf57f9c4b0e78ddb918",
     "price": 165,
     "offerPrice": null,
-    "originalPrice": 195,
+    "originalPrice": 165,
     "image": "/products/urad-classic-250g-front.jpg",
     "images": [
       "/products/urad-classic-250g-normal.jpg",
@@ -52,7 +52,7 @@ export const fallbackProducts: Product[] = [
         "weight": "250g",
         "price": 165,
         "offerPrice": null,
-        "originalPrice": 195,
+        "originalPrice": 165,
         "stock": 50
       }
     ]
@@ -65,7 +65,7 @@ export const fallbackProducts: Product[] = [
     "category": "69620cf57f9c4b0e78ddb918",
     "price": 165,
     "offerPrice": null,
-    "originalPrice": 195,
+    "originalPrice": 165,
     "image": "/products/urad-salt-pepper-250g-front.jpg",
     "images": [
       "/products/urad-salt-pepper-250g-normal.jpg",
@@ -102,7 +102,7 @@ export const fallbackProducts: Product[] = [
         "weight": "250g",
         "price": 165,
         "offerPrice": null,
-        "originalPrice": 195,
+        "originalPrice": 165,
         "stock": 50
       }
     ]
@@ -115,7 +115,7 @@ export const fallbackProducts: Product[] = [
     "category": "69620cf57f9c4b0e78ddb918",
     "price": 165,
     "offerPrice": null,
-    "originalPrice": 195,
+    "originalPrice": 165,
     "image": "/products/urad-millet-magic-250g-front.jpg",
     "images": [
       "/products/urad-millet-magic-250g-normal.jpg",
@@ -152,7 +152,7 @@ export const fallbackProducts: Product[] = [
         "weight": "250g",
         "price": 165,
         "offerPrice": null,
-        "originalPrice": 195,
+        "originalPrice": 165,
         "stock": 50
       }
     ]
@@ -165,7 +165,7 @@ export const fallbackProducts: Product[] = [
     "category": "69620cf57f9c4b0e78ddb918",
     "price": 165,
     "offerPrice": null,
-    "originalPrice": 195,
+    "originalPrice": 165,
     "image": "/products/urad-premium-250g-front.jpg",
     "images": [
       "/products/urad-premium-250g-normal.jpg",
@@ -203,7 +203,7 @@ export const fallbackProducts: Product[] = [
         "weight": "250g",
         "price": 165,
         "offerPrice": null,
-        "originalPrice": 195,
+        "originalPrice": 165,
         "stock": 50
       }
     ]
@@ -216,7 +216,7 @@ export const fallbackProducts: Product[] = [
     "category": "69620cf57f9c4b0e78ddb919",
     "price": 165,
     "offerPrice": null,
-    "originalPrice": 195,
+    "originalPrice": 165,
     "image": "/products/black-rice-delight-250g-front.jpg",
     "images": [
       "/products/black-rice-delight-250g-normal.jpg",
@@ -254,7 +254,7 @@ export const fallbackProducts: Product[] = [
         "weight": "250g",
         "price": 165,
         "offerPrice": null,
-        "originalPrice": 195,
+        "originalPrice": 165,
         "stock": 50
       }
     ]
@@ -734,7 +734,7 @@ export const fallbackProducts: Product[] = [
     "category": "69620cf57f9c4b0e78ddb918",
     "price": 165,
     "offerPrice": null,
-    "originalPrice": 195,
+    "originalPrice": 165,
     "image": "/products/urad-classic-250g-front.jpg",
     "images": [
       "/products/urad-classic-250g-normal.jpg",
@@ -775,7 +775,7 @@ export const fallbackProducts: Product[] = [
     "category": "69620cf57f9c4b0e78ddb918",
     "price": 165,
     "offerPrice": null,
-    "originalPrice": 195,
+    "originalPrice": 165,
     "image": "/products/urad-salt-pepper-250g-front.jpg",
     "images": [
       "/products/urad-salt-pepper-250g-normal.jpg",
@@ -816,7 +816,7 @@ export const fallbackProducts: Product[] = [
     "category": "69620cf57f9c4b0e78ddb918",
     "price": 165,
     "offerPrice": null,
-    "originalPrice": 195,
+    "originalPrice": 165,
     "image": "/products/urad-millet-magic-250g-front.jpg",
     "images": [
       "/products/urad-millet-magic-250g-normal.jpg",
@@ -857,7 +857,7 @@ export const fallbackProducts: Product[] = [
     "category": "69620cf57f9c4b0e78ddb918",
     "price": 165,
     "offerPrice": null,
-    "originalPrice": 195,
+    "originalPrice": 165,
     "image": "/products/urad-premium-250g-front.jpg",
     "images": [
       "/products/urad-premium-250g-normal.jpg",
@@ -898,7 +898,7 @@ export const fallbackProducts: Product[] = [
     "category": "69620cf57f9c4b0e78ddb919",
     "price": 165,
     "offerPrice": null,
-    "originalPrice": 195,
+    "originalPrice": 165,
     "image": "/products/black-rice-delight-250g-front.jpg",
     "images": [
       "/products/black-rice-delight-250g-normal.jpg",

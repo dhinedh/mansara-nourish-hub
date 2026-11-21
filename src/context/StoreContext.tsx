@@ -129,7 +129,7 @@ const extractArray = (data: any, key: string): any[] => {
 
 const getToken = () => localStorage.getItem('mansara-token') || '';
 
-const CACHE_KEY = 'mansara-store-cache-v10'; // Bumped to v10: updated Millet Fusion & Traditional Idly Podi to 100g Jar photoshoot assets
+const CACHE_KEY = 'mansara-store-cache-v11'; // Bumped to v11: synced 250g health mixes MRP to 165 across store and CRM
 
 // ========================================
 // STORE PROVIDER
@@ -268,7 +268,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 const normalizePrice = (p: any) => {
                     const price = p.price || 0;
                     const offerPrice = p.offerPrice;
-                    const defaultMrp = cleanStaticP.originalPrice || (price > 100 ? 195 : 75);
+                    const defaultMrp = cleanStaticP.originalPrice || (price > 100 ? 165 : 75);
                     const originalPrice = p.originalPrice || defaultMrp;
 
                     const mrp = originalPrice || (offerPrice && offerPrice < price ? price : price);
