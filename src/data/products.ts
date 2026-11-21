@@ -773,13 +773,10 @@ export const products: Product[] = [
     "price": 75,
     "offerPrice": 70,
     "originalPrice": 75,
-    "image": "/products/idly-podi-normal.jpg",
+    "image": "/products/traditional-idly-podi-front.jpg",
     "images": [
-      "/products/idly-podi-normal.jpg",
-      "/products/idly-podi-wide.jpg",
-      "/products/idly-podi-top.jpg",
-      "/products/idly-podi-product.jpg",
-      "/products/idly-podi-back.jpg"
+      "/products/traditional-idly-podi-front.jpg",
+      "/products/traditional-idly-podi-back.jpg"
     ],
     "description": "Mansara Traditional Idly Podi (Classic Gunpowder) is an authentic South Indian breakfast condiment expertly blended to bring the genuine taste of home-cooked tiffins to your dining table. Crafted from a balanced combination of four roasted pulses—black gram (Urad Dal), Bengal gram, green gram, and fried gram—this podi is enriched with whole dried red chilies, Kashmiri chili for vibrant color, black pepper, toor dal, and aromatic asafoetida.\n\nEvery batch is slow-roasted over low flame to extract the deep, nutty aromas of the lentils before being ground to a coarse, textured perfection. To serve, mix two tablespoons with pure sesame (gingelly) oil, melted ghee, or coconut oil to form a savory paste, and dip soft warm idlies, crispy dosas, uthappams, or pooris. Packed with plant protein and dietary fiber, Mansara Traditional Idly Podi contains zero preservatives, synthetic colors, or artificial flavor enhancers, making it an essential pantry staple for every South Indian food lover.",
     "ingredients": "Black Gram (கருப்பு உளுந்து), Bengal Gram (கடலைப்பருப்பு), Green Gram (பாசிப்பருப்பு), Fried Gram (வருத்தக்கடலை), Dry Red Chilli (காய்ந்த மிளகாய்), Kashmiri Chilli (காஷ்மீரி மிளகாய்), Toor Dal (துவரம் பருப்பு), Salt (உப்பு), Black Pepper (மிளகு), Asafoetida (பெருங்காயம்)",
