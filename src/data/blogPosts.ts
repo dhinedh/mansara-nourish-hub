@@ -171,7 +171,7 @@ export const blogPosts: BlogPost[] = [
     relatedProducts: [
       { name: "Urad Health Mix – Millet Magic", slug: "urad-porridge-mix-millet-magic", image: "/products/urad-millet-magic-250g-front.jpg", price: 165 },
       { name: "Health Mix – Black Rice Delight", slug: "black-rice-delight-porridge-mix", image: "/products/black-rice-delight-250g-front.jpg", price: 180 },
-      { name: "Millet Fusion Idly Podi", slug: "millet-fusion-idly-podi", image: "/products/idly-podi-normal.jpg", price: 75 }
+      { name: "Millet Fusion Idly Podi", slug: "millet-fusion-idly-podi", image: "/products/millet-idly-podi-front.jpg", price: 75 }
     ]
   },
   {
@@ -223,7 +223,7 @@ export const blogPosts: BlogPost[] = [
     relatedProducts: [
       { name: "Nutrimix Super Health Mix", slug: "nutrimix-super-health-mix", image: "/products/nutrimix-normal.jpg", price: 160 },
       { name: "Urad Health Mix – Classic", slug: "urad-porridge-mix-classic", image: "/products/urad-classic-250g-front.jpg", price: 165 },
-      { name: "Millet Fusion Idly Podi", slug: "millet-fusion-idly-podi", image: "/products/idly-podi-normal.jpg", price: 75 }
+      { name: "Millet Fusion Idly Podi", slug: "millet-fusion-idly-podi", image: "/products/millet-idly-podi-front.jpg", price: 75 }
     ]
   }
 ];

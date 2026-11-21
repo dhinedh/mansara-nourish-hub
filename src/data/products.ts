@@ -608,13 +608,10 @@ export const products: Product[] = [
     "price": 75,
     "offerPrice": 70,
     "originalPrice": 75,
-    "image": "/products/idly-podi-normal.jpg",
+    "image": "/products/millet-idly-podi-front.jpg",
     "images": [
-      "/products/idly-podi-normal.jpg",
-      "/products/idly-podi-wide.jpg",
-      "/products/idly-podi-top.jpg",
-      "/products/idly-podi-product.jpg",
-      "/products/idly-podi-back.jpg"
+      "/products/millet-idly-podi-front.jpg",
+      "/products/millet-idly-podi-back.jpg"
     ],
     "description": "A nutritious millet-enriched idly podi combining lentils, millets, and spices for a healthy traditional side dish.",
     "ingredients": "Black Gram (கருப்பு உளுந்து), Bengal Gram (கடலைப்பருப்பு), Green Gram (பாசிப்பருப்பு), Fried Gram (வருத்தக்கடலை), Foxtail Millet (தினை), Little Millet (சாமை), Barnyard Millet (குதிரைவாலி), Kodo Millet (வரகு), Dry Red Chilli (காய்ந்த மிளகாய்), Kashmiri Chilli (காஷ்மீரி மிளகாய்), Toor Dal (துவரம் பருப்பு), Salt (உப்பு), Black Pepper (மிளகு), Asafoetida (பெருங்காயம்)",
