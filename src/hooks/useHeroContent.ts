@@ -5,12 +5,12 @@ export const useHeroContent = () => {
     return {
         heroConfig,
         isLoading: false,
-        updateHomeSlide: async () => { },
-        addHomeSlide: async () => { },
-        updateHomeSlideById: async () => { },
-        deleteHomeSlide: async () => { },
-        updateHomeSettings: async () => { },
-        updatePageHero: async () => { },
+        updateHomeSlide: async (..._args: any[]) => { },
+        addHomeSlide: async (..._args: any[]) => { },
+        updateHomeSlideById: async (..._args: any[]) => { },
+        deleteHomeSlide: async (..._args: any[]) => { },
+        updateHomeSettings: async (..._args: any[]) => { },
+        updatePageHero: async (..._args: any[]) => { },
         refetch: async () => { }
     };
 };

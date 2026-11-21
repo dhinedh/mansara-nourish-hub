@@ -28,8 +28,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
   const [pendingAction, setPendingAction] = useState<'cart' | 'buy' | 'whatsapp' | null>(null);
 
   // Normalize product data common fields
-  const rawImage = product.image || (product as any).image_url || '';
+  const getCleanProductImage = () => {
+    // If gallery exists, prefer the first non-zoom photoshoot angle
+    if (product.images && product.images.length > 0) {
+      const validFirst = product.images.find(img => img && !img.includes('zoom'));
+      if (validFirst) return validFirst;
+    }
+    const baseImg = product.image || (product as any).image_url || '';
+    if (baseImg.includes('MilletFusionIdlyPodi') || baseImg.includes('TraditionalIdlyPodi')) {
+      return '/products/idly-podi-normal.jpg';
+    }
+    if (baseImg.includes('NutriMix.PNG')) {
+      return '/products/nutrimix-normal.jpg';
+    }
+    if (baseImg.includes('RagiChocoMalt.PNG')) {
+      return '/products/ragi-choco-malt-normal.jpg';
+    }
+    return baseImg;
+  };
+
+  const rawImage = getCleanProductImage();
   const imageUrl = optimizeImage(rawImage, 400);
+  const cleanProductName = product.name?.replace(/Nutriminix/g, 'NutriMix') || product.name;
 
   const hasVariants = product.variants && product.variants.length > 0;
   const [selectedVariant, setSelectedVariant] = useState(hasVariants ? product.variants![0] : null);
@@ -160,7 +180,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
       >
         <ProgressiveImage
           src={imageUrl}
-          alt={`${product.name} ${product.weight ? product.weight + ' pack' : ''} - Mansara Foods`}
+          alt={`${cleanProductName} ${product.weight ? product.weight + ' pack' : ''} - Mansara Foods`}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           placeholder="/placeholder.svg"
           loading="lazy"
@@ -196,8 +216,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
 
       <div className="p-5 flex flex-col flex-grow">
         <Link to={`/product/${productDetailSlug}`}>
-          <h3 className="font-heading font-semibold text-lg mb-2 truncate text-foreground group-hover:text-primary transition-colors" title={product.name}>
-            {product.name}
+          <h3 className="font-heading font-semibold text-lg mb-2 truncate text-foreground group-hover:text-primary transition-colors" title={cleanProductName}>
+            {cleanProductName}
           </h3>
         </Link>
         

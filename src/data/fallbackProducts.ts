@@ -16,11 +16,13 @@ export const fallbackProducts: Product[] = [
     "price": 165,
     "offerPrice": null,
     "originalPrice": 195,
-    "image": "/products/urad-classic-front.jpg",
+    "image": "/products/urad-classic-250g-front.jpg",
     "images": [
-      "/products/urad-classic-front.jpg",
-      "/products/urad-classic-back.jpg",
-      "/products/urad-classic-side.jpg"
+      "/products/urad-classic-250g-normal.jpg",
+      "/products/urad-classic-250g-wide.jpg",
+      "/products/urad-classic-250g-top.jpg",
+      "/products/urad-classic-250g-product.jpg",
+      "/products/urad-classic-250g-back.jpg"
     ],
     "description": "Mansara Classic Urad Health Mix (250g Family Pack) is crafted for daily household nourishment and bone strength. Made primarily from premium sprouted black gram (Urad Dal) slow-roasted in small batches, this traditional porridge mix provides high plant protein and digestive comfort without added sugar or artificial flavorings.",
     "ingredients": "Black Gram (Urad Dal), Samba Wheat, Fried Gram, Cardamom.",
@@ -64,11 +66,13 @@ export const fallbackProducts: Product[] = [
     "price": 165,
     "offerPrice": null,
     "originalPrice": 195,
-    "image": "/products/urad-salt-pepper-front.jpg",
+    "image": "/products/urad-salt-pepper-250g-front.jpg",
     "images": [
-      "/products/urad-salt-pepper-front.jpg",
-      "/products/urad-salt-pepper-back.jpg",
-      "/products/urad-salt-pepper-side.jpg"
+      "/products/urad-salt-pepper-250g-normal.jpg",
+      "/products/urad-salt-pepper-250g-wide.jpg",
+      "/products/urad-salt-pepper-250g-top.jpg",
+      "/products/urad-salt-pepper-250g-product.jpg",
+      "/products/urad-salt-pepper-250g-back.jpg"
     ],
     "description": "Mansara Savoury Urad Health Mix with Salt n Pepper (250g Family Pack) offers a comforting, digestion-boosting twist on traditional South Indian ulunthankanji. Blended with coarse black pepper, aromatic cumin, and sprouted urad dal, it delivers a warm, gut-friendly savory meal ideal for wholesome family dinners.",
     "ingredients": "Black Gram (60.9%), Kavuni Rice (30%), Black Pepper (4.55%), Cumin Seeds (2.73%), Salt (1.82%).",
@@ -112,11 +116,13 @@ export const fallbackProducts: Product[] = [
     "price": 165,
     "offerPrice": null,
     "originalPrice": 195,
-    "image": "/products/urad-millet-magic-front.jpg",
+    "image": "/products/urad-millet-magic-250g-front.jpg",
     "images": [
-      "/products/urad-millet-magic-front.jpg",
-      "/products/urad-millet-magic-back.jpg",
-      "/products/urad-millet-magic-side.jpg"
+      "/products/urad-millet-magic-250g-normal.jpg",
+      "/products/urad-millet-magic-250g-wide.jpg",
+      "/products/urad-millet-magic-250g-top.jpg",
+      "/products/urad-millet-magic-250g-product.jpg",
+      "/products/urad-millet-magic-250g-back.jpg"
     ],
     "description": "Mansara Millet Magic Urad Health Mix (250g Family Pack) combines muscle-building sprouted black gram with a mineral-rich multi-millet complex (finger, foxtail, pearl, little, kodo, barnyard millets, and jowar). Designed for daily fitness, low-GI energy, and sustained family vitality.",
     "ingredients": "Black Gram, Finger Millet, Foxtail Millet, Pearl Millet, Little Millet, Kodo Millet, Barnyard Millet, Jowar, Bajra, Spices.",
@@ -160,11 +166,13 @@ export const fallbackProducts: Product[] = [
     "price": 165,
     "offerPrice": null,
     "originalPrice": 195,
-    "image": "/products/urad-premium-front.jpg",
+    "image": "/products/urad-premium-250g-front.jpg",
     "images": [
-      "/products/urad-premium-front.jpg",
-      "/products/urad-premium-back.jpg",
-      "/products/urad-premium-side.jpg"
+      "/products/urad-premium-250g-normal.jpg",
+      "/products/urad-premium-250g-wide.jpg",
+      "/products/urad-premium-250g-top.jpg",
+      "/products/urad-premium-250g-product.jpg",
+      "/products/urad-premium-250g-back.jpg"
     ],
     "description": "Mansara Premium Multi-Grain Urad Porridge Mix (250g Family Pack) is formulated with fine-ground black gram, ragi, and rare heirloom Indian rice varieties (Karuppu Kavuni, Mappillai Samba, Bamboo Rice, and Red Rice). Tailored for physical stamina, immunity building, and active lifestyle recovery.",
     "ingredients": "Black Gram, Ragi, Kavuni Rice, Mappillai Samba Rice, Bamboo Rice, Red Rice, Hand-Pounded Rice.",
@@ -209,11 +217,13 @@ export const fallbackProducts: Product[] = [
     "price": 165,
     "offerPrice": null,
     "originalPrice": 195,
-    "image": "/products/black-rice-delight-front.jpg",
+    "image": "/products/black-rice-delight-250g-front.jpg",
     "images": [
-      "/products/black-rice-delight-front.jpg",
-      "/products/black-rice-delight-back.jpg",
-      "/products/black-rice-delight-side.jpg"
+      "/products/black-rice-delight-250g-normal.jpg",
+      "/products/black-rice-delight-250g-wide.jpg",
+      "/products/black-rice-delight-250g-top.jpg",
+      "/products/black-rice-delight-250g-product.jpg",
+      "/products/black-rice-delight-250g-back.jpg"
     ],
     "description": "Mansara Black Rice Delight Porridge Mix (250g Family Pack) harnesses the high-antioxidant power of ancient Karuppu Kavuni rice, samba wheat, barley, and horse gram. Abundant in bio-available iron, anthocyanins, and dietary fiber, it supports cardiac wellness, metabolic balance, and steady energy.",
     "ingredients": "Kavuni Rice (49.50%), Samba Wheat (24.75%), Barley (12.87%), Horse Gram (12.87%).",
@@ -258,10 +268,13 @@ export const fallbackProducts: Product[] = [
     "price": 75,
     "offerPrice": 70,
     "originalPrice": 75,
-    "image": "/products/MilletFusionIdlyPodi.PNG",
+    "image": "/products/idly-podi-normal.jpg",
     "images": [
-      "/products/MilletFusionIdlyPodi.PNG",
-      "/products/MilletFusionIdlyPodiLabel.PNG"
+      "/products/idly-podi-normal.jpg",
+      "/products/idly-podi-wide.jpg",
+      "/products/idly-podi-top.jpg",
+      "/products/idly-podi-product.jpg",
+      "/products/idly-podi-back.jpg"
     ],
     "description": "A nutritious millet-enriched idly podi combining lentils, millets, and spices for a healthy traditional side dish. An authentic, no preservative idly podi online favorite from Chennai, prepared with traditional slow-roasted lentils, sesame seeds, red chillies, and digestive herbs. Perfect as a flavorful gunpowder podi home delivery side dish for idlis, dosas, and warm rice tossed in pure ghee or gingelly oil.",
     "ingredients": "Black Gram (கருப்பு உளுந்து), Bengal Gram (கடலைப்பருப்பு), Green Gram (பாசிப்பருப்பு), Fried Gram (வருத்தக்கடலை), Foxtail Millet (தினை), Little Millet (சாமை), Barnyard Millet (குதிரைவாலி), Kodo Millet (வரகு), Dry Red Chilli (காய்ந்த மிளகாய்), Kashmiri Chilli (காஷ்மீரி மிளகாய்), Toor Dal (துவரம் பருப்பு), Salt (உப்பு), Black Pepper (மிளகு), Asafoetida (பெருங்காயம்)",
@@ -336,10 +349,13 @@ export const fallbackProducts: Product[] = [
     "price": 250,
     "offerPrice": 245,
     "originalPrice": 250,
-    "image": "/products/RagiChocoMalt.PNG",
+    "image": "/products/ragi-choco-malt-normal.jpg",
     "images": [
-      "/products/RagiChocoMalt.PNG",
-      "/products/RagiChocoMaltLabel.PNG"
+      "/products/ragi-choco-malt-normal.jpg",
+      "/products/ragi-choco-malt-wide.jpg",
+      "/products/ragi-choco-malt-top.jpg",
+      "/products/ragi-choco-malt-product.jpg",
+      "/products/ragi-choco-malt-back.jpg"
     ],
     "description": "Mansara Ragi Choco Malt is a nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa. A delicious, no sugar health drink for kids combining organic finger millet (ragi) with natural cocoa and traditional spices. Packed with dietary calcium, plant protein, and iron, it serves as a nutrient-rich millet health mix for children and teenagers seeking healthy morning stamina.",
     "ingredients": "Ragi (Finger Millet), Brown Sugar, Cocoa Powder, Cashew Nuts, Almonds, Dry Ginger, Cardamom, Saffron.",
@@ -377,15 +393,18 @@ export const fallbackProducts: Product[] = [
     "id": "69a9b4091c2c00db0a9bf83e",
     "_id": "69a9b4091c2c00db0a9bf83e",
     "slug": "nutrimix-super-health-mix",
-    "name": "Nutriminix – Multi Grain Health Mix",
+    "name": "NutriMix – Multi Grain Health Mix",
     "category": "69a83fe41c2c00db0a9ba526",
     "price": 200,
     "offerPrice": 195,
     "originalPrice": 200,
-    "image": "/products/NutriMix.PNG",
+    "image": "/products/nutrimix-normal.jpg",
     "images": [
-      "/products/NutriMix.PNG",
-      "/products/NutriMix_Label.PNG"
+      "/products/nutrimix-normal.jpg",
+      "/products/nutrimix-wide.jpg",
+      "/products/nutrimix-top.jpg",
+      "/products/nutrimix-product.jpg",
+      "/products/nutrimix-back.jpg"
     ],
     "description": "A traditional 27-ingredient multi-grain health mix designed for complete family nutrition and strength. A traditional 27 ingredient multigrain health mix formulated according to authentic South Indian nutritional wisdom. Packed with sprouted millets, whole pulses, and premium nuts, this health mix for lactating mothers in Tamil Nadu and growing infants provides essential iron, bio-available calcium, and plant proteins. Prepared with zero preservatives, artificial colors, or chemical additives, it offers a complete, easy-to-digest daily breakfast for toddlers, active children, and adults.",
     "ingredients": "Ragi, Kollu, Green Gram, Badam, Barley, Red Rice, Samba Wheat, Cashew, Kambu, Kaikuthal Rice, Kavuni Rice, Javvarisi, Yellow Cholam, White Cholam, Rajma, Black Gram, Groundnut, Moongil Arisi, Kaatu Yaanai Rice, Mappillai Samba, Fried Gram (Udacha Kadalai), Thinai, Saamai, Guthirai Vaali, Varagu, Dry Ginger, Cardamom",
@@ -428,10 +447,13 @@ export const fallbackProducts: Product[] = [
     "price": 75,
     "offerPrice": 70,
     "originalPrice": 75,
-    "image": "/products/TraditionalIdlyPodi.PNG",
+    "image": "/products/idly-podi-normal.jpg",
     "images": [
-      "/products/TraditionalIdlyPodi.PNG",
-      "/products/TraditionalIdlyPodiLabel.PNG"
+      "/products/idly-podi-normal.jpg",
+      "/products/idly-podi-wide.jpg",
+      "/products/idly-podi-top.jpg",
+      "/products/idly-podi-product.jpg",
+      "/products/idly-podi-back.jpg"
     ],
     "description": "Mansara Traditional Idly Podi (Classic Gunpowder) is an authentic South Indian breakfast condiment expertly blended to bring the genuine taste of home-cooked tiffins to your dining table. Crafted from a balanced combination of four roasted pulses—black gram (Urad Dal), Bengal gram, green gram, and fried gram—this podi is enriched with whole dried red chilies, Kashmiri chili for vibrant color, black pepper, toor dal, and aromatic asafoetida.\n\nEvery batch is slow-roasted over low flame to extract the deep, nutty aromas of the lentils before being ground to a coarse, textured perfection. To serve, mix two tablespoons with pure sesame (gingelly) oil, melted ghee, or coconut oil to form a savory paste, and dip soft warm idlies, crispy dosas, uthappams, or pooris. Packed with plant protein and dietary fiber, Mansara Traditional Idly Podi contains zero preservatives, synthetic colors, or artificial flavor enhancers, making it an essential pantry staple for every South Indian food lover.",
     "ingredients": "Black Gram (கருப்பு உளுந்து), Bengal Gram (கடலைப்பருப்பு), Green Gram (பாசிப்பருப்பு), Fried Gram (வருத்தக்கடலை), Dry Red Chilli (காய்ந்த மிளகாய்), Kashmiri Chilli (காஷ்மீரி மிளகாய்), Toor Dal (துவரம் பருப்பு), Salt (உப்பு), Black Pepper (மிளகு), Asafoetida (பெருங்காயம்)",
@@ -474,10 +496,13 @@ export const fallbackProducts: Product[] = [
     "price": 75,
     "offerPrice": 70,
     "originalPrice": 75,
-    "image": "/products/HomeStyleParuppu.PNG",
+    "image": "/products/rice-mix-paruppu-normal.jpg",
     "images": [
-      "/products/HomeStyleParuppu.PNG",
-      "/products/HomeStyleParuppuLabel.PNG"
+      "/products/rice-mix-paruppu-normal.jpg",
+      "/products/rice-mix-paruppu-wide.jpg",
+      "/products/rice-mix-paruppu-top.jpg",
+      "/products/rice-mix-paruppu-product.jpg",
+      "/products/rice-mix-paruppu-back.jpg"
     ],
     "description": "Mansara Home Style Paruppu Podi is a wholesome, protein-dense lentil spice powder formulated to recreate the comforting flavor of traditional South Indian grandmother recipes. \"Paruppu\" (meaning lentils or pulses) forms the heart of this blend, combining slow-roasted Toor Dal, Bengal Gram, Green Gram, and Fried Gram (Udacha Kadalai) with cumin seeds, black pepper, dry red chilies, and digestive asafoetida.\n\nHigh in dietary protein and essential minerals, this versatile podi provides instant nourishment for the entire family. It is best enjoyed by mixing one or two teaspoons into a steaming bowl of hot rice drizzled with melted cow ghee or sesame oil, served alongside papad (appalam). It also offers a gentle, non-spicy alternative for kids and elderly family members seeking quick, digestible meal solutions. Free from preservatives, artificial colors, and chemical additives, Mansara Paruppu Podi delivers pure, authentic home-style comfort in every bite.",
     "ingredients": "Toor Daal, Bengal Gram, Green Gram, Fried Gram (Udacha Kadalai), Cumin Seeds, Salt, Pepper, Dry Chilli, Kashmiri Chilli, Asafoetida",
@@ -520,10 +545,13 @@ export const fallbackProducts: Product[] = [
     "price": 75,
     "offerPrice": 70,
     "originalPrice": 75,
-    "image": "/products/KaruveppillaiSpecial.PNG",
+    "image": "/products/rice-mix-karuveppillai-normal.jpg",
     "images": [
-      "/products/KaruveppillaiSpecial.PNG",
-      "/products/KaruveppillaiSpecialLabel.PNG"
+      "/products/rice-mix-karuveppillai-normal.jpg",
+      "/products/rice-mix-karuveppillai-wide.jpg",
+      "/products/rice-mix-karuveppillai-top.jpg",
+      "/products/rice-mix-karuveppillai-product.jpg",
+      "/products/rice-mix-karuveppillai-back.jpg"
     ],
     "description": "Mansara Curry Leaves Rice Podi Mix (Karuveppillai Special) is an authentic South Indian herb-and-lentil condiment crafted from farm-fresh curry leaves, hand-picked spices, and slow-roasted pulses. In traditional Tamil households, curry leaves are celebrated not only for their rich, earthy aroma but also for their high iron content, antioxidant properties, and are traditionally valued for digestion. This unique blend combines fresh Karuveppillai with protein-rich Toor Dal, Urad Dal, whole black pepper, and cumin seeds, creating a fragrant spice mix that elevates plain warm rice into a wholesome meal.\n\nPerfectly balanced with mild red chili warmth and tangy tamarind undertones, this curry leaf podi is ideal for busy mornings or light evening meals. Simply mix one to two teaspoons with steaming hot rice and a spoonful of cold-pressed gingelly oil or pure cow ghee. Beyond hot rice, it serves as a versatile seasoning for roasted vegetables, tiffin items, or idly and dosa. Free from added preservatives, artificial colors, and synthetic flavor enhancers, Mansara Curry Leaves Podi provides pure, home-style South Indian nutrition in every spoonful.",
     "ingredients": "Toor Dhal, Urad Dhal, Pepper, Jeera, Salt, Hing, Curry Leaves, Red Chilli, Tamarind",
@@ -566,10 +594,13 @@ export const fallbackProducts: Product[] = [
     "price": 75,
     "offerPrice": 70,
     "originalPrice": 75,
-    "image": "/products/KothamalliAroma.PNG",
+    "image": "/products/rice-mix-kothamalli-normal.jpg",
     "images": [
-      "/products/KothamalliAroma.PNG",
-      "/products/KothamalliAromaLabel.PNG"
+      "/products/rice-mix-kothamalli-normal.jpg",
+      "/products/rice-mix-kothamalli-wide.jpg",
+      "/products/rice-mix-kothamalli-top.jpg",
+      "/products/rice-mix-kothamalli-product.jpg",
+      "/products/rice-mix-kothamalli-back.jpg"
     ],
     "description": "Mansara Coriander Rice Podi Mix (Kothamalli Aroma) brings together the soothing, citrusy fragrance of roasted coriander seeds (Dhaniya) and wholesome South Indian lentils. Coriander has long been valued in traditional Indian cooking for its cooling digestive properties, ability to soothe the stomach, and rich dietary fiber profile. This aromatic rice seasoning is prepared by slow-roasting whole coriander seeds alongside Urad Dal, cumin, dried red chilies, and a hint of asafoetida (hing) to capture peak essential oils and flavor.\n\nOffering a refreshing departure from heavy spicy powders, Kothamalli Podi delivers a subtle, savory warmth that appeals to all age groups. It pairs wonderfully with warm white rice, brown rice, or millet rice drizzled with fresh ghee or sesame oil. It can also be sprinkled over dahi rice (curd rice) for an instant flavor upgrade. Hand-crafted in small batches without artificial additives or preservatives, Mansara Coriander Podi is your go-to solution for quick, digestive-friendly, and comforting home meals.",
     "ingredients": "Dhaniya (Coriander), Urad Dhal, Jeera, Red Chilli, Salt, Asafoetida",
@@ -612,10 +643,13 @@ export const fallbackProducts: Product[] = [
     "price": 75,
     "offerPrice": 70,
     "originalPrice": 75,
-    "image": "/products/MurungaiVital.PNG",
+    "image": "/products/rice-mix-murungai-normal.jpg",
     "images": [
-      "/products/MurungaiVital.PNG",
-      "/products/MurungaiVitalLabel.PNG"
+      "/products/rice-mix-murungai-normal.jpg",
+      "/products/rice-mix-murungai-wide.jpg",
+      "/products/rice-mix-murungai-top.jpg",
+      "/products/rice-mix-murungai-product.jpg",
+      "/products/rice-mix-murungai-back.jpg"
     ],
     "description": "Mansara Moringa Rice Podi Mix (Murungai Vital) infuses the powerhouse nutrition of fresh drumstick leaves (Murungai Keerai) with slow-roasted lentils and aromatic Indian spices. Recognized globally as a plant-based superfood, moringa leaves are traditionally valued as a nutrient-dense addition to daily meals, naturally containing iron, calcium, and antioxidants.\n\nWe source young, tender moringa leaves, shade-dry them to preserve their vivid green color and micronutrients, and blend them with roasted Bengal gram, Urad dal, tamarind, and black pepper. The result is a savory, nutrient-dense podi that makes incorporating greens into your daily family diet effortless. Simply stir a generous spoon into warm cooked rice with ghee, or sprinkle over idlies, dosas, and parathas. Free from chemicals, artificial thickeners, and preservatives, Mansara Moringa Rice Podi offers a delicious, traditional pathway to daily vitality and wellness.",
     "ingredients": "Murungai Keerai (Moringa Leaves), Gram Dhal, Urad Dhal, Tamarind, Salt, Asafoetida",
@@ -658,10 +692,13 @@ export const fallbackProducts: Product[] = [
     "price": 75,
     "offerPrice": 70,
     "originalPrice": 75,
-    "image": "/products/PirandaiPower.PNG",
+    "image": "/products/rice-mix-pirandai-normal.jpg",
     "images": [
-      "/products/PirandaiPower.PNG",
-      "/products/PirandaiPowerLabel.PNG"
+      "/products/rice-mix-pirandai-normal.jpg",
+      "/products/rice-mix-pirandai-wide.jpg",
+      "/products/rice-mix-pirandai-top.jpg",
+      "/products/rice-mix-pirandai-product.jpg",
+      "/products/rice-mix-pirandai-back.jpg"
     ],
     "description": "Mansara Pirandai Rice Podi Mix (Pirandai Power) is a specialized herbal-lentil blend featuring fresh Pirandai (Veldt Grape / Cissus quadrangularis), an ancient climbing herb traditionally used in Siddha cooking for digestive wellness. Because fresh Pirandai requires careful harvesting and roasting to eliminate natural itchiness, our expert recipe prepares it according to time-tested traditional methods.\n\nCombined with protein-rich Urad Dal, Bengal gram, cumin, black pepper, and tangy tamarind, this podi transforms a therapeutic herb into a delicious daily rice mix. It features a unique, tangy-spicy flavor profile that stimulates appetite and aids digestion after heavy meals. Enjoy it stirred into hot rice with sesame oil or ghee, or as a flavorful accompaniment to breakfast tiffins. Prepared without synthetic colors or chemical preservatives, Mansara Pirandai Podi is a genuine health-restorative specialty.",
     "ingredients": "Pirandai (Adamant Creeper), Tamarind, Gram Dhal, Urad Dhal, Jeera, Pepper, Salt, Asafoetida",
@@ -704,11 +741,13 @@ export const fallbackProducts: Product[] = [
     "price": 165,
     "offerPrice": null,
     "originalPrice": 195,
-    "image": "/products/urad-classic-front.jpg",
+    "image": "/products/urad-classic-250g-front.jpg",
     "images": [
-      "/products/urad-classic-front.jpg",
-      "/products/urad-classic-back.jpg",
-      "/products/urad-classic-side.jpg"
+      "/products/urad-classic-250g-normal.jpg",
+      "/products/urad-classic-250g-wide.jpg",
+      "/products/urad-classic-250g-top.jpg",
+      "/products/urad-classic-250g-product.jpg",
+      "/products/urad-classic-250g-back.jpg"
     ],
     "description": "Mansara Classic Urad Health Mix (250g Family Pack) is crafted for daily household nourishment and bone strength. Made primarily from premium sprouted black gram (Urad Dal) slow-roasted in small batches, this traditional porridge mix provides high plant protein and digestive comfort without added sugar or artificial flavorings.",
     "ingredients": "Black Gram (Urad Dal), Samba Wheat, Fried Gram, Cardamom.",
@@ -743,11 +782,13 @@ export const fallbackProducts: Product[] = [
     "price": 165,
     "offerPrice": null,
     "originalPrice": 195,
-    "image": "/products/urad-salt-pepper-front.jpg",
+    "image": "/products/urad-salt-pepper-250g-front.jpg",
     "images": [
-      "/products/urad-salt-pepper-front.jpg",
-      "/products/urad-salt-pepper-back.jpg",
-      "/products/urad-salt-pepper-side.jpg"
+      "/products/urad-salt-pepper-250g-normal.jpg",
+      "/products/urad-salt-pepper-250g-wide.jpg",
+      "/products/urad-salt-pepper-250g-top.jpg",
+      "/products/urad-salt-pepper-250g-product.jpg",
+      "/products/urad-salt-pepper-250g-back.jpg"
     ],
     "description": "Mansara Savoury Urad Health Mix with Salt n Pepper (250g Family Pack) offers a comforting, digestion-boosting twist on traditional South Indian ulunthankanji. Blended with coarse black pepper, aromatic cumin, and sprouted urad dal, it delivers a warm, gut-friendly savory meal ideal for wholesome family dinners.",
     "ingredients": "Black Gram (60.9%), Kavuni Rice (30%), Black Pepper (4.55%), Cumin Seeds (2.73%), Salt (1.82%).",
@@ -782,11 +823,13 @@ export const fallbackProducts: Product[] = [
     "price": 165,
     "offerPrice": null,
     "originalPrice": 195,
-    "image": "/products/urad-millet-magic-front.jpg",
+    "image": "/products/urad-millet-magic-250g-front.jpg",
     "images": [
-      "/products/urad-millet-magic-front.jpg",
-      "/products/urad-millet-magic-back.jpg",
-      "/products/urad-millet-magic-side.jpg"
+      "/products/urad-millet-magic-250g-normal.jpg",
+      "/products/urad-millet-magic-250g-wide.jpg",
+      "/products/urad-millet-magic-250g-top.jpg",
+      "/products/urad-millet-magic-250g-product.jpg",
+      "/products/urad-millet-magic-250g-back.jpg"
     ],
     "description": "Mansara Millet Magic Urad Health Mix (250g Family Pack) combines muscle-building sprouted black gram with a mineral-rich multi-millet complex (finger, foxtail, pearl, little, kodo, barnyard millets, and jowar). Designed for daily fitness, low-GI energy, and sustained family vitality.",
     "ingredients": "Black Gram, Finger Millet, Foxtail Millet, Pearl Millet, Little Millet, Kodo Millet, Barnyard Millet, Jowar, Bajra, Spices.",
@@ -821,11 +864,13 @@ export const fallbackProducts: Product[] = [
     "price": 165,
     "offerPrice": null,
     "originalPrice": 195,
-    "image": "/products/urad-premium-front.jpg",
+    "image": "/products/urad-premium-250g-front.jpg",
     "images": [
-      "/products/urad-premium-front.jpg",
-      "/products/urad-premium-back.jpg",
-      "/products/urad-premium-side.jpg"
+      "/products/urad-premium-250g-normal.jpg",
+      "/products/urad-premium-250g-wide.jpg",
+      "/products/urad-premium-250g-top.jpg",
+      "/products/urad-premium-250g-product.jpg",
+      "/products/urad-premium-250g-back.jpg"
     ],
     "description": "Mansara Premium Multi-Grain Urad Porridge Mix (250g Family Pack) is formulated with fine-ground black gram, ragi, and rare heirloom Indian rice varieties (Karuppu Kavuni, Mappillai Samba, Bamboo Rice, and Red Rice). Tailored for physical stamina, immunity building, and active lifestyle recovery.",
     "ingredients": "Black Gram, Ragi, Kavuni Rice, Mappillai Samba Rice, Bamboo Rice, Red Rice, Hand-Pounded Rice.",
@@ -860,11 +905,13 @@ export const fallbackProducts: Product[] = [
     "price": 165,
     "offerPrice": null,
     "originalPrice": 195,
-    "image": "/products/black-rice-delight-front.jpg",
+    "image": "/products/black-rice-delight-250g-front.jpg",
     "images": [
-      "/products/black-rice-delight-front.jpg",
-      "/products/black-rice-delight-back.jpg",
-      "/products/black-rice-delight-side.jpg"
+      "/products/black-rice-delight-250g-normal.jpg",
+      "/products/black-rice-delight-250g-wide.jpg",
+      "/products/black-rice-delight-250g-top.jpg",
+      "/products/black-rice-delight-250g-product.jpg",
+      "/products/black-rice-delight-250g-back.jpg"
     ],
     "description": "Mansara Black Rice Delight Porridge Mix (250g Family Pack) harnesses the high-antioxidant power of ancient Karuppu Kavuni rice, samba wheat, barley, and horse gram. Abundant in bio-available iron, anthocyanins, and dietary fiber, it supports cardiac wellness, metabolic balance, and steady energy.",
     "ingredients": "Kavuni Rice (49.50%), Samba Wheat (24.75%), Barley (12.87%), Horse Gram (12.87%).",

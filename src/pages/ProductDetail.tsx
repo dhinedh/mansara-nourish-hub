@@ -106,7 +106,8 @@ const ProductDetail: React.FC = () => {
   // Update selected image when product loads
   React.useEffect(() => {
     if (product) {
-      setSelectedImage(product.image);
+      const validGallery = (product.images || [product.image]).filter(img => !img.includes('zoom'));
+      setSelectedImage(validGallery[0] || product.image);
       loadReviews();
       if (user) {
         checkEligibility();
@@ -393,8 +394,9 @@ const ProductDetail: React.FC = () => {
     });
   }
 
-  const imageUrls = product.images && product.images.length > 0
-    ? product.images.map(img => img.startsWith('http') ? img : `https://www.mansarafoods.com${img.startsWith('/') ? '' : '/'}${img}`)
+  const filteredProductImages = (product.images && product.images.length > 0 ? product.images : [product.image]).filter(Boolean).filter(img => !img.includes('zoom'));
+  const imageUrls = filteredProductImages.length > 0
+    ? filteredProductImages.map(img => img.startsWith('http') ? img : `https://www.mansarafoods.com${img.startsWith('/') ? '' : '/'}${img}`)
     : [product.image ? (product.image.startsWith('http') ? product.image : `https://www.mansarafoods.com${product.image.startsWith('/') ? '' : '/'}${product.image}`) : "https://www.mansarafoods.com/logo.png"];
 
   const productSchema: any = {
@@ -463,27 +465,32 @@ const ProductDetail: React.FC = () => {
                   />
                 </div>
                 {/* Thumbnails */}
-                {product.images && product.images.length > 1 && (
-                  <div className="flex gap-2 overflow-x-auto pb-2">
-                    {product.images.map((img, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setSelectedImage(img)}
-                        className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImage === img ? 'border-[#1F2A7C]' : 'border-transparent hover:border-gray-300'
+                {(() => {
+                  const gallery = (product.images || [product.image]).filter(Boolean).filter(img => !img.includes('zoom'));
+                  if (gallery.length <= 1) return null;
+                  return (
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {gallery.map((img, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedImage(img)}
+                          className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${
+                            (selectedImage === img || (!selectedImage && idx === 0)) ? 'border-[#1F2A7C]' : 'border-transparent hover:border-gray-300'
                           }`}
-                      >
-                        <ProgressiveImage
-                          src={optimizeImage(img, 160)}
-                          alt={`${product.name} image view ${idx + 1}`}
-                          className="w-full h-full object-cover"
-                          width={160}
-                          height={160}
-                          loading="lazy"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
+                        >
+                          <ProgressiveImage
+                            src={optimizeImage(img, 160)}
+                            alt={`${product.name} image view ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                            width={160}
+                            height={160}
+                            loading="lazy"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Product Details - Scrollable */}

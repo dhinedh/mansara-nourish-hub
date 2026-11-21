@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
-const DEFAULT_HARDCODED_IMAGE = '/products/urad-classic-front.jpg';
+const DEFAULT_HARDCODED_IMAGE = '/products/urad-classic-250g-front.jpg';
 
 interface ProgressiveImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     src: string;

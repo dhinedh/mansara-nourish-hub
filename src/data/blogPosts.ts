@@ -29,7 +29,7 @@ export const blogPosts: BlogPost[] = [
     createdAt: "2026-08-10T00:00:00.000Z",
     updatedAt: "2026-08-10T08:00:00.000Z",
     readTime: "7 min read",
-    image: "/products/urad-classic-front.jpg",
+    image: "/products/urad-classic-250g-front.jpg",
     content: `
       <h2>The Timeless Goodness of Sathu Maavu for Babies & Infants</h2>
       <p>
@@ -66,9 +66,9 @@ export const blogPosts: BlogPost[] = [
       </p>
     `,
     relatedProducts: [
-      { name: "Nutrimix Super Health Mix", slug: "nutrimix-super-health-mix", image: "/products/urad-classic-front.jpg", price: 160 },
-      { name: "Urad Health Mix – Classic", slug: "urad-porridge-mix-classic", image: "/products/urad-classic-front.jpg", price: 70 },
-      { name: "Ragi Choco Malt", slug: "ragi-choco-malt", image: "/products/urad-premium-front.jpg", price: 180 }
+      { name: "Nutrimix Super Health Mix", slug: "nutrimix-super-health-mix", image: "/products/nutrimix-normal.jpg", price: 160 },
+      { name: "Urad Health Mix – Classic", slug: "urad-porridge-mix-classic", image: "/products/urad-classic-250g-front.jpg", price: 165 },
+      { name: "Ragi Choco Malt", slug: "ragi-choco-malt", image: "/products/ragi-choco-malt-normal.jpg", price: 180 }
     ]
   },
   {
@@ -83,7 +83,7 @@ export const blogPosts: BlogPost[] = [
     createdAt: "2026-08-11T00:00:00.000Z",
     updatedAt: "2026-08-11T10:30:00.000Z",
     readTime: "6 min read",
-    image: "/products/black-rice-delight-front.jpg",
+    image: "/products/black-rice-delight-250g-front.jpg",
     content: `
       <h2>Transform Your Morning Routine with Health Mix for Weight Loss</h2>
       <p>
@@ -117,9 +117,9 @@ export const blogPosts: BlogPost[] = [
       </p>
     `,
     relatedProducts: [
-      { name: "Health Mix – Black Rice Delight", slug: "black-rice-delight-porridge-mix", image: "/products/black-rice-delight-front.jpg", price: 70 },
-      { name: "Urad Health Mix – Premium", slug: "urad-porridge-mix-premium", image: "/products/urad-premium-front.jpg", price: 75 },
-      { name: "Nutrimix Super Health Mix", slug: "nutrimix-super-health-mix", image: "/products/urad-classic-front.jpg", price: 160 }
+      { name: "Health Mix – Black Rice Delight", slug: "black-rice-delight-porridge-mix", image: "/products/black-rice-delight-250g-front.jpg", price: 180 },
+      { name: "Urad Health Mix – Premium", slug: "urad-porridge-mix-premium", image: "/products/urad-premium-250g-front.jpg", price: 165 },
+      { name: "Nutrimix Super Health Mix", slug: "nutrimix-super-health-mix", image: "/products/nutrimix-normal.jpg", price: 160 }
     ]
   },
   {
@@ -134,7 +134,7 @@ export const blogPosts: BlogPost[] = [
     createdAt: "2026-08-11T00:00:00.000Z",
     updatedAt: "2026-08-12T14:15:00.000Z",
     readTime: "7 min read",
-    image: "/products/urad-millet-magic-front.jpg",
+    image: "/products/urad-millet-magic-250g-front.jpg",
     content: `
       <h2>Managing Glycemic Health with Millet Mix for Diabetics</h2>
       <p>
@@ -169,9 +169,9 @@ export const blogPosts: BlogPost[] = [
       </p>
     `,
     relatedProducts: [
-      { name: "Urad Health Mix – Millet Magic", slug: "urad-porridge-mix-millet-magic", image: "/products/urad-millet-magic-front.jpg", price: 70 },
-      { name: "Health Mix – Black Rice Delight", slug: "black-rice-delight-porridge-mix", image: "/products/black-rice-delight-front.jpg", price: 70 },
-      { name: "Millet Fusion Idly Podi", slug: "millet-fusion-idly-podi", image: "/products/MilletFusionIdlyPodiFront.jpg", price: 75 }
+      { name: "Urad Health Mix – Millet Magic", slug: "urad-porridge-mix-millet-magic", image: "/products/urad-millet-magic-250g-front.jpg", price: 165 },
+      { name: "Health Mix – Black Rice Delight", slug: "black-rice-delight-porridge-mix", image: "/products/black-rice-delight-250g-front.jpg", price: 180 },
+      { name: "Millet Fusion Idly Podi", slug: "millet-fusion-idly-podi", image: "/products/idly-podi-normal.jpg", price: 75 }
     ]
   },
   {
@@ -186,7 +186,7 @@ export const blogPosts: BlogPost[] = [
     createdAt: "2026-08-12T00:00:00.000Z",
     updatedAt: "2026-08-13T09:45:00.000Z",
     readTime: "6 min read",
-    image: "/products/SaltnPepperFront.jpg",
+    image: "/products/urad-salt-pepper-250g-front.jpg",
     content: `
       <h2>Bringing Authentic Taste of Home to the Global Tamil Diaspora</h2>
       <p>
@@ -221,9 +221,9 @@ export const blogPosts: BlogPost[] = [
       </p>
     `,
     relatedProducts: [
-      { name: "Nutrimix Super Health Mix", slug: "nutrimix-super-health-mix", image: "/products/urad-classic-front.jpg", price: 160 },
-      { name: "Urad Health Mix – Classic", slug: "urad-porridge-mix-classic", image: "/products/urad-classic-front.jpg", price: 70 },
-      { name: "Millet Fusion Idly Podi", slug: "millet-fusion-idly-podi", image: "/products/MilletFusionIdlyPodiFront.jpg", price: 75 }
+      { name: "Nutrimix Super Health Mix", slug: "nutrimix-super-health-mix", image: "/products/nutrimix-normal.jpg", price: 160 },
+      { name: "Urad Health Mix – Classic", slug: "urad-porridge-mix-classic", image: "/products/urad-classic-250g-front.jpg", price: 165 },
+      { name: "Millet Fusion Idly Podi", slug: "millet-fusion-idly-podi", image: "/products/idly-podi-normal.jpg", price: 75 }
     ]
   }
 ];

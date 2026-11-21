@@ -5,8 +5,19 @@ import logo from '@/assets/logo.png';
 
 import { useContent } from '@/context/ContentContext';
 
+const OFFICIAL_ADDRESS = "Flat No. B4, No.13, Balaji Nagar 1st Street Extn,\nNumbal, Poonamallee, Thiruvallur – 600077,\nTamil Nadu, India";
+const OFFICIAL_PHONE = "+91 88388 87064";
+
 const Footer: React.FC = () => {
   const { settings } = useContent();
+
+  const cleanAddress = (settings?.address && !settings.address.toLowerCase().includes('traditional hub') && settings.address.trim().length > 5)
+    ? settings.address
+    : OFFICIAL_ADDRESS;
+
+  const cleanPhone = (settings?.phone_number && !settings.phone_number.includes('9838887064') && settings.phone_number.trim().length > 5)
+    ? settings.phone_number
+    : OFFICIAL_PHONE;
 
   return (
     <footer className="bg-[#131A4E] text-brand-cream border-t border-brand-cream/10">
@@ -20,9 +31,9 @@ const Footer: React.FC = () => {
             </div>
             <address className="not-italic text-brand-cream/70 text-sm space-y-2">
               <p className="font-semibold text-brand-yellow">MansaraFoods Private Limited</p>
-              <p className="whitespace-pre-line">{settings?.address || 'Chennai, Tamil Nadu, India'}</p>
+              <p className="whitespace-pre-line leading-relaxed">{cleanAddress}</p>
               <p>Email: {settings?.contact_email || 'contact@mansarafoods.com'}</p>
-              <p>Phone: {settings?.phone_number || '+91-883 888 7064'}</p>
+              <p>Phone: {cleanPhone}</p>
             </address>
             <div className="mt-6">
               <h4 className="font-heading font-semibold text-sm text-brand-yellow mb-3">Connect with Us</h4>

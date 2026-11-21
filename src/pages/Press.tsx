@@ -23,7 +23,7 @@ const fallbackPressReleases: PressRelease[] = [
         _id: "press-01",
         title: "Mansara Foods Launches Export-Grade Traditional Health Mix Range",
         excerpt: "Chennai-based traditional food brand Mansara Foods introduces farm-sourced sprouted health mixes and herbal podis with global shipping compliance.",
-        image: "/products/urad-classic-front.jpg",
+        image: "/products/urad-classic-250g-front.jpg",
         slug: "mansara-foods-launches-export-grade-traditional-health-mix-range",
         createdAt: "2026-08-01T00:00:00.000Z",
         publishDate: "2026-08-01T00:00:00.000Z"

@@ -72,7 +72,7 @@ const DEFAULT_CONTENT: PageContent[] = [
         slug: 'contact',
         sections: {
             'intro': 'We\'re Here to Help. Every message matters to us.',
-            'address': 'MANSARA FOODS\nNo. 15, Government Hospital Opposite,\nTimiri Road, Kalavai, Ranipet,\nTamil Nadu – 632506, India',
+            'address': 'MANSARA FOODS PVT LTD\nFlat No. B4, No.13, Balaji Nagar 1st Street Extn,\nNumbal, Poonamallee, Thiruvallur – 600077,\nTamil Nadu, India',
             'email': 'contact@mansarafoods.com',
             'phone': '+91 88388 87064'
         }
@@ -93,7 +93,7 @@ const DEFAULT_CONTENT: PageContent[] = [
 // ========================================
 // CACHING CONFIGURATION
 // ========================================
-const CACHE_KEY = 'mansara-content-cache';
+const CACHE_KEY = 'mansara-content-cache-v4';
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes (increased from 10)
 const STALE_WHILE_REVALIDATE = 5 * 60 * 1000; // Show stale for 5 min while fetching
 
@@ -220,15 +220,24 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     });
                 }
 
+                // Sanitize settings to prevent placeholder address
+                const cleanSettings = { ...(apiSettings || {}) };
+                if (!cleanSettings.address || cleanSettings.address.toLowerCase().includes('traditional hub')) {
+                    cleanSettings.address = "Flat No. B4, No.13, Balaji Nagar 1st Street Extn, Numbal, Poonamallee, Thiruvallur – 600077, Tamil Nadu, India";
+                }
+                if (!cleanSettings.phone_number || cleanSettings.phone_number.includes('9838887064')) {
+                    cleanSettings.phone_number = "+91 88388 87064";
+                }
+
                 const newData = {
                     banners: normalizedBanners,
                     contents: mergedContent,
-                    settings: apiSettings
+                    settings: cleanSettings
                 };
 
                 setBanners(normalizedBanners);
                 setContents(mergedContent);
-                setSettings(apiSettings || {});
+                setSettings(cleanSettings);
 
                 // Cache data
                 cacheData(newData);

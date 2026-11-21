@@ -128,9 +128,9 @@ const Contact: React.FC = () => {
                     <MapPin className="h-7 w-7 text-primary-foreground" />
                   </div>
                   <div>
-                    <h4 className="font-heading text-lg font-bold text-foreground mb-2">Our Address</h4>
+                    <h4 className="font-heading text-lg font-bold text-foreground mb-2">Registered Office &amp; Facility</h4>
                     <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {getContent('contact', 'address', "MANSARA FOODS\nNo. 15, Government Hospital Opposite,\nTimiri Road, Kalavai, Ranipet,\nTamil Nadu – 632506, India")}
+                      {getContent('contact', 'address', "MANSARA FOODS PVT LTD\nFlat No. B4, No.13, Balaji Nagar 1st Street Extn,\nNumbal, Poonamallee, Thiruvallur – 600077,\nTamil Nadu, India\n\nManufacturing Facility:\nNo. 15, Government Hospital Opposite,\nTimiri Road, Kalavai, Ranipet,\nTamil Nadu – 632506, India")}
                     </p>
                   </div>
                 </div>

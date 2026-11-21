@@ -18,6 +18,7 @@ interface BlogPost {
     slug?: string;
     createdAt: string;
     author: string;
+    category?: string;
 }
 
 const Blog = () => {

@@ -34,8 +34,8 @@ export interface Product {
     isOffer: boolean;
     isNewArrival: boolean;
     isFeatured: boolean;
-    isActive: boolean;
-    stock: number;
+    isActive?: boolean;
+    stock?: number;
     highlights?: string[];
     nutrition?: string;
     compliance?: string;
@@ -129,7 +129,7 @@ const extractArray = (data: any, key: string): any[] => {
 
 const getToken = () => localStorage.getItem('mansara-token') || '';
 
-const CACHE_KEY = 'mansara-store-cache-v6'; // Bumped version to force cache invalidation
+const CACHE_KEY = 'mansara-store-cache-v9'; // Bumped to v9: removed obsolete 100g mockup pngs, corrected NutriMix title, ensured 250g photoshoot images across cards
 
 // ========================================
 // STORE PROVIDER
@@ -198,10 +198,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 delete cleanStaticP.offerPrice;
                 delete cleanStaticP.originalPrice;
 
-                // Ensure non-empty arrays and strings don't get erased by blank API values
-                const safeImages = (Array.isArray(apiP.images) && apiP.images.length > 0)
-                    ? apiP.images
-                    : (cleanStaticP.images || (apiP.image ? [apiP.image] : []));
+                // Ensure non-empty arrays and strings don't get erased by blank or partial API values
+                // If static fallback has full gallery (5+ angles), give it priority over incomplete API/DB 3-image fallbacks
+                let safeImages = (cleanStaticP.images && cleanStaticP.images.length >= (apiP.images?.length || 0))
+                    ? cleanStaticP.images
+                    : ((Array.isArray(apiP.images) && apiP.images.length > 0)
+                        ? apiP.images
+                        : (cleanStaticP.images || (apiP.image ? [apiP.image] : [])));
+
+                if (Array.isArray(safeImages)) {
+                    safeImages = safeImages.filter((img: string) => !img.includes('zoom'));
+                }
 
                 const safeDescription = (apiP.description && apiP.description.trim().length > 0 && !apiP.description.includes('Authentic South Indian health mix product prepared in Chennai using traditional slow-roasting'))
                     ? apiP.description
@@ -230,6 +237,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 if (apiP.name === 'Rice Podi Mix') {
                     apiP.name = 'Home Style Paruppu Podi';
                 }
+                if (apiP.name && apiP.name.includes('Nutriminix')) {
+                    apiP.name = apiP.name.replace(/Nutriminix/g, 'NutriMix');
+                }
+
+                let cleanImage = apiP.image || cleanStaticP.image || (safeImages && safeImages[0]) || '';
+                if (cleanImage.includes('MilletFusionIdlyPodi') || cleanImage.includes('TraditionalIdlyPodi')) {
+                    cleanImage = '/products/idly-podi-normal.jpg';
+                } else if (cleanImage.includes('NutriMix.PNG')) {
+                    cleanImage = '/products/nutrimix-normal.jpg';
+                } else if (cleanImage.includes('RagiChocoMalt.PNG')) {
+                    cleanImage = '/products/ragi-choco-malt-normal.jpg';
+                }
 
                 // Robust Pricing Normalization
                 const normalizePrice = (p: any) => {
@@ -252,6 +271,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 const merged = {
                     ...cleanStaticP,
                     ...apiP,
+                    image: cleanImage,
                     images: safeImages,
                     description: safeDescription,
                     ingredients: safeIngredients,
