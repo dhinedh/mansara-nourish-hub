@@ -350,13 +350,6 @@ const ProductDetail: React.FC = () => {
     return d.toISOString().split('T')[0];
   }, []);
 
-  // Filter 4 related products for internal linking (same category prioritized)
-  const relatedProducts = React.useMemo(() => {
-    if (!product || !allProducts) return [];
-    const sameCategory = allProducts.filter(p => p.slug !== product.slug && p.category === product.category && (p as any).isActive !== false);
-    const otherProducts = allProducts.filter(p => p.slug !== product.slug && p.category !== product.category && (p as any).isActive !== false);
-    return [...sameCategory, ...otherProducts].slice(0, 4);
-  }, [product, allProducts]);
 
   // Determine safe category name for keywords and breadcrumbs (avoiding raw MongoDB ObjectIds)
   const categoryName = (product.category && !/^[0-9a-fA-F]{24}$/.test(product.category))
@@ -818,19 +811,6 @@ const ProductDetail: React.FC = () => {
                   </div>
                 </section>
 
-                {/* You May Also Like Section (Internal Linking) */}
-                {relatedProducts.length > 0 && (
-                  <section className="mt-12 border-t pt-8">
-                    <h2 className="text-2xl font-bold mb-6 font-heading" style={{ color: '#1F2A7C' }}>
-                      Related Traditional Products
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {relatedProducts.map((relProd) => (
-                        <ProductCard key={relProd.id || relProd.slug} product={relProd as any} />
-                      ))}
-                    </div>
-                  </section>
-                )}
 
                 {/* Hub Pages & Explore More Links (Internal Linking) */}
                 <section className="mt-12 border-t pt-8">
