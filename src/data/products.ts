@@ -37,8 +37,10 @@ export interface Product {
     weight: string;
     price: number;
     offerPrice?: number;
+    originalPrice?: number;
     stock?: number;
     sku?: string;
+    _id?: string;
   }[];
 }
 
