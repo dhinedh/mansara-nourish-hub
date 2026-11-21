@@ -129,7 +129,7 @@ const extractArray = (data: any, key: string): any[] => {
 
 const getToken = () => localStorage.getItem('mansara-token') || '';
 
-const CACHE_KEY = 'mansara-store-cache-v9'; // Bumped to v9: removed obsolete 100g mockup pngs, corrected NutriMix title, ensured 250g photoshoot images across cards
+const CACHE_KEY = 'mansara-store-cache-v10'; // Bumped to v10: updated Millet Fusion & Traditional Idly Podi to 100g Jar photoshoot assets
 
 // ========================================
 // STORE PROVIDER
@@ -242,8 +242,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 }
 
                 let cleanImage = apiP.image || cleanStaticP.image || (safeImages && safeImages[0]) || '';
-                if (cleanImage.includes('MilletFusionIdlyPodi') || cleanImage.includes('TraditionalIdlyPodi')) {
-                    cleanImage = '/products/idly-podi-normal.jpg';
+                if (apiP.slug === 'millet-fusion-idly-podi' || cleanStaticP.slug === 'millet-fusion-idly-podi') {
+                    cleanImage = '/products/millet-idly-podi-front.jpg';
+                    safeImages = [
+                        '/products/millet-idly-podi-front.jpg',
+                        '/products/millet-idly-podi-back.jpg'
+                    ];
+                } else if (apiP.slug === 'traditional-idly-podi' || cleanStaticP.slug === 'traditional-idly-podi') {
+                    cleanImage = '/products/traditional-idly-podi-front.jpg';
+                    safeImages = [
+                        '/products/traditional-idly-podi-front.jpg',
+                        '/products/traditional-idly-podi-back.jpg'
+                    ];
+                } else if (cleanImage.includes('MilletFusionIdlyPodi')) {
+                    cleanImage = '/products/millet-idly-podi-front.jpg';
+                } else if (cleanImage.includes('TraditionalIdlyPodi')) {
+                    cleanImage = '/products/traditional-idly-podi-front.jpg';
                 } else if (cleanImage.includes('NutriMix.PNG')) {
                     cleanImage = '/products/nutrimix-normal.jpg';
                 } else if (cleanImage.includes('RagiChocoMalt.PNG')) {

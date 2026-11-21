@@ -29,14 +29,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showBadge = true }) 
 
   // Normalize product data common fields
   const getCleanProductImage = () => {
+    if (product.slug === 'millet-fusion-idly-podi' || product.name?.toLowerCase().includes('millet fusion')) {
+      return '/products/millet-idly-podi-front.jpg';
+    }
+    if (product.slug === 'traditional-idly-podi' || product.name?.toLowerCase().includes('traditional idly')) {
+      return '/products/traditional-idly-podi-front.jpg';
+    }
+
     // If gallery exists, prefer the first non-zoom photoshoot angle
     if (product.images && product.images.length > 0) {
       const validFirst = product.images.find(img => img && !img.includes('zoom'));
       if (validFirst) return validFirst;
     }
     const baseImg = product.image || (product as any).image_url || '';
-    if (baseImg.includes('MilletFusionIdlyPodi') || baseImg.includes('TraditionalIdlyPodi')) {
-      return '/products/idly-podi-normal.jpg';
+    if (baseImg.includes('MilletFusionIdlyPodi')) {
+      return '/products/millet-idly-podi-front.jpg';
+    }
+    if (baseImg.includes('TraditionalIdlyPodi')) {
+      return '/products/traditional-idly-podi-front.jpg';
     }
     if (baseImg.includes('NutriMix.PNG')) {
       return '/products/nutrimix-normal.jpg';
